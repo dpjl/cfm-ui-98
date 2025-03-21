@@ -30,8 +30,8 @@ const Index = () => {
     onSuccess: () => {
       // Show success message
       toast({
-        title: `${selectedImages.length} ${selectedImages.length === 1 ? 'image' : 'images'} deleted`,
-        description: "The selected images have been removed successfully.",
+        title: `${selectedImages.length} ${selectedImages.length === 1 ? 'media' : 'media files'} deleted`,
+        description: "The selected media files have been removed successfully.",
       });
       
       // Reset selected images and close the dialog
@@ -43,7 +43,7 @@ const Index = () => {
     },
     onError: (error) => {
       toast({
-        title: "Error deleting images",
+        title: "Error deleting media files",
         description: error instanceof Error ? error.message : "An unknown error occurred",
         variant: "destructive",
       });
@@ -107,14 +107,14 @@ const Index = () => {
             </h1>
           </div>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-            Browse and manage images that are only in destination folder
+            Browse and manage images and videos that are only in destination folder
           </p>
         </motion.div>
         
         <motion.div variants={itemVariants} className="mb-6 flex justify-between items-center">
           <div>
             <span className="text-sm text-muted-foreground">
-              {selectedImages.length} {selectedImages.length === 1 ? 'image' : 'images'} selected
+              {selectedImages.length} {selectedImages.length === 1 ? 'media file' : 'media files'} selected
             </span>
           </div>
           
@@ -135,7 +135,7 @@ const Index = () => {
           className="glass-panel p-6"
         >
           <Gallery
-            title="Image Gallery"
+            title="Media Gallery"
             images={images}
             selectedImages={selectedImages}
             onSelectImage={handleSelectImage}
