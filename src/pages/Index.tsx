@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Gallery, { ImageItem } from '@/components/Gallery';
@@ -11,21 +10,25 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Define container and item animation variants
 const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { 
+  hidden: {
+    opacity: 0
+  },
+  visible: {
     opacity: 1,
-    transition: { 
+    transition: {
       when: "beforeChildren",
       staggerChildren: 0.1,
       duration: 0.3
     }
   }
 };
-
 const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { 
-    y: 0, 
+  hidden: {
+    y: 20,
+    opacity: 0
+  },
+  visible: {
+    y: 0,
     opacity: 1,
     transition: {
       duration: 0.4,
@@ -33,22 +36,23 @@ const itemVariants = {
     }
   }
 };
-
 const Index = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
-  
+
   // Fetch data from a single directory
-  const { 
-    data: images = [], 
-    isLoading 
+  const {
+    data: images = [],
+    isLoading
   } = useQuery({
     queryKey: ['images', 'directory1'],
-    queryFn: () => fetchImages('directory1'),
+    queryFn: () => fetchImages('directory1')
   });
-  
+
   // Mutation for deleting images
   const deleteMutation = useMutation({
     mutationFn: deleteImages,
@@ -56,52 +60,40 @@ const Index = () => {
       // Show success message
       toast({
         title: `${selectedImages.length} ${selectedImages.length === 1 ? 'media' : 'media files'} deleted`,
-        description: "The selected media files have been removed successfully.",
+        description: "The selected media files have been removed successfully."
       });
-      
+
       // Reset selected images and close the dialog
       setSelectedImages([]);
       setDeleteDialogOpen(false);
-      
+
       // Refetch the image list to reflect the changes
-      queryClient.invalidateQueries({ queryKey: ['images'] });
+      queryClient.invalidateQueries({
+        queryKey: ['images']
+      });
     },
-    onError: (error) => {
+    onError: error => {
       toast({
         title: "Error deleting media files",
         description: error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive",
+        variant: "destructive"
       });
       setDeleteDialogOpen(false);
     }
   });
-  
   const handleSelectImage = (id: string) => {
-    setSelectedImages(prev => 
-      prev.includes(id) 
-        ? prev.filter(imageId => imageId !== id)
-        : [...prev, id]
-    );
+    setSelectedImages(prev => prev.includes(id) ? prev.filter(imageId => imageId !== id) : [...prev, id]);
   };
-  
   const handleDeleteSelected = () => {
     setDeleteDialogOpen(true);
   };
-  
   const confirmDelete = () => {
     deleteMutation.mutate(selectedImages);
   };
-  
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 py-8 px-4 md:py-12">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-7xl mx-auto"
-      >
+  return <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 py-8 px-4 md:py-12">
+      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="max-w-7xl mx-auto">
         <motion.div variants={itemVariants} className="mb-8 text-center">
-          <div className="flex items-center justify-center mb-4">
+          <div className="flex items-left justify-center mb-4">
             <FolderSearch className="h-10 w-10 text-primary mr-2" />
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
               CFM media browser
@@ -119,40 +111,18 @@ const Index = () => {
             </span>
           </div>
           
-          <Button
-            onClick={handleDeleteSelected}
-            variant="destructive"
-            size="sm"
-            className="gap-2"
-            disabled={selectedImages.length === 0 || deleteMutation.isPending}
-          >
+          <Button onClick={handleDeleteSelected} variant="destructive" size="sm" className="gap-2" disabled={selectedImages.length === 0 || deleteMutation.isPending}>
             <Trash2 className="h-4 w-4" />
             {deleteMutation.isPending ? 'Deleting...' : 'Delete Selected'}
           </Button>
         </motion.div>
         
-        <motion.div 
-          variants={itemVariants}
-          className="glass-panel p-6"
-        >
-          <Gallery
-            title="Media Gallery"
-            images={images}
-            selectedImages={selectedImages}
-            onSelectImage={handleSelectImage}
-            isLoading={isLoading}
-          />
+        <motion.div variants={itemVariants} className="glass-panel p-6">
+          <Gallery title="Media Gallery" images={images} selectedImages={selectedImages} onSelectImage={handleSelectImage} isLoading={isLoading} />
         </motion.div>
       </motion.div>
       
-      <DeleteConfirmDialog
-        isOpen={deleteDialogOpen}
-        selectedCount={selectedImages.length}
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteDialogOpen(false)}
-      />
-    </div>
-  );
+      <DeleteConfirmDialog isOpen={deleteDialogOpen} selectedCount={selectedImages.length} onConfirm={confirmDelete} onCancel={() => setDeleteDialogOpen(false)} />
+    </div>;
 };
-
 export default Index;
