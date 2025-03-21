@@ -33,7 +33,6 @@ const Gallery: React.FC<GalleryProps> = ({
 }) => {
   const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
-  const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
   const [previewMedia, setPreviewMedia] = useState<ImageItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
@@ -51,14 +50,6 @@ const Gallery: React.FC<GalleryProps> = ({
     setMounted(true);
     return () => setMounted(false);
   }, []);
-  
-  const handleItemInView = (id: string) => {
-    setVisibleItems(prev => {
-      const newSet = new Set(prev);
-      newSet.add(id);
-      return newSet;
-    });
-  };
   
   const handlePreviewMedia = (mediaId: string) => {
     const media = sortedImages.find(img => img.id === mediaId);
@@ -182,7 +173,6 @@ const Gallery: React.FC<GalleryProps> = ({
                   onSelect={() => onSelectImage(image.id)}
                   onPreview={() => handlePreviewMedia(image.id)}
                   type={image.alt.match(/\.(mp4|webm|ogg|mov)$/i) ? "video" : "image"}
-                  onInView={() => handleItemInView(image.id)}
                   createdAt={image.createdAt}
                 />
               </motion.div>

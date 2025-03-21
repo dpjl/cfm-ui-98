@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -43,28 +43,12 @@ const ImageCard: React.FC<ImageCardProps> = ({
 }) => {
   const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
   
-  // Detect when the component enters or leaves the viewport
-  useEffect(() => {
-    if (!cardRef.current || !onInView) return;
-    
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          onInView();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    
-    observer.observe(cardRef.current);
-    
-    return () => {
-      if (cardRef.current) {
-        observer.unobserve(cardRef.current);
-      }
-    };
+  // Call onInView immediately when component mounts if it exists
+  React.useEffect(() => {
+    if (onInView) {
+      onInView();
+    }
   }, [onInView]);
   
   // Détection basée sur alt (nom de fichier) au lieu de src
@@ -102,7 +86,6 @@ const ImageCard: React.FC<ImageCardProps> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <div 
-                ref={cardRef}
                 className={cn(
                   "image-card group relative", 
                   "aspect-square", // Toujours utiliser un aspect carré
