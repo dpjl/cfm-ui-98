@@ -124,6 +124,10 @@
     @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-glass rounded-xl;
   }
   
+  .dark .glass-panel {
+    @apply bg-slate-900/80 backdrop-blur-sm border border-slate-800/50 shadow-glass rounded-xl;
+  }
+  
   .image-shimmer {
     @apply bg-gradient-to-r from-transparent via-white/10 to-transparent bg-[length:1000px_100%] animate-image-shimmer;
   }
