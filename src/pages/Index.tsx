@@ -93,7 +93,7 @@ const Index = () => {
   return <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 py-8 px-4 md:py-12">
       <motion.div variants={containerVariants} initial="hidden" animate="visible" className="max-w-7xl mx-auto">
         <motion.div variants={itemVariants} className="mb-8 text-center">
-          <div className="flex items-center justify-center mb-4">
+          <div className="flex items-left justify-center mb-4">
             <FolderSearch className="h-10 w-10 text-primary mr-2" />
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
               CFM media browser
