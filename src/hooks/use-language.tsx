@@ -71,6 +71,18 @@ const translations: Translations = {
   deselectAll: {
     en: 'Deselect All',
     fr: 'Tout désélectionner'
+  },
+  mediaGallery: {
+    en: 'Media Gallery',
+    fr: 'Galerie Média'
+  },
+  noMediaFound: {
+    en: 'No media found',
+    fr: 'Aucun média trouvé'
+  },
+  selected: {
+    en: 'selected',
+    fr: 'sélectionné(s)'
   }
 };
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { CheckSquare, Square } from 'lucide-react';
+import { useLanguage } from '@/hooks/use-language';
 
 export interface ImageItem {
   id: string;
@@ -36,6 +37,7 @@ const Gallery: React.FC<GalleryProps> = ({
 }) => {
   const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
+  const { t } = useLanguage();
   
   // Trier les images par date (du plus récent au plus ancien)
   const sortedImages = [...images].sort((a, b) => {
@@ -107,7 +109,7 @@ const Gallery: React.FC<GalleryProps> = ({
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-medium">
-          Media Gallery ({photoCount} photos, {videoCount} videos)
+          {t('mediaGallery')} ({photoCount} {t('photos')}, {videoCount} videos)
         </h2>
         <div className="flex items-center gap-3">
           <Button
@@ -119,24 +121,24 @@ const Gallery: React.FC<GalleryProps> = ({
             {selectedImages.length === sortedImages.length ? (
               <>
                 <Square className="h-4 w-4" />
-                Désélectionner tout
+                {t('deselectAll')}
               </>
             ) : (
               <>
                 <CheckSquare className="h-4 w-4" />
-                Sélectionner tout
+                {t('selectAll')}
               </>
             )}
           </Button>
           <div className="text-sm text-muted-foreground">
-            {selectedImages.filter(id => sortedImages.some(img => img.id === id)).length} selected
+            {selectedImages.filter(id => sortedImages.some(img => img.id === id)).length} {t('selected')}
           </div>
         </div>
       </div>
       
       {sortedImages.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-muted-foreground">No media found</p>
+          <p className="text-muted-foreground">{t('noMediaFound')}</p>
         </div>
       ) : (
         <div className={cn("grid gap-4 flex-1 content-start", columnsClassName)}>
