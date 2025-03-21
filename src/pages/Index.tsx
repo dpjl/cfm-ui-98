@@ -118,17 +118,24 @@ const Index = () => {
   const handleNavigateMedia = (direction: 'prev' | 'next') => {
     if (!previewMedia || images.length === 0) return;
     
-    const currentIndex = images.findIndex(img => img.id === previewMedia.id);
+    // Les images sont déjà triées dans Gallery, utilisons le même ordre ici
+    const sortedImages = [...images].sort((a, b) => {
+      if (!a.createdAt) return 1;
+      if (!b.createdAt) return -1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+    
+    const currentIndex = sortedImages.findIndex(img => img.id === previewMedia.id);
     if (currentIndex === -1) return;
     
     let newIndex;
     if (direction === 'prev') {
-      newIndex = (currentIndex - 1 + images.length) % images.length;
+      newIndex = (currentIndex - 1 + sortedImages.length) % sortedImages.length;
     } else {
-      newIndex = (currentIndex + 1) % images.length;
+      newIndex = (currentIndex + 1) % sortedImages.length;
     }
     
-    setPreviewMedia(images[newIndex]);
+    setPreviewMedia(sortedImages[newIndex]);
   };
   
   const closePreview = () => {
@@ -157,18 +164,12 @@ const Index = () => {
         animate="visible"
         className="max-w-7xl mx-auto"
       >
-        <motion.div variants={itemVariants} className="mb-4 flex items-center justify-center">
-          <FolderSearch className="h-8 w-8 text-primary mr-2" />
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            CFM media browser
-          </h1>
-        </motion.div>
-        
         <motion.div variants={itemVariants} className="mb-6 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              {selectedImages.length} {selectedImages.length === 1 ? 'media file' : 'media files'} selected
-            </span>
+          <div className="flex items-center">
+            <FolderSearch className="h-9 w-9 text-primary mr-3" />
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              CFM media browser
+            </h1>
           </div>
 
           <div className="flex items-center gap-4">
@@ -228,7 +229,11 @@ const Index = () => {
         media={previewMedia}
         isOpen={isPreviewOpen}
         onClose={closePreview}
-        allMedia={images}
+        allMedia={images.sort((a, b) => {
+          if (!a.createdAt) return 1;
+          if (!b.createdAt) return -1;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        })}
         onNavigate={handleNavigateMedia}
       />
       

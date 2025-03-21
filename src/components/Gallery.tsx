@@ -45,7 +45,7 @@ const Gallery: React.FC<GalleryProps> = ({
   });
   
   const videoCount = sortedImages.filter(img => img.alt.match(/\.(mp4|webm|ogg|mov)$/i)).length;
-  const imageCount = sortedImages.length - videoCount;
+  const photoCount = sortedImages.length - videoCount;
   
   useEffect(() => {
     setMounted(true);
@@ -107,7 +107,7 @@ const Gallery: React.FC<GalleryProps> = ({
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-medium">
-          Media Gallery ({imageCount} images, {videoCount} videos)
+          Media Gallery ({photoCount} photos, {videoCount} videos)
         </h2>
         <div className="flex items-center gap-3">
           <Button

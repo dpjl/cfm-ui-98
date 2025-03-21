@@ -167,7 +167,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
       <ContextMenuContent className="w-48">
         <ContextMenuItem onClick={handleDownload} className="cursor-pointer flex items-center gap-2">
           <Download className="h-4 w-4" />
-          <span>Télécharger {isVideo ? 'la vidéo' : 'l\'image'}</span>
+          <span>Télécharger {isVideo ? 'la vidéo' : 'la photo'}</span>
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
