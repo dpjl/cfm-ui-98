@@ -32,7 +32,7 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ media, onClose, isOpen }) =
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative max-w-4xl w-full h-full flex items-center justify-center p-4"
+            className="relative max-w-4xl w-full max-h-[90vh] flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -43,19 +43,19 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ media, onClose, isOpen }) =
               <X className="h-6 w-6" />
             </button>
 
-            <div className="max-h-[90vh] max-w-full overflow-hidden rounded-lg flex items-center justify-center">
+            <div className="max-h-[85vh] max-w-full overflow-hidden rounded-lg flex items-center justify-center">
               {isVideo ? (
                 <video
                   src={media.src}
                   controls
                   autoPlay
-                  className="max-h-[90vh] max-w-full object-contain"
+                  className="max-h-[85vh] max-w-full object-contain"
                 />
               ) : (
                 <img
                   src={media.src}
                   alt={media.alt}
-                  className="max-h-[90vh] max-w-full object-contain"
+                  className="max-h-[85vh] max-w-full object-contain"
                 />
               )}
             </div>
