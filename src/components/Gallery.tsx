@@ -6,6 +6,7 @@ import MediaPreview from './MediaPreview';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
+import { CheckSquare, Square } from 'lucide-react';
 
 export interface ImageItem {
   id: string;
@@ -71,6 +72,20 @@ const Gallery: React.FC<GalleryProps> = ({
     setIsPreviewOpen(false);
     setTimeout(() => setPreviewMedia(null), 300); // Small delay to allow exit animation
   };
+
+  const handleSelectAll = () => {
+    if (selectedImages.length === sortedImages.length) {
+      // Désélectionner tous les médias
+      selectedImages.forEach(id => onSelectImage(id));
+    } else {
+      // Sélectionner tous les médias non sélectionnés
+      sortedImages.forEach(image => {
+        if (!selectedImages.includes(image.id)) {
+          onSelectImage(image.id);
+        }
+      });
+    }
+  };
   
   const imageVariants = {
     hidden: { opacity: 0, scale: 0.8 },
@@ -115,8 +130,28 @@ const Gallery: React.FC<GalleryProps> = ({
         <h2 className="text-lg font-medium">
           Media Gallery ({imageCount} images, {videoCount} videos)
         </h2>
-        <div className="text-sm text-muted-foreground">
-          {selectedImages.filter(id => sortedImages.some(img => img.id === id)).length} selected
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={handleSelectAll}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            {selectedImages.length === sortedImages.length ? (
+              <>
+                <Square className="h-4 w-4" />
+                Désélectionner tout
+              </>
+            ) : (
+              <>
+                <CheckSquare className="h-4 w-4" />
+                Sélectionner tout
+              </>
+            )}
+          </Button>
+          <div className="text-sm text-muted-foreground">
+            {selectedImages.filter(id => sortedImages.some(img => img.id === id)).length} selected
+          </div>
         </div>
       </div>
       
