@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import GalleryContainer from '@/components/GalleryContainer';
+import { LanguageProvider } from '@/hooks/use-language';
 
 // Define container animation variants
 const containerVariants = {
@@ -18,16 +19,18 @@ const containerVariants = {
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 py-6 px-4">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-7xl mx-auto"
-      >
-        <GalleryContainer title="CFM media browser" directory="directory1" />
-      </motion.div>
-    </div>
+    <LanguageProvider>
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 py-6 px-4">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="max-w-7xl mx-auto"
+        >
+          <GalleryContainer title="CFM media browser" directory="directory1" />
+        </motion.div>
+      </div>
+    </LanguageProvider>
   );
 };
 

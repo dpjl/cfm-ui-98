@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { ImageItem } from './Gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
+import { useLanguage } from '@/hooks/use-language';
 
 interface MediaPreviewProps {
   media: ImageItem | null;
@@ -22,6 +23,7 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
   onNavigate 
 }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const { t } = useLanguage();
 
   // Prevent body scroll when preview is open
   useEffect(() => {
@@ -120,7 +122,7 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
               <X className="h-6 w-6" />
             </button>
 
-            {/* Navigation buttons */}
+            {/* Navigation buttons - Now larger */}
             <Button
               variant="ghost"
               size="icon"
@@ -128,10 +130,10 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
                 e.stopPropagation();
                 handleNavigate('prev');
               }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 z-30"
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 h-14 w-14 z-30"
               aria-label="Previous media"
             >
-              <ArrowLeft className="h-8 w-8" />
+              <ArrowLeft className="h-10 w-10" />
             </Button>
 
             <Button
@@ -141,10 +143,10 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
                 e.stopPropagation();
                 handleNavigate('next');
               }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 z-30"
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 h-14 w-14 z-30"
               aria-label="Next media"
             >
-              <ArrowRight className="h-8 w-8" />
+              <ArrowRight className="h-10 w-10" />
             </Button>
 
             <div className="max-w-full max-h-[90vh] overflow-hidden flex items-center justify-center">

@@ -4,6 +4,9 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Trash2, FolderSearch, RefreshCw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { ThemeToggle } from './ThemeToggle';
+import { LanguageToggle } from './LanguageToggle';
+import { useLanguage } from '@/hooks/use-language';
 
 interface GalleryHeaderProps {
   title: string;
@@ -26,18 +29,20 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
   onDeleteSelected,
   isDeletionPending
 }) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="flex justify-between items-center mb-6">
       <div className="flex items-center">
         <FolderSearch className="h-9 w-9 text-primary mr-3" />
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          {title}
+          {t('title')}
         </h1>
       </div>
 
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm whitespace-nowrap">Columns: {columnsCount}</span>
+          <span className="text-sm whitespace-nowrap">{t('columns')} {columnsCount}</span>
           <Slider
             className="w-24 md:w-32"
             value={[columnsCount]}
@@ -56,7 +61,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
           disabled={isLoading}
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          {isLoading ? 'Loading...' : 'Refresh'}
+          {isLoading ? t('loading') : t('refresh')}
         </Button>
         
         <Button
@@ -67,8 +72,13 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
           disabled={selectedImages.length === 0 || isDeletionPending}
         >
           <Trash2 className="h-4 w-4" />
-          {isDeletionPending ? 'Deleting...' : 'Delete Selected'}
+          {isDeletionPending ? t('deleting') : t('delete')}
         </Button>
+        
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   );
