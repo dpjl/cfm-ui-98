@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ImageCard from './ImageCard';
+import MediaPreview from './MediaPreview';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
@@ -31,9 +33,18 @@ const Gallery: React.FC<GalleryProps> = ({
   const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
+  const [previewMedia, setPreviewMedia] = useState<ImageItem | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
-  const videoCount = images.filter(img => img.alt.match(/\.(mp4|webm|ogg|mov)$/i)).length;
-  const imageCount = images.length - videoCount;
+  // Trier les images par date (du plus récent au plus ancien)
+  const sortedImages = [...images].sort((a, b) => {
+    if (!a.createdAt) return 1;
+    if (!b.createdAt) return -1;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+  
+  const videoCount = sortedImages.filter(img => img.alt.match(/\.(mp4|webm|ogg|mov)$/i)).length;
+  const imageCount = sortedImages.length - videoCount;
   
   useEffect(() => {
     setMounted(true);
@@ -46,6 +57,19 @@ const Gallery: React.FC<GalleryProps> = ({
       newSet.add(id);
       return newSet;
     });
+  };
+  
+  const handlePreviewMedia = (mediaId: string) => {
+    const media = sortedImages.find(img => img.id === mediaId);
+    if (media) {
+      setPreviewMedia(media);
+      setIsPreviewOpen(true);
+    }
+  };
+  
+  const closePreview = () => {
+    setIsPreviewOpen(false);
+    setTimeout(() => setPreviewMedia(null), 300); // Small delay to allow exit animation
   };
   
   const imageVariants = {
@@ -92,11 +116,11 @@ const Gallery: React.FC<GalleryProps> = ({
           Media Gallery ({imageCount} images, {videoCount} videos)
         </h2>
         <div className="text-sm text-muted-foreground">
-          {selectedImages.filter(id => images.some(img => img.id === id)).length} selected
+          {selectedImages.filter(id => sortedImages.some(img => img.id === id)).length} selected
         </div>
       </div>
       
-      {images.length === 0 ? (
+      {sortedImages.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <p className="text-muted-foreground">No media found</p>
         </div>
@@ -106,7 +130,7 @@ const Gallery: React.FC<GalleryProps> = ({
           "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
         )}>
           <AnimatePresence>
-            {images.map((image, index) => (
+            {sortedImages.map((image, index) => (
               <motion.div
                 key={image.id}
                 custom={index}
@@ -121,7 +145,7 @@ const Gallery: React.FC<GalleryProps> = ({
                   alt={image.alt}
                   selected={selectedImages.includes(image.id)}
                   onSelect={() => onSelectImage(image.id)}
-                  aspectRatio={index % 5 === 0 ? "portrait" : index % 4 === 0 ? "video" : "square"}
+                  onPreview={() => handlePreviewMedia(image.id)}
                   type={image.alt.match(/\.(mp4|webm|ogg|mov)$/i) ? "video" : "image"}
                   onInView={() => handleItemInView(image.id)}
                   createdAt={image.createdAt}
@@ -131,6 +155,12 @@ const Gallery: React.FC<GalleryProps> = ({
           </AnimatePresence>
         </div>
       )}
+      
+      <MediaPreview
+        media={previewMedia}
+        isOpen={isPreviewOpen}
+        onClose={closePreview}
+      />
     </div>
   );
 };

@@ -23,6 +23,7 @@ interface ImageCardProps {
   alt: string;
   selected: boolean;
   onSelect: () => void;
+  onPreview: () => void;
   aspectRatio?: "portrait" | "square" | "video";
   type?: "image" | "video";
   onInView?: () => void;
@@ -34,6 +35,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
   alt,
   selected,
   onSelect,
+  onPreview,
   aspectRatio = "square",
   type = "image",
   onInView,
@@ -64,12 +66,6 @@ const ImageCard: React.FC<ImageCardProps> = ({
       }
     };
   }, [onInView]);
-  
-  const aspectRatioClass = {
-    portrait: "aspect-[3/4]",
-    square: "aspect-square",
-    video: "aspect-video",
-  }[aspectRatio];
   
   // Détection basée sur alt (nom de fichier) au lieu de src
   const isVideo = type === "video" || alt.match(/\.(mp4|webm|ogg|mov)$/i);
@@ -109,11 +105,11 @@ const ImageCard: React.FC<ImageCardProps> = ({
                 ref={cardRef}
                 className={cn(
                   "image-card group relative", 
-                  aspectRatioClass,
+                  "aspect-square", // Toujours utiliser un aspect carré
                   selected && "selected",
                   !loaded && "animate-pulse bg-muted"
                 )}
-                onClick={onSelect}
+                onClick={onPreview} // On ouvre l'aperçu au clic général
                 onMouseOver={handleMouseOver}
                 onMouseOut={handleMouseOut}
               >
@@ -158,7 +154,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
                 )}
 
                 <div className="image-overlay" />
-                <div className="image-checkbox">
+                <div className="image-checkbox" onClick={(e) => e.stopPropagation()}>
                   <Checkbox 
                     checked={selected}
                     className={cn(
