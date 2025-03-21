@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import Gallery, { ImageItem } from '@/components/Gallery';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import { Button } from '@/components/ui/button';
-import { Trash2, FolderSearch } from 'lucide-react';
+import { Trash2, FolderSearch, RefreshCw } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { fetchImages, deleteImages } from '@/api/imageApi';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Slider } from '@/components/ui/slider';
+import MediaPreview from '@/components/MediaPreview';
 
 // Define container and item animation variants
 const containerVariants = {
@@ -38,12 +40,17 @@ const Index = () => {
   const { toast } = useToast();
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [previewMedia, setPreviewMedia] = useState<ImageItem | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [columnsCount, setColumnsCount] = useState<number>(6);
+  
   const queryClient = useQueryClient();
   
   // Fetch data from a single directory
   const { 
     data: images = [], 
-    isLoading 
+    isLoading,
+    refetch
   } = useQuery({
     queryKey: ['images', 'directory1'],
     queryFn: () => fetchImages('directory1'),
@@ -92,43 +99,113 @@ const Index = () => {
     deleteMutation.mutate(selectedImages);
   };
   
+  const handleRefresh = () => {
+    toast({
+      title: "Refreshing media",
+      description: "Fetching the latest media files..."
+    });
+    refetch();
+  };
+
+  const handlePreviewMedia = (mediaId: string) => {
+    const media = images.find(img => img.id === mediaId);
+    if (media) {
+      setPreviewMedia(media);
+      setIsPreviewOpen(true);
+    }
+  };
+
+  const handleNavigateMedia = (direction: 'prev' | 'next') => {
+    if (!previewMedia || images.length === 0) return;
+    
+    const currentIndex = images.findIndex(img => img.id === previewMedia.id);
+    if (currentIndex === -1) return;
+    
+    let newIndex;
+    if (direction === 'prev') {
+      newIndex = (currentIndex - 1 + images.length) % images.length;
+    } else {
+      newIndex = (currentIndex + 1) % images.length;
+    }
+    
+    setPreviewMedia(images[newIndex]);
+  };
+  
+  const closePreview = () => {
+    setIsPreviewOpen(false);
+    setTimeout(() => setPreviewMedia(null), 300);
+  };
+
+  const getColumnsClassName = () => {
+    switch (columnsCount) {
+      case 2: return "grid-cols-2";
+      case 3: return "grid-cols-2 sm:grid-cols-3";
+      case 4: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4";
+      case 5: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
+      case 6: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6";
+      case 7: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7";
+      case 8: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8";
+      default: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6";
+    }
+  };
+  
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 py-8 px-4 md:py-12">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 py-6 px-4">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
         className="max-w-7xl mx-auto"
       >
-        <motion.div variants={itemVariants} className="mb-8 text-center">
-          <div className="flex items-center justify-center mb-4">
-            <FolderSearch className="h-10 w-10 text-primary mr-2" />
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-              CFM media browser
-            </h1>
-          </div>
-          <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-            Browse and manage images and videos that are only in destination folder
-          </p>
+        <motion.div variants={itemVariants} className="mb-4 flex items-center justify-center">
+          <FolderSearch className="h-8 w-8 text-primary mr-2" />
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+            CFM media browser
+          </h1>
         </motion.div>
         
         <motion.div variants={itemVariants} className="mb-6 flex justify-between items-center">
-          <div>
+          <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">
               {selectedImages.length} {selectedImages.length === 1 ? 'media file' : 'media files'} selected
             </span>
           </div>
-          
-          <Button
-            onClick={handleDeleteSelected}
-            variant="destructive"
-            size="sm"
-            className="gap-2"
-            disabled={selectedImages.length === 0 || deleteMutation.isPending}
-          >
-            <Trash2 className="h-4 w-4" />
-            {deleteMutation.isPending ? 'Deleting...' : 'Delete Selected'}
-          </Button>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm whitespace-nowrap">Columns: {columnsCount}</span>
+              <Slider
+                className="w-24 md:w-32"
+                value={[columnsCount]}
+                min={2}
+                max={8}
+                step={1}
+                onValueChange={(value) => setColumnsCount(value[0])}
+              />
+            </div>
+            
+            <Button
+              onClick={handleRefresh}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              disabled={isLoading}
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              {isLoading ? 'Loading...' : 'Refresh'}
+            </Button>
+            
+            <Button
+              onClick={handleDeleteSelected}
+              variant="destructive"
+              size="sm"
+              className="gap-2"
+              disabled={selectedImages.length === 0 || deleteMutation.isPending}
+            >
+              <Trash2 className="h-4 w-4" />
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete Selected'}
+            </Button>
+          </div>
         </motion.div>
         
         <motion.div 
@@ -141,9 +218,19 @@ const Index = () => {
             selectedImages={selectedImages}
             onSelectImage={handleSelectImage}
             isLoading={isLoading}
+            columnsClassName={getColumnsClassName()}
+            onPreviewMedia={handlePreviewMedia}
           />
         </motion.div>
       </motion.div>
+      
+      <MediaPreview
+        media={previewMedia}
+        isOpen={isPreviewOpen}
+        onClose={closePreview}
+        allMedia={images}
+        onNavigate={handleNavigateMedia}
+      />
       
       <DeleteConfirmDialog
         isOpen={deleteDialogOpen}

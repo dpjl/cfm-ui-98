@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ImageCard from './ImageCard';
-import MediaPreview from './MediaPreview';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
@@ -22,6 +21,8 @@ interface GalleryProps {
   selectedImages: string[];
   onSelectImage: (id: string) => void;
   isLoading?: boolean;
+  columnsClassName?: string;
+  onPreviewMedia?: (id: string) => void;
 }
 
 const Gallery: React.FC<GalleryProps> = ({
@@ -29,12 +30,12 @@ const Gallery: React.FC<GalleryProps> = ({
   images,
   selectedImages,
   onSelectImage,
-  isLoading = false
+  isLoading = false,
+  columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6",
+  onPreviewMedia
 }) => {
   const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
-  const [previewMedia, setPreviewMedia] = useState<ImageItem | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
   // Trier les images par date (du plus récent au plus ancien)
   const sortedImages = [...images].sort((a, b) => {
@@ -50,19 +51,6 @@ const Gallery: React.FC<GalleryProps> = ({
     setMounted(true);
     return () => setMounted(false);
   }, []);
-  
-  const handlePreviewMedia = (mediaId: string) => {
-    const media = sortedImages.find(img => img.id === mediaId);
-    if (media) {
-      setPreviewMedia(media);
-      setIsPreviewOpen(true);
-    }
-  };
-  
-  const closePreview = () => {
-    setIsPreviewOpen(false);
-    setTimeout(() => setPreviewMedia(null), 300); // Small delay to allow exit animation
-  };
 
   const handleSelectAll = () => {
     if (selectedImages.length === sortedImages.length) {
@@ -103,7 +91,7 @@ const Gallery: React.FC<GalleryProps> = ({
     return (
       <div className="flex flex-col h-full">
         <h2 className="text-lg font-medium mb-4">{title}</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className={cn("grid gap-4", columnsClassName)}>
           {Array.from({ length: 12 }).map((_, i) => (
             <div 
               key={`skeleton-${i}`} 
@@ -151,10 +139,7 @@ const Gallery: React.FC<GalleryProps> = ({
           <p className="text-muted-foreground">No media found</p>
         </div>
       ) : (
-        <div className={cn(
-          "grid gap-4 flex-1 content-start",
-          "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
-        )}>
+        <div className={cn("grid gap-4 flex-1 content-start", columnsClassName)}>
           <AnimatePresence>
             {sortedImages.map((image, index) => (
               <motion.div
@@ -171,7 +156,7 @@ const Gallery: React.FC<GalleryProps> = ({
                   alt={image.alt}
                   selected={selectedImages.includes(image.id)}
                   onSelect={() => onSelectImage(image.id)}
-                  onPreview={() => handlePreviewMedia(image.id)}
+                  onPreview={() => onPreviewMedia ? onPreviewMedia(image.id) : null}
                   type={image.alt.match(/\.(mp4|webm|ogg|mov)$/i) ? "video" : "image"}
                   createdAt={image.createdAt}
                 />
@@ -180,12 +165,6 @@ const Gallery: React.FC<GalleryProps> = ({
           </AnimatePresence>
         </div>
       )}
-      
-      <MediaPreview
-        media={previewMedia}
-        isOpen={isPreviewOpen}
-        onClose={closePreview}
-      />
     </div>
   );
 };
