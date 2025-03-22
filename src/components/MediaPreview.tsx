@@ -6,23 +6,26 @@ import { ImageItem } from './Gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { useLanguage } from '@/hooks/use-language';
+import { getMediaUrl, fetchMediaInfo } from '@/api/imageApi';
 
 interface MediaPreviewProps {
-  media: ImageItem | null;
+  mediaId: string | null;
   onClose: () => void;
   isOpen: boolean;
-  allMedia: ImageItem[];
+  allMediaIds: string[];
   onNavigate?: (direction: 'prev' | 'next') => void;
 }
 
 const MediaPreview: React.FC<MediaPreviewProps> = ({ 
-  media, 
+  mediaId, 
   onClose, 
   isOpen, 
-  allMedia = [],
+  allMediaIds = [],
   onNavigate 
 }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [currentMediaInfo, setCurrentMediaInfo] = useState<{ alt: string; createdAt: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { t } = useLanguage();
 
   // Prevent body scroll when preview is open
@@ -39,20 +42,33 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
 
   // Update current index when media changes
   useEffect(() => {
-    if (media && allMedia.length) {
-      const index = allMedia.findIndex(item => item.id === media.id);
+    if (mediaId && allMediaIds.length) {
+      const index = allMediaIds.indexOf(mediaId);
       setCurrentIndex(index);
+      
+      // Fetch media info for the current media
+      setIsLoading(true);
+      fetchMediaInfo(mediaId)
+        .then(info => {
+          setCurrentMediaInfo(info);
+          setIsLoading(false);
+        })
+        .catch(err => {
+          console.error("Error fetching media info:", err);
+          setCurrentMediaInfo({ alt: `Media ${mediaId}`, createdAt: new Date().toISOString() });
+          setIsLoading(false);
+        });
     }
-  }, [media, allMedia]);
+  }, [mediaId, allMediaIds]);
 
   const handleNavigate = (direction: 'prev' | 'next') => {
-    if (!allMedia.length || currentIndex === -1) return;
+    if (!allMediaIds.length || currentIndex === -1) return;
     
     let newIndex = currentIndex;
     if (direction === 'prev') {
-      newIndex = (currentIndex - 1 + allMedia.length) % allMedia.length;
+      newIndex = (currentIndex - 1 + allMediaIds.length) % allMediaIds.length;
     } else {
-      newIndex = (currentIndex + 1) % allMedia.length;
+      newIndex = (currentIndex + 1) % allMediaIds.length;
     }
     
     if (onNavigate) {
@@ -81,12 +97,13 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, currentIndex, allMedia]);
+  }, [isOpen, currentIndex, allMediaIds]);
 
-  if (!media) return null;
+  if (!mediaId) return null;
 
-  const isVideo = media.alt.match(/\.(mp4|webm|ogg|mov)$/i);
-  const currentMedia = currentIndex !== -1 && allMedia[currentIndex] ? allMedia[currentIndex] : media;
+  const currentId = currentIndex !== -1 && allMediaIds[currentIndex] ? allMediaIds[currentIndex] : mediaId;
+  const isVideo = currentMediaInfo?.alt.match(/\.(mp4|webm|ogg|mov)$/i);
+  const mediaUrl = getMediaUrl(currentId);
 
   return (
     <AnimatePresence>
@@ -150,17 +167,19 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
             </Button>
 
             <div className="max-w-full max-h-[90vh] overflow-hidden flex items-center justify-center">
-              {isVideo ? (
+              {isLoading ? (
+                <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              ) : isVideo ? (
                 <video
-                  src={currentMedia.src}
+                  src={mediaUrl}
                   controls
                   autoPlay
                   className="max-w-full max-h-[85vh] object-contain"
                 />
               ) : (
                 <img
-                  src={currentMedia.src}
-                  alt={currentMedia.alt}
+                  src={mediaUrl}
+                  alt={currentMediaInfo?.alt || currentId}
                   className="max-w-full max-h-[85vh] object-contain"
                 />
               )}

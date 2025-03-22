@@ -9,11 +9,11 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 console.log("API Base URL:", API_BASE_URL);
 
 /**
- * Fetches images from the specified directory on the backend
+ * Fetches media IDs from the specified directory on the backend
  */
-export async function fetchImages(directory: string): Promise<ImageItem[]> {
-  const url = `${API_BASE_URL}/images?directory=${encodeURIComponent(directory)}`;
-  console.log("Fetching images from:", url);
+export async function fetchMediaIds(directory: string): Promise<string[]> {
+  const url = `${API_BASE_URL}/media?directory=${encodeURIComponent(directory)}`;
+  console.log("Fetching media IDs from:", url);
   
   try {
     const response = await fetch(url);
@@ -21,31 +21,51 @@ export async function fetchImages(directory: string): Promise<ImageItem[]> {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Server responded with error:", response.status, errorText);
-      throw new Error(`Failed to fetch images: ${response.status} ${response.statusText}`);
+      throw new Error(`Failed to fetch media IDs: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
-    console.log("Received image data:", data);
+    console.log("Received media IDs:", data);
     
-    // Si le serveur ne fournit pas de dates, nous pouvons ajouter des dates factices pour la démonstration
-    // Dans une implémentation réelle, ces dates viendraient du serveur après extraction des métadonnées
-    const enhancedData = data.map((item: ImageItem) => {
-      if (!item.createdAt) {
-        // Générer une date aléatoire pour la démo
-        const randomDate = new Date();
-        randomDate.setFullYear(randomDate.getFullYear() - Math.floor(Math.random() * 3));
-        randomDate.setMonth(Math.floor(Math.random() * 12));
-        randomDate.setDate(Math.floor(Math.random() * 28) + 1);
-        return { ...item, createdAt: randomDate.toISOString() };
-      }
-      return item;
-    });
-    
-    return enhancedData as ImageItem[];
+    return data;
   } catch (error) {
-    console.error("Error fetching images:", error);
+    console.error("Error fetching media IDs:", error);
     throw error;
   }
+}
+
+/**
+ * Fetches media info (metadata) for a specific media item
+ */
+export async function fetchMediaInfo(id: string): Promise<{ alt: string, createdAt: string }> {
+  const url = `${API_BASE_URL}/info?id=${encodeURIComponent(id)}`;
+  
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch media info: ${response.status} ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching media info:", error);
+    throw error;
+  }
+}
+
+/**
+ * Gets the thumbnail URL for a media item
+ */
+export function getThumbnailUrl(id: string): string {
+  return `${API_BASE_URL}/thumbnail?id=${encodeURIComponent(id)}`;
+}
+
+/**
+ * Gets the full media URL for a media item (for preview)
+ */
+export function getMediaUrl(id: string): string {
+  return `${API_BASE_URL}/media?id=${encodeURIComponent(id)}`;
 }
 
 /**

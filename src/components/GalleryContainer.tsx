@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import Gallery, { ImageItem } from '@/components/Gallery';
+import Gallery from '@/components/Gallery';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import MediaPreview from '@/components/MediaPreview';
-import { fetchImages, deleteImages } from '@/api/imageApi';
+import { fetchMediaIds, deleteImages } from '@/api/imageApi';
 import GalleryHeader from '@/components/GalleryHeader';
 
 // Define animation variants
@@ -29,22 +29,22 @@ interface GalleryContainerProps {
 
 const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory }) => {
   const { toast } = useToast();
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [previewMedia, setPreviewMedia] = useState<ImageItem | null>(null);
+  const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [columnsCount, setColumnsCount] = useState<number>(6);
   
   const queryClient = useQueryClient();
   
-  // Fetch data from a specified directory
+  // Fetch media IDs from a specified directory
   const { 
-    data: images = [], 
+    data: mediaIds = [], 
     isLoading,
     refetch
   } = useQuery({
-    queryKey: ['images', directory],
-    queryFn: () => fetchImages(directory),
+    queryKey: ['mediaIds', directory],
+    queryFn: () => fetchMediaIds(directory),
   });
   
   // Mutation for deleting images
@@ -53,16 +53,16 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
     onSuccess: () => {
       // Show success message
       toast({
-        title: `${selectedImages.length} ${selectedImages.length === 1 ? 'media' : 'media files'} deleted`,
+        title: `${selectedIds.length} ${selectedIds.length === 1 ? 'media' : 'media files'} deleted`,
         description: "The selected media files have been removed successfully.",
       });
       
       // Reset selected images and close the dialog
-      setSelectedImages([]);
+      setSelectedIds([]);
       setDeleteDialogOpen(false);
       
       // Refetch the image list to reflect the changes
-      queryClient.invalidateQueries({ queryKey: ['images'] });
+      queryClient.invalidateQueries({ queryKey: ['mediaIds'] });
     },
     onError: (error) => {
       toast({
@@ -74,10 +74,10 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
     }
   });
   
-  const handleSelectImage = (id: string) => {
-    setSelectedImages(prev => 
+  const handleSelectId = (id: string) => {
+    setSelectedIds(prev => 
       prev.includes(id) 
-        ? prev.filter(imageId => imageId !== id)
+        ? prev.filter(mediaId => mediaId !== id)
         : [...prev, id]
     );
   };
@@ -87,7 +87,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
   };
   
   const confirmDelete = () => {
-    deleteMutation.mutate(selectedImages);
+    deleteMutation.mutate(selectedIds);
   };
   
   const handleRefresh = () => {
@@ -99,39 +99,29 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
   };
 
   const handlePreviewMedia = (mediaId: string) => {
-    const media = images.find(img => img.id === mediaId);
-    if (media) {
-      setPreviewMedia(media);
-      setIsPreviewOpen(true);
-    }
+    setPreviewMediaId(mediaId);
+    setIsPreviewOpen(true);
   };
 
   const handleNavigateMedia = (direction: 'prev' | 'next') => {
-    if (!previewMedia || images.length === 0) return;
+    if (!previewMediaId || mediaIds.length === 0) return;
     
-    // Sort images same way as in Gallery component (newest to oldest)
-    const sortedImages = [...images].sort((a, b) => {
-      if (!a.createdAt) return 1;
-      if (!b.createdAt) return -1;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-    
-    const currentIndex = sortedImages.findIndex(img => img.id === previewMedia.id);
+    const currentIndex = mediaIds.indexOf(previewMediaId);
     if (currentIndex === -1) return;
     
     let newIndex;
     if (direction === 'prev') {
-      newIndex = (currentIndex - 1 + sortedImages.length) % sortedImages.length;
+      newIndex = (currentIndex - 1 + mediaIds.length) % mediaIds.length;
     } else {
-      newIndex = (currentIndex + 1) % sortedImages.length;
+      newIndex = (currentIndex + 1) % mediaIds.length;
     }
     
-    setPreviewMedia(sortedImages[newIndex]);
+    setPreviewMediaId(mediaIds[newIndex]);
   };
   
   const closePreview = () => {
     setIsPreviewOpen(false);
-    setTimeout(() => setPreviewMedia(null), 300);
+    setTimeout(() => setPreviewMediaId(null), 300);
   };
 
   const getColumnsClassName = () => {
@@ -154,7 +144,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
         columnsCount={columnsCount}
         setColumnsCount={setColumnsCount}
         isLoading={isLoading}
-        selectedImages={selectedImages}
+        selectedImages={selectedIds}
         onRefresh={handleRefresh}
         onDeleteSelected={handleDeleteSelected}
         isDeletionPending={deleteMutation.isPending}
@@ -166,9 +156,9 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
       >
         <Gallery
           title="Media Gallery"
-          images={images}
-          selectedImages={selectedImages}
-          onSelectImage={handleSelectImage}
+          mediaIds={mediaIds}
+          selectedIds={selectedIds}
+          onSelectId={handleSelectId}
           isLoading={isLoading}
           columnsClassName={getColumnsClassName()}
           onPreviewMedia={handlePreviewMedia}
@@ -176,20 +166,16 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
       </motion.div>
       
       <MediaPreview
-        media={previewMedia}
+        mediaId={previewMediaId}
         isOpen={isPreviewOpen}
         onClose={closePreview}
-        allMedia={images.sort((a, b) => {
-          if (!a.createdAt) return 1;
-          if (!b.createdAt) return -1;
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        })}
+        allMediaIds={mediaIds}
         onNavigate={handleNavigateMedia}
       />
       
       <DeleteConfirmDialog
         isOpen={deleteDialogOpen}
-        selectedCount={selectedImages.length}
+        selectedCount={selectedIds.length}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteDialogOpen(false)}
       />

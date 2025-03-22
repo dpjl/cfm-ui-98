@@ -1,26 +1,26 @@
 
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import ImageCard from './ImageCard';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { CheckSquare, Square } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
+import LazyMediaItem from './LazyMediaItem';
 
 export interface ImageItem {
   id: string;
-  src: string;
-  alt: string;
-  directory: string;
-  createdAt?: string; // Date de création ou prise de vue
+  src?: string;
+  alt?: string;
+  directory?: string;
+  createdAt?: string;
+  type?: "image" | "video";
 }
 
 interface GalleryProps {
   title: string;
-  images: ImageItem[];
-  selectedImages: string[];
-  onSelectImage: (id: string) => void;
+  mediaIds: string[];
+  selectedIds: string[];
+  onSelectId: (id: string) => void;
   isLoading?: boolean;
   columnsClassName?: string;
   onPreviewMedia?: (id: string) => void;
@@ -28,64 +28,37 @@ interface GalleryProps {
 
 const Gallery: React.FC<GalleryProps> = ({
   title,
-  images,
-  selectedImages,
-  onSelectImage,
+  mediaIds,
+  selectedIds,
+  onSelectId,
   isLoading = false,
   columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6",
   onPreviewMedia
 }) => {
-  const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
   const { t } = useLanguage();
   
-  // Trier les images par date (du plus récent au plus ancien)
-  const sortedImages = [...images].sort((a, b) => {
-    if (!a.createdAt) return 1;
-    if (!b.createdAt) return -1;
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
-  
-  const videoCount = sortedImages.filter(img => img.alt.match(/\.(mp4|webm|ogg|mov)$/i)).length;
-  const photoCount = sortedImages.length - videoCount;
+  // We'll update these counts when we have metadata
+  const [countInfo, setCountInfo] = useState({ photoCount: 0, videoCount: 0 });
   
   useEffect(() => {
     setMounted(true);
+    // Default count - we'll assume all are photos initially
+    setCountInfo({ photoCount: mediaIds.length, videoCount: 0 });
     return () => setMounted(false);
-  }, []);
+  }, [mediaIds.length]);
 
   const handleSelectAll = () => {
-    if (selectedImages.length === sortedImages.length) {
-      // Désélectionner tous les médias
-      selectedImages.forEach(id => onSelectImage(id));
+    if (selectedIds.length === mediaIds.length) {
+      // Deselect all media
+      selectedIds.forEach(id => onSelectId(id));
     } else {
-      // Sélectionner tous les médias non sélectionnés
-      sortedImages.forEach(image => {
-        if (!selectedImages.includes(image.id)) {
-          onSelectImage(image.id);
+      // Select all unselected media
+      mediaIds.forEach(id => {
+        if (!selectedIds.includes(id)) {
+          onSelectId(id);
         }
       });
-    }
-  };
-  
-  const imageVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: (i: number) => ({
-      opacity: 1,
-      scale: 1,
-      transition: {
-        delay: i * 0.05,
-        duration: 0.3,
-        ease: [0.22, 1, 0.36, 1]
-      }
-    }),
-    exit: { 
-      opacity: 0, 
-      scale: 0.8,
-      transition: {
-        duration: 0.2,
-        ease: [0.22, 1, 0.36, 1]
-      }
     }
   };
   
@@ -109,7 +82,7 @@ const Gallery: React.FC<GalleryProps> = ({
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-medium">
-          {t('mediaGallery')} ({photoCount} {t('photos')}, {videoCount} videos)
+          {t('mediaGallery')} ({countInfo.photoCount} {t('photos')}, {countInfo.videoCount} videos)
         </h2>
         <div className="flex items-center gap-3">
           <Button
@@ -118,7 +91,7 @@ const Gallery: React.FC<GalleryProps> = ({
             size="sm"
             className="gap-2"
           >
-            {selectedImages.length === sortedImages.length ? (
+            {selectedIds.length === mediaIds.length ? (
               <>
                 <Square className="h-4 w-4" />
                 {t('deselectAll')}
@@ -131,38 +104,27 @@ const Gallery: React.FC<GalleryProps> = ({
             )}
           </Button>
           <div className="text-sm text-muted-foreground">
-            {selectedImages.filter(id => sortedImages.some(img => img.id === id)).length} {t('selected')}
+            {selectedIds.length} {t('selected')}
           </div>
         </div>
       </div>
       
-      {sortedImages.length === 0 ? (
+      {mediaIds.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <p className="text-muted-foreground">{t('noMediaFound')}</p>
         </div>
       ) : (
         <div className={cn("grid gap-4 flex-1 content-start", columnsClassName)}>
           <AnimatePresence>
-            {sortedImages.map((image, index) => (
-              <motion.div
-                key={image.id}
-                custom={index}
-                variants={imageVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                layout
-              >
-                <ImageCard
-                  src={image.src}
-                  alt={image.alt}
-                  selected={selectedImages.includes(image.id)}
-                  onSelect={() => onSelectImage(image.id)}
-                  onPreview={() => onPreviewMedia ? onPreviewMedia(image.id) : null}
-                  type={image.alt.match(/\.(mp4|webm|ogg|mov)$/i) ? "video" : "image"}
-                  createdAt={image.createdAt}
-                />
-              </motion.div>
+            {mediaIds.map((id, index) => (
+              <LazyMediaItem
+                key={id}
+                id={id}
+                selected={selectedIds.includes(id)}
+                onSelect={() => onSelectId(id)}
+                onPreview={() => onPreviewMedia ? onPreviewMedia(id) : null}
+                index={index}
+              />
             ))}
           </AnimatePresence>
         </div>
