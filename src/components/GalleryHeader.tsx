@@ -4,8 +4,6 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Trash2, FolderSearch, RefreshCw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
-import { ThemeToggle } from './ThemeToggle';
-import { LanguageToggle } from './LanguageToggle';
 import { useLanguage } from '@/hooks/use-language';
 
 interface GalleryHeaderProps {
@@ -74,11 +72,6 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
           <Trash2 className="h-4 w-4" />
           {isDeletionPending ? t('deleting') : t('delete')}
         </Button>
-        
-        <div className="flex items-center gap-2">
-          <LanguageToggle />
-          <ThemeToggle />
-        </div>
       </div>
     </div>
   );

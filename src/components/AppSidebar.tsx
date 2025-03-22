@@ -50,7 +50,9 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
       <SidebarHeader className="flex justify-between items-center p-4">
         <div className="flex items-center gap-2">
           <Folder className="h-5 w-5" />
-          <span className="font-medium">{t('directories')}</span>
+          <span className={`font-medium transition-opacity duration-200 ${state === 'collapsed' ? 'opacity-0' : 'opacity-100'}`}>
+            {t('directories')}
+          </span>
         </div>
         <SidebarTrigger />
       </SidebarHeader>

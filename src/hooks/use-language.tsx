@@ -27,6 +27,9 @@ const translations: Record<string, Record<string, string>> = {
     noDirectories: 'No directories found',
     deleteConfirmation: 'Are you sure you want to delete the selected media?',
     deleteConfirmationDescription: 'This action cannot be undone.',
+    title: 'CFM',
+    loading: 'Loading',
+    deleting: 'Deleting',
   },
   fr: {
     selectAll: 'Tout Sélectionner',
@@ -46,6 +49,9 @@ const translations: Record<string, Record<string, string>> = {
     noDirectories: 'Aucun répertoire trouvé',
     deleteConfirmation: 'Êtes-vous sûr de vouloir supprimer les médias sélectionnés ?',
     deleteConfirmationDescription: 'Cette action est irréversible.',
+    title: 'CFM',
+    loading: 'Chargement',
+    deleting: 'Suppression',
   },
 };
 
