@@ -6,7 +6,6 @@ import { LanguageProvider } from '@/hooks/use-language';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
 import AppSidebarRight from '@/components/AppSidebarRight';
-import { ResizablePanelGroup, ResizablePanel } from '@/components/ui/resizable';
 import GalleryHeader from '@/components/GalleryHeader';
 import { useToast } from '@/components/ui/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
