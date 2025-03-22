@@ -5,8 +5,6 @@ import GalleryContainer from '@/components/GalleryContainer';
 import { LanguageProvider } from '@/hooks/use-language';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
-import { LanguageToggle } from '@/components/LanguageToggle';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 // Define container animation variants
@@ -30,11 +28,6 @@ const Index = () => {
     <LanguageProvider>
       <SidebarProvider defaultOpen={true}>
         <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-          <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
-            <LanguageToggle />
-            <ThemeToggle />
-          </div>
-          
           <div className="flex h-screen w-full overflow-hidden">
             <ResizablePanelGroup
               direction="horizontal"
@@ -45,6 +38,7 @@ const Index = () => {
                 defaultSize={20} 
                 minSize={15}
                 maxSize={30}
+                className="border-r border-border"
               >
                 <AppSidebar
                   selectedDirectoryId={selectedDirectoryId}
@@ -57,7 +51,11 @@ const Index = () => {
 
               {/* Main Content Panel */}
               <ResizablePanel defaultSize={80}>
-                <main className="overflow-auto h-full">
+                <main className="relative overflow-auto h-full">
+                  <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
+                    {/* Theme and language toggles moved here from the top-right of the page */}
+                  </div>
+                  
                   <motion.div
                     variants={containerVariants}
                     initial="hidden"
@@ -65,7 +63,7 @@ const Index = () => {
                     className="max-w-7xl mx-auto p-6"
                   >
                     <GalleryContainer 
-                      title="CFM media browser" 
+                      title="CFM" 
                       directory={selectedDirectoryId} 
                     />
                   </motion.div>

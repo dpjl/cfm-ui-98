@@ -45,7 +45,7 @@ const FolderTree: React.FC<FolderTreeProps> = ({
   }
 
   return (
-    <ul className={cn("space-y-0.5", level > 0 ? "ml-3" : "")}>
+    <ul className={cn("space-y-0.5", level > 0 ? "ml-2" : "")}>
       {directories.map((directory) => {
         const hasChildren = directory.children && directory.children.length > 0;
         const isExpanded = isFolderExpanded(directory.id);
@@ -55,33 +55,33 @@ const FolderTree: React.FC<FolderTreeProps> = ({
           <li key={directory.id}>
             <div 
               className={cn(
-                "flex items-center gap-1 px-2 py-0.5 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer text-xs",
+                "flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer text-xs",
                 isSelected ? "bg-accent text-accent-foreground font-medium" : ""
               )}
               onClick={() => onSelectDirectory(directory.id)}
             >
               {hasChildren ? (
                 <span 
-                  className="w-3 h-3 flex items-center justify-center"
+                  className="w-2.5 h-2.5 flex items-center justify-center"
                   onClick={(e) => toggleFolder(directory.id, e)}
                 >
                   {isExpanded ? (
-                    <ChevronDown className="h-3 w-3" />
+                    <ChevronDown className="h-2.5 w-2.5" />
                   ) : (
-                    <ChevronRight className="h-3 w-3" />
+                    <ChevronRight className="h-2.5 w-2.5" />
                   )}
                 </span>
               ) : (
-                <span className="w-3 h-3" />
+                <span className="w-2.5 h-2.5" />
               )}
               
               {isSelected ? (
-                <FolderOpen className="h-3 w-3 text-accent-foreground" />
+                <FolderOpen className="h-2.5 w-2.5 text-accent-foreground" />
               ) : (
-                <Folder className="h-3 w-3" />
+                <Folder className="h-2.5 w-2.5" />
               )}
               
-              <span className="truncate">{directory.name}</span>
+              <span className="truncate text-xs">{directory.name}</span>
             </div>
             
             {hasChildren && isExpanded && (
