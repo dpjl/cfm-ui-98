@@ -1,3 +1,4 @@
+
 import { ImageItem } from '@/components/Gallery';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
@@ -10,9 +11,9 @@ export interface DirectoryNode {
   children?: DirectoryNode[];
 }
 
-export async function fetchDirectoryTree(): Promise<DirectoryNode[]> {
-  const url = `${API_BASE_URL}/tree`;
-  console.log("Fetching directory tree from:", url);
+export async function fetchDirectoryTree(position?: 'left' | 'right'): Promise<DirectoryNode[]> {
+  const url = `${API_BASE_URL}/tree${position ? `?position=${position}` : ''}`;
+  console.log(`Fetching directory tree from: ${url}`);
   
   try {
     const response = await fetch(url);
@@ -24,12 +25,12 @@ export async function fetchDirectoryTree(): Promise<DirectoryNode[]> {
     }
     
     const data = await response.json();
-    console.log("Received directory tree:", data);
+    console.log(`Received directory tree for ${position || 'default'}:`, data);
     
     return data;
   } catch (error) {
-    console.error("Error fetching directory tree:", error);
-    return [{ id: "directory1", name: "Default Directory", children: [] }];
+    console.error(`Error fetching directory tree for ${position || 'default'}:`, error);
+    return [{ id: `directory1-${position || 'default'}`, name: "Default Directory", children: [] }];
   }
 }
 

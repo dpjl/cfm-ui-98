@@ -4,10 +4,9 @@ import { motion } from 'framer-motion';
 import Gallery from '@/components/Gallery';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import { useToast } from '@/components/ui/use-toast';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
 import MediaPreview from '@/components/MediaPreview';
 import { fetchMediaIds, deleteImages } from '@/api/imageApi';
-import GalleryHeader from '@/components/GalleryHeader';
 
 // Define animation variants
 const itemVariants = {
@@ -25,17 +24,32 @@ const itemVariants = {
 interface GalleryContainerProps {
   title: string;
   directory: string;
+  position?: 'left' | 'right';
+  columnsCount: number;
+  selectedIds: string[];
+  setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
+  onDeleteSelected: () => void;
+  deleteDialogOpen: boolean;
+  setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  deleteMutation: UseMutationResult<any, Error, string[], unknown>;
+  hideHeader?: boolean;
 }
 
-const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory }) => {
-  const { toast } = useToast();
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+const GalleryContainer: React.FC<GalleryContainerProps> = ({ 
+  title, 
+  directory,
+  position = 'left',
+  columnsCount,
+  selectedIds,
+  setSelectedIds,
+  onDeleteSelected,
+  deleteDialogOpen,
+  setDeleteDialogOpen,
+  deleteMutation,
+  hideHeader = false
+}) => {
   const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [columnsCount, setColumnsCount] = useState<number>(6);
-  
-  const queryClient = useQueryClient();
   
   // Fetch media IDs from a specified directory
   const { 
@@ -43,35 +57,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
     isLoading,
     refetch
   } = useQuery({
-    queryKey: ['mediaIds', directory],
+    queryKey: ['mediaIds', directory, position],
     queryFn: () => fetchMediaIds(directory),
-  });
-  
-  // Mutation for deleting images
-  const deleteMutation = useMutation({
-    mutationFn: deleteImages,
-    onSuccess: () => {
-      // Show success message
-      toast({
-        title: `${selectedIds.length} ${selectedIds.length === 1 ? 'media' : 'media files'} deleted`,
-        description: "The selected media files have been removed successfully.",
-      });
-      
-      // Reset selected images and close the dialog
-      setSelectedIds([]);
-      setDeleteDialogOpen(false);
-      
-      // Refetch the image list to reflect the changes
-      queryClient.invalidateQueries({ queryKey: ['mediaIds'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error deleting media files",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive",
-      });
-      setDeleteDialogOpen(false);
-    }
   });
   
   const handleSelectId = (id: string) => {
@@ -82,20 +69,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
     );
   };
   
-  const handleDeleteSelected = () => {
-    setDeleteDialogOpen(true);
-  };
-  
   const confirmDelete = () => {
     deleteMutation.mutate(selectedIds);
-  };
-  
-  const handleRefresh = () => {
-    toast({
-      title: "Refreshing media",
-      description: "Fetching the latest media files..."
-    });
-    refetch();
   };
 
   const handlePreviewMedia = (mediaId: string) => {
@@ -138,24 +113,13 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
   };
   
   return (
-    <>
-      <GalleryHeader 
-        title={title}
-        columnsCount={columnsCount}
-        setColumnsCount={setColumnsCount}
-        isLoading={isLoading}
-        selectedImages={selectedIds}
-        onRefresh={handleRefresh}
-        onDeleteSelected={handleDeleteSelected}
-        isDeletionPending={deleteMutation.isPending}
-      />
-      
+    <div className="h-full flex flex-col p-4">
       <motion.div 
         variants={itemVariants}
-        className="glass-panel p-6"
+        className="glass-panel p-4 flex-1 overflow-hidden flex flex-col"
       >
         <Gallery
-          title="Media Gallery"
+          title={title}
           mediaIds={mediaIds}
           selectedIds={selectedIds}
           onSelectId={handleSelectId}
@@ -179,7 +143,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ title, directory })
         onConfirm={confirmDelete}
         onCancel={() => setDeleteDialogOpen(false)}
       />
-    </>
+    </div>
   );
 };
 
