@@ -11,12 +11,14 @@ interface AppSidebarProps {
   selectedDirectoryId: string;
   onSelectDirectory: (directoryId: string) => void;
   position?: 'left' | 'right';
+  isHovering?: boolean;
 }
 
 const AppSidebar: React.FC<AppSidebarProps> = ({ 
   selectedDirectoryId, 
   onSelectDirectory,
-  position = 'left'
+  position = 'left',
+  isHovering = true
 }) => {
   const { t } = useLanguage();
   
@@ -42,20 +44,20 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
       <div className="flex justify-between items-center p-3 border-b border-border">
         {isLeftSide ? (
           <>
-            <div className="flex items-center gap-2">
-              <Folder className="h-4 w-4" />
-              <span className="text-sm font-medium">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Folder className="h-4 w-4 flex-shrink-0" />
+              <span className={`text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${isHovering ? 'opacity-100' : 'opacity-0'}`}>
                 {t('directories')}
               </span>
             </div>
           </>
         ) : (
           <>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <span className={`text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${isHovering ? 'opacity-100' : 'opacity-0'}`}>
                 {t('directories')}
               </span>
-              <Folder className="h-4 w-4" />
+              <Folder className="h-4 w-4 flex-shrink-0" />
             </div>
           </>
         )}

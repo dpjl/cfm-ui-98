@@ -14,6 +14,14 @@ const HoverSidebar: React.FC<HoverSidebarProps> = ({
   isHovering,
   onHoverChange
 }) => {
+  // Clone children and pass isHovering prop
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, { isHovering } as any);
+    }
+    return child;
+  });
+
   return (
     <div 
       className={`fixed ${position}-0 top-0 bottom-0 z-30`}
@@ -22,7 +30,7 @@ const HoverSidebar: React.FC<HoverSidebarProps> = ({
     >
       <div className={`h-full transition-all duration-300 ${isHovering ? 'w-[16rem]' : 'w-[2rem]'}`}>
         <div className={`h-full bg-slate-900/70 backdrop-blur-sm ${isHovering ? 'opacity-95' : 'opacity-70'} transition-opacity duration-300`}>
-          {children}
+          {childrenWithProps}
         </div>
       </div>
     </div>
