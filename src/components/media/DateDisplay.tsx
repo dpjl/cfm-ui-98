@@ -14,8 +14,8 @@ const DateDisplay: React.FC<DateDisplayProps> = ({ dateString }) => {
   const formattedDate = format(new Date(dateString), 'dd MMM yyyy', { locale: fr });
   
   return (
-    <div className="absolute bottom-2 left-2 z-10 bg-black/70 px-2 py-1 rounded-md text-white text-xs flex items-center">
-      <Calendar className="h-3 w-3 mr-1" />
+    <div className="absolute bottom-2 left-2 z-10 bg-black/70 px-1.5 py-0.5 rounded-md text-white text-[10px] flex items-center">
+      <Calendar className="h-2.5 w-2.5 mr-0.5" />
       {formattedDate}
     </div>
   );

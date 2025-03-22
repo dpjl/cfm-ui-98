@@ -5,8 +5,6 @@ import { fetchDirectoryTree } from '@/api/imageApi';
 import FolderTree from '@/components/FolderTree';
 import { useLanguage } from '@/hooks/use-language';
 import { Folder } from 'lucide-react';
-import { LanguageToggle } from '@/components/LanguageToggle';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface AppSidebarProps {
@@ -40,7 +38,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm transition-all duration-300 w-full">
-      {/* Header with toggles */}
+      {/* Header */}
       <div className="flex justify-between items-center p-3 border-b border-border">
         {isLeftSide ? (
           <>
@@ -61,12 +59,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
             </div>
           </>
         )}
-      </div>
-      
-      {/* Theme and language toggles */}
-      <div className="flex items-center justify-between p-3 border-b border-border">
-        <LanguageToggle />
-        <ThemeToggle />
       </div>
       
       {/* Folder tree with proper scrolling */}
