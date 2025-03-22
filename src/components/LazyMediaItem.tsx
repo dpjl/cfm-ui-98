@@ -1,25 +1,15 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
-import { fetchMediaInfo, getThumbnailUrl } from '@/api/imageApi';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider
-} from '@/components/ui/tooltip';
-import {
-  ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
-} from '@/components/ui/context-menu';
-import { Download, Video, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { useMediaInfo } from '@/hooks/use-media-info';
+import { getThumbnailUrl } from '@/api/imageApi';
 import { motion } from 'framer-motion';
+import MediaItemRenderer from './media/MediaItemRenderer';
+import DateDisplay from './media/DateDisplay';
+import SelectionCheckbox from './media/SelectionCheckbox';
+import MediaContextMenu from './media/MediaContextMenu';
+import MediaTooltip from './media/MediaTooltip';
 
 interface LazyMediaItemProps {
   id: string;
@@ -37,33 +27,8 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   index
 }) => {
   const [loaded, setLoaded] = useState(false);
-  const [mediaInfo, setMediaInfo] = useState<{ alt: string; createdAt: string | null } | null>(null);
-  const [error, setError] = useState<Error | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const { elementRef, isIntersecting } = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true });
-  
-  // Fetch media info when the component becomes visible
-  useEffect(() => {
-    if (isIntersecting && !mediaInfo && !error) {
-      // If it's a mock ID, create mock data instead of fetching
-      if (id.startsWith('mock-media-')) {
-        setMediaInfo({
-          alt: `Mock Media ${id}`,
-          createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString() // Random date within last 30 days
-        });
-        return;
-      }
-      
-      fetchMediaInfo(id)
-        .then(data => setMediaInfo(data))
-        .catch(err => {
-          console.error(`Error fetching info for media ${id}:`, err);
-          setError(err);
-          // Set a fallback media info with the ID
-          setMediaInfo({ alt: `Media ${id}`, createdAt: null });
-        });
-    }
-  }, [id, isIntersecting, mediaInfo, error]);
+  const { mediaInfo } = useMediaInfo(id, isIntersecting);
   
   // Determine if this is a video based on the alt text if available
   const isVideo = mediaInfo?.alt ? mediaInfo.alt.match(/\.(mp4|webm|ogg|mov)$/i) : false;
@@ -79,23 +44,6 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
     a.click();
     document.body.removeChild(a);
   };
-  
-  const handleMouseOver = () => {
-    if (isVideo && videoRef.current) {
-      videoRef.current.play().catch(err => console.error('Error playing video:', err));
-    }
-  };
-  
-  const handleMouseOut = () => {
-    if (isVideo && videoRef.current) {
-      videoRef.current.pause();
-    }
-  };
-  
-  // Format the date if available
-  const formattedDate = mediaInfo?.createdAt 
-    ? format(new Date(mediaInfo.createdAt), 'dd MMM yyyy', { locale: fr }) 
-    : null;
   
   // Animation variants
   const itemVariants = {
@@ -120,97 +68,39 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
       layout
     >
       {isIntersecting && (
-        <ContextMenu>
-          <ContextMenuTrigger>
-            <TooltipProvider delayDuration={0}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div 
-                    className={cn(
-                      "image-card group relative", 
-                      "aspect-square", 
-                      selected && "selected",
-                      !loaded && "animate-pulse bg-muted"
-                    )}
-                    onClick={onPreview}
-                    onMouseOver={handleMouseOver}
-                    onMouseOut={handleMouseOut}
-                  >
-                    {isVideo ? (
-                      <>
-                        <video 
-                          ref={videoRef}
-                          src={thumbnailUrl}
-                          title={mediaInfo?.alt || id}
-                          className={cn(
-                            "w-full h-full object-cover transition-all duration-500",
-                            loaded ? "opacity-100" : "opacity-0"
-                          )}
-                          onLoadedData={() => setLoaded(true)}
-                          muted
-                          loop
-                          playsInline
-                        />
-                        {/* Video icon overlay */}
-                        <div className="absolute top-2 left-2 z-10 bg-black/70 p-1 rounded-md text-white">
-                          <Video className="h-4 w-4" />
-                        </div>
-                      </>
-                    ) : (
-                      <img
-                        src={thumbnailUrl}
-                        alt={mediaInfo?.alt || id}
-                        className={cn(
-                          "w-full h-full object-cover transition-all duration-500",
-                          loaded ? "opacity-100" : "opacity-0"
-                        )}
-                        onLoad={() => setLoaded(true)}
-                      />
-                    )}
+        <MediaContextMenu onDownload={handleDownload} isVideo={Boolean(isVideo)}>
+          <MediaTooltip content={mediaInfo?.alt || id}>
+            <div 
+              className={cn(
+                "image-card group relative", 
+                "aspect-square", 
+                selected && "selected",
+                !loaded && "animate-pulse bg-muted"
+              )}
+              onClick={onPreview}
+            >
+              <MediaItemRenderer
+                src={thumbnailUrl}
+                alt={mediaInfo?.alt || id}
+                isVideo={Boolean(isVideo)}
+                onLoad={() => setLoaded(true)}
+                loaded={loaded}
+              />
 
-                    {/* Date creation overlay */}
-                    {formattedDate && (
-                      <div className="absolute bottom-2 left-2 z-10 bg-black/70 px-2 py-1 rounded-md text-white text-xs flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {formattedDate}
-                      </div>
-                    )}
+              <DateDisplay dateString={mediaInfo?.createdAt} />
 
-                    <div className="image-overlay" />
-                    <div className="image-checkbox" onClick={(e) => e.stopPropagation()}>
-                      <Checkbox 
-                        checked={selected}
-                        className={cn(
-                          "h-5 w-5 border-2",
-                          selected ? "border-primary bg-primary" : "border-white bg-white/20",
-                          "transition-all duration-200 ease-out",
-                          !loaded && "opacity-0"
-                        )}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelect();
-                        }}
-                      />
-                    </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent 
-                  side="top" 
-                  align="center" 
-                  className="bg-black/80 text-white border-none text-xs p-2 max-w-[300px] break-words"
-                >
-                  {mediaInfo?.alt || id}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </ContextMenuTrigger>
-          <ContextMenuContent className="w-48">
-            <ContextMenuItem onClick={handleDownload} className="cursor-pointer flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              <span>Télécharger {isVideo ? 'la vidéo' : 'la photo'}</span>
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
+              <div className="image-overlay" />
+              <SelectionCheckbox
+                selected={selected}
+                onSelect={(e) => {
+                  e.stopPropagation();
+                  onSelect();
+                }}
+                loaded={loaded}
+              />
+            </div>
+          </MediaTooltip>
+        </MediaContextMenu>
       )}
       {!isIntersecting && (
         <div className="aspect-square bg-muted animate-pulse rounded-lg"></div>
