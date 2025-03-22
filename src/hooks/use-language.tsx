@@ -1,134 +1,91 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type Language = 'en' | 'fr';
-
-type Translations = {
-  [key: string]: {
-    en: string;
-    fr: string;
-  };
-};
-
-// Définir toutes les traductions ici
-const translations: Translations = {
-  title: {
-    en: 'CFM media browser',
-    fr: 'Navigateur média CFM'
-  },
-  delete: {
-    en: 'Delete Selected',
-    fr: 'Supprimer la sélection'
-  },
-  deleting: {
-    en: 'Deleting...',
-    fr: 'Suppression...'
-  },
-  refresh: {
-    en: 'Refresh',
-    fr: 'Actualiser'
-  },
-  loading: {
-    en: 'Loading...',
-    fr: 'Chargement...'
-  },
-  columns: {
-    en: 'Columns:',
-    fr: 'Colonnes:'
-  },
-  confirmDelete: {
-    en: 'Confirm Deletion',
-    fr: 'Confirmer la suppression'
-  },
-  confirmDeleteMsg: {
-    en: 'Are you sure you want to delete',
-    fr: 'Êtes-vous sûr de vouloir supprimer'
-  },
-  selectedItems: {
-    en: 'selected items?',
-    fr: 'éléments sélectionnés?'
-  },
-  cancel: {
-    en: 'Cancel',
-    fr: 'Annuler'
-  },
-  confirm: {
-    en: 'Confirm',
-    fr: 'Confirmer'
-  },
-  photo: {
-    en: 'photo',
-    fr: 'photo'
-  },
-  photos: {
-    en: 'photos',
-    fr: 'photos'
-  },
-  selectAll: {
-    en: 'Select All',
-    fr: 'Tout sélectionner'
-  },
-  deselectAll: {
-    en: 'Deselect All',
-    fr: 'Tout désélectionner'
-  },
-  mediaGallery: {
-    en: 'Media Gallery',
-    fr: 'Galerie Média'
-  },
-  noMediaFound: {
-    en: 'No media found',
-    fr: 'Aucun média trouvé'
-  },
-  selected: {
-    en: 'selected',
-    fr: 'sélectionné(s)'
-  }
-};
-
-interface LanguageContextType {
-  language: Language;
-  setLanguage: (lang: Language) => void;
+type LanguageContextType = {
+  language: string;
+  setLanguage: (language: string) => void;
   t: (key: string) => string;
-}
+};
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+// Translation dictionary
+const translations: Record<string, Record<string, string>> = {
+  en: {
+    selectAll: 'Select All',
+    deselectAll: 'Deselect All',
+    selected: 'selected',
+    noMediaFound: 'No media found',
+    mediaGallery: 'Media Gallery',
+    photos: 'photos',
+    videos: 'videos',
+    refresh: 'Refresh',
+    delete: 'Delete',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    columns: 'Columns',
+    directories: 'Directories',
+    folderStructure: 'Folder Structure',
+    noDirectories: 'No directories found',
+    deleteConfirmation: 'Are you sure you want to delete the selected media?',
+    deleteConfirmationDescription: 'This action cannot be undone.',
+  },
+  fr: {
+    selectAll: 'Tout Sélectionner',
+    deselectAll: 'Tout Désélectionner',
+    selected: 'sélectionné(s)',
+    noMediaFound: 'Aucun média trouvé',
+    mediaGallery: 'Galerie de médias',
+    photos: 'photos',
+    videos: 'vidéos',
+    refresh: 'Rafraîchir',
+    delete: 'Supprimer',
+    cancel: 'Annuler',
+    confirm: 'Confirmer',
+    columns: 'Colonnes',
+    directories: 'Répertoires',
+    folderStructure: 'Structure des dossiers',
+    noDirectories: 'Aucun répertoire trouvé',
+    deleteConfirmation: 'Êtes-vous sûr de vouloir supprimer les médias sélectionnés ?',
+    deleteConfirmationDescription: 'Cette action est irréversible.',
+  },
+};
 
-export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+// Create context with default values
+const LanguageContext = createContext<LanguageContextType>({
+  language: 'en',
+  setLanguage: () => {},
+  t: (key: string) => key,
+});
 
-  // Fonction de traduction
-  const t = (key: string): string => {
-    if (translations[key] && translations[key][language]) {
-      return translations[key][language];
+// Custom hook to use the language context
+export const useLanguage = () => useContext(LanguageContext);
+
+// Provider component
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Get initial language preference from localStorage or default to 'en'
+  const [language, setLanguage] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem('language');
+      return savedLanguage || 'en';
     }
-    return key; // Fallback au clé si pas de traduction disponible
-  };
+    return 'en';
+  });
 
-  // Sauvegarder la préférence dans localStorage
+  // Save language preference to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem('preferredLanguage', language);
+    localStorage.setItem('language', language);
   }, [language]);
 
-  // Récupérer la préférence au chargement
-  useEffect(() => {
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage === 'en' || savedLanguage === 'fr') {
-      setLanguage(savedLanguage);
-    }
-  }, []);
+  // Translation function
+  const t = (key: string): string => {
+    if (!translations[language]) return key;
+    return translations[language][key] || key;
+  };
 
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
-};
+  const value = {
+    language,
+    setLanguage,
+    t,
+  };
 
-export const useLanguage = (): LanguageContextType => {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 };

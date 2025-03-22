@@ -1,16 +1,38 @@
-
 import { ImageItem } from '@/components/Gallery';
 
-// Default to the environment variable if available, otherwise use a relative path
-// This allows the API to work both in development and when deployed
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
-// Add some debug logging to help troubleshoot the connection
 console.log("API Base URL:", API_BASE_URL);
 
-/**
- * Fetches media IDs from the specified directory on the backend
- */
+export interface DirectoryNode {
+  id: string;
+  name: string;
+  children?: DirectoryNode[];
+}
+
+export async function fetchDirectoryTree(): Promise<DirectoryNode[]> {
+  const url = `${API_BASE_URL}/tree`;
+  console.log("Fetching directory tree from:", url);
+  
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Server responded with error:", response.status, errorText);
+      throw new Error(`Failed to fetch directory tree: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log("Received directory tree:", data);
+    
+    return data;
+  } catch (error) {
+    console.error("Error fetching directory tree:", error);
+    return [{ id: "directory1", name: "Default Directory", children: [] }];
+  }
+}
+
 export async function fetchMediaIds(directory: string): Promise<string[]> {
   const url = `${API_BASE_URL}/media?directory=${encodeURIComponent(directory)}`;
   console.log("Fetching media IDs from:", url);
@@ -34,9 +56,6 @@ export async function fetchMediaIds(directory: string): Promise<string[]> {
   }
 }
 
-/**
- * Fetches media info (metadata) for a specific media item
- */
 export async function fetchMediaInfo(id: string): Promise<{ alt: string, createdAt: string }> {
   const url = `${API_BASE_URL}/info?id=${encodeURIComponent(id)}`;
   
@@ -54,23 +73,14 @@ export async function fetchMediaInfo(id: string): Promise<{ alt: string, created
   }
 }
 
-/**
- * Gets the thumbnail URL for a media item
- */
 export function getThumbnailUrl(id: string): string {
   return `${API_BASE_URL}/thumbnail?id=${encodeURIComponent(id)}`;
 }
 
-/**
- * Gets the full media URL for a media item (for preview)
- */
 export function getMediaUrl(id: string): string {
   return `${API_BASE_URL}/media?id=${encodeURIComponent(id)}`;
 }
 
-/**
- * Deletes the specified images on the backend
- */
 export async function deleteImages(imageIds: string[]): Promise<{ success: boolean, message: string }> {
   const url = `${API_BASE_URL}/images`;
   console.log("Deleting images at:", url, "IDs:", imageIds);
