@@ -16,6 +16,7 @@ import {
   SidebarRail
 } from '@/components/ui/sidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 interface AppSidebarProps {
   selectedDirectoryId: string;
@@ -45,7 +46,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   }, [directoryTree, state]);
 
   return (
-    <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border">
+    <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border sidebar-bg">
       <SidebarRail />
       <SidebarHeader className="flex justify-between items-center p-4">
         <div className="flex items-center gap-2">
@@ -66,7 +67,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
                 {Array.from({ length: 5 }).map((_, index) => (
                   <div 
                     key={index} 
-                    className="h-6 bg-muted rounded-md animate-pulse" 
+                    className="h-5 bg-muted rounded-md animate-pulse" 
                   />
                 ))}
               </div>

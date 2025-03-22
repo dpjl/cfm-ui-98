@@ -7,6 +7,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 // Define container animation variants
 const containerVariants = {
@@ -35,24 +36,42 @@ const Index = () => {
           </div>
           
           <div className="flex h-screen w-full overflow-hidden">
-            <AppSidebar
-              selectedDirectoryId={selectedDirectoryId}
-              onSelectDirectory={setSelectedDirectoryId}
-            />
-            
-            <main className="flex-1 overflow-auto h-full">
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="max-w-7xl mx-auto p-6"
+            <ResizablePanelGroup
+              direction="horizontal"
+              className="w-full"
+            >
+              {/* Sidebar Panel */}
+              <ResizablePanel 
+                defaultSize={20} 
+                minSize={15}
+                maxSize={30}
               >
-                <GalleryContainer 
-                  title="CFM media browser" 
-                  directory={selectedDirectoryId} 
+                <AppSidebar
+                  selectedDirectoryId={selectedDirectoryId}
+                  onSelectDirectory={setSelectedDirectoryId}
                 />
-              </motion.div>
-            </main>
+              </ResizablePanel>
+
+              {/* Resizable Handle */}
+              <ResizableHandle withHandle />
+
+              {/* Main Content Panel */}
+              <ResizablePanel defaultSize={80}>
+                <main className="overflow-auto h-full">
+                  <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="max-w-7xl mx-auto p-6"
+                  >
+                    <GalleryContainer 
+                      title="CFM media browser" 
+                      directory={selectedDirectoryId} 
+                    />
+                  </motion.div>
+                </main>
+              </ResizablePanel>
+            </ResizablePanelGroup>
           </div>
         </div>
       </SidebarProvider>

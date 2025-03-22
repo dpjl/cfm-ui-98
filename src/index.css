@@ -139,6 +139,15 @@
   .dark ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/50;
   }
+
+  /* Custom sidebar background */
+  .sidebar-bg {
+    @apply bg-slate-50;
+  }
+
+  .dark .sidebar-bg {
+    @apply bg-slate-900;
+  }
 }
 
 @layer components {
