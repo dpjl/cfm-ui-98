@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { CheckSquare, Square } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
-import LazyMediaItem from './LazyMediaItem';
+import GalleryGrid from './gallery/GalleryGrid';
+import GalleryEmptyState from './gallery/GalleryEmptyState';
+import GallerySkeletons from './gallery/GallerySkeletons';
+import GallerySelectionBar from './gallery/GallerySelectionBar';
+import GalleryCountInfo from './gallery/GalleryCountInfo';
 
 export interface ImageItem {
   id: string;
@@ -66,14 +66,7 @@ const Gallery: React.FC<GalleryProps> = ({
     return (
       <div className="flex flex-col h-full">
         <h2 className="text-lg font-medium mb-4">{title}</h2>
-        <div className={cn("grid gap-4", columnsClassName)}>
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div 
-              key={`skeleton-${i}`} 
-              className="aspect-square rounded-lg bg-muted animate-pulse"
-            />
-          ))}
-        </div>
+        <GallerySkeletons columnsClassName={columnsClassName} />
       </div>
     );
   }
@@ -81,53 +74,27 @@ const Gallery: React.FC<GalleryProps> = ({
   return (
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-medium">
-          {t('mediaGallery')} ({countInfo.photoCount} {t('photos')}, {countInfo.videoCount} videos)
-        </h2>
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={handleSelectAll}
-            variant="outline"
-            size="sm"
-            className="gap-2"
-          >
-            {selectedIds.length === mediaIds.length ? (
-              <>
-                <Square className="h-4 w-4" />
-                {t('deselectAll')}
-              </>
-            ) : (
-              <>
-                <CheckSquare className="h-4 w-4" />
-                {t('selectAll')}
-              </>
-            )}
-          </Button>
-          <div className="text-sm text-muted-foreground">
-            {selectedIds.length} {t('selected')}
-          </div>
-        </div>
+        <GalleryCountInfo 
+          photoCount={countInfo.photoCount} 
+          videoCount={countInfo.videoCount} 
+        />
+        <GallerySelectionBar 
+          selectedIds={selectedIds}
+          mediaIds={mediaIds}
+          onSelectAll={handleSelectAll}
+        />
       </div>
       
       {mediaIds.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-muted-foreground">{t('noMediaFound')}</p>
-        </div>
+        <GalleryEmptyState />
       ) : (
-        <div className={cn("grid gap-4 h-full overflow-auto content-start", columnsClassName)}>
-          <AnimatePresence>
-            {mediaIds.map((id, index) => (
-              <LazyMediaItem
-                key={id}
-                id={id}
-                selected={selectedIds.includes(id)}
-                onSelect={() => onSelectId(id)}
-                onPreview={() => onPreviewMedia ? onPreviewMedia(id) : null}
-                index={index}
-              />
-            ))}
-          </AnimatePresence>
-        </div>
+        <GalleryGrid
+          mediaIds={mediaIds}
+          selectedIds={selectedIds}
+          onSelectId={onSelectId}
+          onPreviewMedia={onPreviewMedia}
+          columnsClassName={columnsClassName}
+        />
       )}
     </div>
   );
