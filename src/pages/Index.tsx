@@ -92,9 +92,9 @@ const Index = () => {
       <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
         {/* Main layout container */}
         <div className="flex h-full overflow-hidden">
-          {/* Left Sidebar with hover functionality */}
+          {/* Left Sidebar with hover functionality - fixed position */}
           <div 
-            className="absolute left-0 top-0 bottom-0 z-30"
+            className="fixed left-0 top-0 bottom-0 z-30"
             onMouseEnter={() => setHoveringLeft(true)}
             onMouseLeave={() => setHoveringLeft(false)}
           >
@@ -132,11 +132,11 @@ const Index = () => {
               />
             </div>
             
-            {/* Galleries container */}
+            {/* Galleries container - non-resizable */}
             <div className="flex-1 overflow-hidden">
-              <ResizablePanelGroup direction="horizontal" className="h-full">
+              <div className="flex h-full">
                 {/* Left Gallery */}
-                <ResizablePanel defaultSize={50} className="overflow-auto">
+                <div className="w-1/2 overflow-auto">
                   <motion.div
                     variants={containerVariants}
                     initial="hidden"
@@ -157,10 +157,10 @@ const Index = () => {
                       hideHeader={true}
                     />
                   </motion.div>
-                </ResizablePanel>
+                </div>
 
                 {/* Right Gallery */}
-                <ResizablePanel defaultSize={50} className="overflow-auto">
+                <div className="w-1/2 overflow-auto">
                   <motion.div
                     variants={containerVariants}
                     initial="hidden"
@@ -181,14 +181,14 @@ const Index = () => {
                       hideHeader={true}
                     />
                   </motion.div>
-                </ResizablePanel>
-              </ResizablePanelGroup>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Right Sidebar with hover functionality */}
+          {/* Right Sidebar with hover functionality - fixed position */}
           <div 
-            className="absolute right-0 top-0 bottom-0 z-30"
+            className="fixed right-0 top-0 bottom-0 z-30"
             onMouseEnter={() => setHoveringRight(true)}
             onMouseLeave={() => setHoveringRight(false)}
           >
