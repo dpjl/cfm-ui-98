@@ -6,7 +6,7 @@ import { LanguageProvider } from '@/hooks/use-language';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
 import AppSidebarRight from '@/components/AppSidebarRight';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { ResizablePanelGroup, ResizablePanel } from '@/components/ui/resizable';
 import GalleryHeader from '@/components/GalleryHeader';
 import { useToast } from '@/components/ui/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -32,11 +32,13 @@ const Index = () => {
   const [selectedDirectoryIdRight, setSelectedDirectoryIdRight] = useState<string>("directory1");
   
   // Shared state for the galleries
-  const [columnsCount, setColumnsCount] = useState<number>(6);
+  const [columnsCount, setColumnsCount] = useState<number>(5);
   const [selectedIdsLeft, setSelectedIdsLeft] = useState<string[]>([]);
   const [selectedIdsRight, setSelectedIdsRight] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeSide, setActiveSide] = useState<'left' | 'right'>('left');
+  const [hoveringLeft, setHoveringLeft] = useState(false);
+  const [hoveringRight, setHoveringRight] = useState(false);
   
   const queryClient = useQueryClient();
   
@@ -90,14 +92,22 @@ const Index = () => {
       <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
         {/* Main layout container */}
         <div className="flex h-full overflow-hidden">
-          {/* Left Sidebar with fixed width */}
-          <div className="w-[16rem] max-w-[16rem] min-w-[3rem] flex-shrink-0 h-full overflow-hidden">
-            <SidebarProvider defaultOpen={true}>
-              <AppSidebar
-                selectedDirectoryId={selectedDirectoryIdLeft}
-                onSelectDirectory={setSelectedDirectoryIdLeft}
-              />
-            </SidebarProvider>
+          {/* Left Sidebar with hover functionality */}
+          <div 
+            className="absolute left-0 top-0 bottom-0 z-30"
+            onMouseEnter={() => setHoveringLeft(true)}
+            onMouseLeave={() => setHoveringLeft(false)}
+          >
+            <div className={`h-full transition-all duration-300 ${hoveringLeft ? 'w-[16rem]' : 'w-[2rem]'}`}>
+              <SidebarProvider defaultOpen={false}>
+                <div className={`h-full bg-slate-900/70 backdrop-blur-sm ${hoveringLeft ? 'opacity-95' : 'opacity-70'} transition-opacity duration-300`}>
+                  <AppSidebar
+                    selectedDirectoryId={selectedDirectoryIdLeft}
+                    onSelectDirectory={setSelectedDirectoryIdLeft}
+                  />
+                </div>
+              </SidebarProvider>
+            </div>
           </div>
 
           {/* Main content area with header and galleries */}
@@ -149,9 +159,6 @@ const Index = () => {
                   </motion.div>
                 </ResizablePanel>
 
-                {/* Resizable Handle between galleries */}
-                <ResizableHandle withHandle />
-
                 {/* Right Gallery */}
                 <ResizablePanel defaultSize={50} className="overflow-auto">
                   <motion.div
@@ -179,14 +186,22 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Right Sidebar with fixed width */}
-          <div className="w-[16rem] max-w-[16rem] min-w-[3rem] flex-shrink-0 h-full overflow-hidden">
-            <SidebarProvider defaultOpen={true}>
-              <AppSidebarRight
-                selectedDirectoryId={selectedDirectoryIdRight}
-                onSelectDirectory={setSelectedDirectoryIdRight}
-              />
-            </SidebarProvider>
+          {/* Right Sidebar with hover functionality */}
+          <div 
+            className="absolute right-0 top-0 bottom-0 z-30"
+            onMouseEnter={() => setHoveringRight(true)}
+            onMouseLeave={() => setHoveringRight(false)}
+          >
+            <div className={`h-full transition-all duration-300 ${hoveringRight ? 'w-[16rem]' : 'w-[2rem]'}`}>
+              <SidebarProvider defaultOpen={false}>
+                <div className={`h-full bg-slate-900/70 backdrop-blur-sm ${hoveringRight ? 'opacity-95' : 'opacity-70'} transition-opacity duration-300`}>
+                  <AppSidebarRight
+                    selectedDirectoryId={selectedDirectoryIdRight}
+                    onSelectDirectory={setSelectedDirectoryIdRight}
+                  />
+                </div>
+              </SidebarProvider>
+            </div>
           </div>
         </div>
       </div>

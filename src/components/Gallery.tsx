@@ -32,7 +32,7 @@ const Gallery: React.FC<GalleryProps> = ({
   selectedIds,
   onSelectId,
   isLoading = false,
-  columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6",
+  columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
   onPreviewMedia
 }) => {
   const [mounted, setMounted] = useState(false);
@@ -65,36 +65,42 @@ const Gallery: React.FC<GalleryProps> = ({
   if (isLoading) {
     return (
       <div className="flex flex-col h-full">
-        <h2 className="text-lg font-medium mb-4">{title}</h2>
-        <GallerySkeletons columnsClassName={columnsClassName} />
+        <GalleryCountInfo 
+          photoCount={0} 
+          videoCount={0} 
+        />
+        <div className="mt-4">
+          <GallerySkeletons columnsClassName={columnsClassName} />
+        </div>
       </div>
     );
   }
   
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex justify-between items-center mb-4">
-        <GalleryCountInfo 
-          photoCount={countInfo.photoCount} 
-          videoCount={countInfo.videoCount} 
-        />
-        <GallerySelectionBar 
-          selectedIds={selectedIds}
-          mediaIds={mediaIds}
-          onSelectAll={handleSelectAll}
-        />
-      </div>
+    <div className="flex flex-col h-full space-y-4">
+      <GalleryCountInfo 
+        photoCount={countInfo.photoCount} 
+        videoCount={countInfo.videoCount} 
+      />
+      
+      <GallerySelectionBar 
+        selectedIds={selectedIds}
+        mediaIds={mediaIds}
+        onSelectAll={handleSelectAll}
+      />
       
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />
       ) : (
-        <GalleryGrid
-          mediaIds={mediaIds}
-          selectedIds={selectedIds}
-          onSelectId={onSelectId}
-          onPreviewMedia={onPreviewMedia}
-          columnsClassName={columnsClassName}
-        />
+        <div className="mt-2">
+          <GalleryGrid
+            mediaIds={mediaIds}
+            selectedIds={selectedIds}
+            onSelectId={onSelectId}
+            onPreviewMedia={onPreviewMedia}
+            columnsClassName={columnsClassName}
+          />
+        </div>
       )}
     </div>
   );

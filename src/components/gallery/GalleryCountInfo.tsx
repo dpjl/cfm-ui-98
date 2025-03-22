@@ -14,9 +14,14 @@ const GalleryCountInfo: React.FC<GalleryCountInfoProps> = ({
   const { t } = useLanguage();
   
   return (
-    <h2 className="text-lg font-medium">
-      {t('mediaGallery')} ({photoCount} {t('photos')}, {videoCount} videos)
-    </h2>
+    <div className="flex flex-col space-y-1">
+      <h2 className="text-lg font-medium">
+        {t('mediaGallery')}
+      </h2>
+      <p className="text-sm text-muted-foreground">
+        {photoCount} {t('photos')}, {videoCount} {t('videos')}
+      </p>
+    </div>
   );
 };
 
