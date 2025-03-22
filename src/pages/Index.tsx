@@ -92,12 +92,10 @@ const Index = () => {
         <div className="flex h-full overflow-hidden">
           {/* Left Sidebar */}
           <SidebarProvider defaultOpen={true}>
-            <div className="h-full">
-              <AppSidebar
-                selectedDirectoryId={selectedDirectoryIdLeft}
-                onSelectDirectory={setSelectedDirectoryIdLeft}
-              />
-            </div>
+            <AppSidebar
+              selectedDirectoryId={selectedDirectoryIdLeft}
+              onSelectDirectory={setSelectedDirectoryIdLeft}
+            />
           </SidebarProvider>
 
           {/* Main content area with header and galleries */}
@@ -181,12 +179,10 @@ const Index = () => {
 
           {/* Right Sidebar */}
           <SidebarProvider defaultOpen={true}>
-            <div className="h-full">
-              <AppSidebarRight
-                selectedDirectoryId={selectedDirectoryIdRight}
-                onSelectDirectory={setSelectedDirectoryIdRight}
-              />
-            </div>
+            <AppSidebarRight
+              selectedDirectoryId={selectedDirectoryIdRight}
+              onSelectDirectory={setSelectedDirectoryIdRight}
+            />
           </SidebarProvider>
         </div>
       </div>

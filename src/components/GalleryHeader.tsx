@@ -30,7 +30,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
   const { t } = useLanguage();
   
   return (
-    <div className="flex justify-between items-center mb-6">
+    <div className="flex justify-between items-center mb-6 w-full">
       <div className="flex items-center">
         <FolderSearch className="h-9 w-9 text-primary mr-3" />
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
