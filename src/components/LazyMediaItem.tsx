@@ -45,6 +45,15 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   // Fetch media info when the component becomes visible
   useEffect(() => {
     if (isIntersecting && !mediaInfo && !error) {
+      // If it's a mock ID, create mock data instead of fetching
+      if (id.startsWith('mock-media-')) {
+        setMediaInfo({
+          alt: `Mock Media ${id}`,
+          createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString() // Random date within last 30 days
+        });
+        return;
+      }
+      
       fetchMediaInfo(id)
         .then(data => setMediaInfo(data))
         .catch(err => {

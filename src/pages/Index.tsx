@@ -88,15 +88,17 @@ const Index = () => {
   return (
     <LanguageProvider>
       <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
-        {/* Main content container */}
+        {/* Main layout container */}
         <div className="flex h-full overflow-hidden">
-          {/* Left Sidebar */}
-          <SidebarProvider defaultOpen={true}>
-            <AppSidebar
-              selectedDirectoryId={selectedDirectoryIdLeft}
-              onSelectDirectory={setSelectedDirectoryIdLeft}
-            />
-          </SidebarProvider>
+          {/* Left Sidebar with fixed width */}
+          <div className="w-[16rem] max-w-[16rem] min-w-[3rem] flex-shrink-0 h-full overflow-hidden">
+            <SidebarProvider defaultOpen={true}>
+              <AppSidebar
+                selectedDirectoryId={selectedDirectoryIdLeft}
+                onSelectDirectory={setSelectedDirectoryIdLeft}
+              />
+            </SidebarProvider>
+          </div>
 
           {/* Main content area with header and galleries */}
           <div className="flex-1 flex flex-col overflow-hidden">
@@ -124,7 +126,7 @@ const Index = () => {
             <div className="flex-1 overflow-hidden">
               <ResizablePanelGroup direction="horizontal" className="h-full">
                 {/* Left Gallery */}
-                <ResizablePanel defaultSize={50} className="overflow-hidden">
+                <ResizablePanel defaultSize={50} className="overflow-auto">
                   <motion.div
                     variants={containerVariants}
                     initial="hidden"
@@ -151,7 +153,7 @@ const Index = () => {
                 <ResizableHandle withHandle />
 
                 {/* Right Gallery */}
-                <ResizablePanel defaultSize={50} className="overflow-hidden">
+                <ResizablePanel defaultSize={50} className="overflow-auto">
                   <motion.div
                     variants={containerVariants}
                     initial="hidden"
@@ -177,13 +179,15 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Right Sidebar */}
-          <SidebarProvider defaultOpen={true}>
-            <AppSidebarRight
-              selectedDirectoryId={selectedDirectoryIdRight}
-              onSelectDirectory={setSelectedDirectoryIdRight}
-            />
-          </SidebarProvider>
+          {/* Right Sidebar with fixed width */}
+          <div className="w-[16rem] max-w-[16rem] min-w-[3rem] flex-shrink-0 h-full overflow-hidden">
+            <SidebarProvider defaultOpen={true}>
+              <AppSidebarRight
+                selectedDirectoryId={selectedDirectoryIdRight}
+                onSelectDirectory={setSelectedDirectoryIdRight}
+              />
+            </SidebarProvider>
+          </div>
         </div>
       </div>
     </LanguageProvider>

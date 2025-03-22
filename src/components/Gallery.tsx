@@ -114,7 +114,7 @@ const Gallery: React.FC<GalleryProps> = ({
           <p className="text-muted-foreground">{t('noMediaFound')}</p>
         </div>
       ) : (
-        <div className={cn("grid gap-4 flex-1 content-start", columnsClassName)}>
+        <div className={cn("grid gap-4 h-full overflow-auto content-start", columnsClassName)}>
           <AnimatePresence>
             {mediaIds.map((id, index) => (
               <LazyMediaItem

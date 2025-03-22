@@ -116,7 +116,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     <div className="h-full flex flex-col p-4">
       <motion.div 
         variants={itemVariants}
-        className="glass-panel p-4 flex-1 overflow-hidden flex flex-col"
+        className="glass-panel p-4 flex-1 overflow-auto flex flex-col"
       >
         <Gallery
           title={title}
