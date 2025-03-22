@@ -98,8 +98,8 @@ const Index = () => {
               <ResizablePanel 
                 defaultSize={15} 
                 minSize={5}
-                maxSize={30}
-                className="border-r border-border overflow-hidden"
+                maxSize={20}
+                className="border-r border-border"
               >
                 <AppSidebar
                   selectedDirectoryId={selectedDirectoryIdLeft}
@@ -200,8 +200,8 @@ const Index = () => {
               <ResizablePanel 
                 defaultSize={15} 
                 minSize={5}
-                maxSize={30}
-                className="border-l border-border overflow-hidden"
+                maxSize={20}
+                className="border-l border-border"
               >
                 <AppSidebarRight
                   selectedDirectoryId={selectedDirectoryIdRight}

@@ -45,9 +45,11 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
       <div className="flex justify-between items-center p-3 border-b border-border">
         <div className="flex items-center gap-2">
           <Folder className="h-4 w-4" />
-          <span className={`text-sm font-medium transition-opacity duration-200 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
-            {t('directories')}
-          </span>
+          {!isCollapsed && (
+            <span className="text-sm font-medium">
+              {t('directories')}
+            </span>
+          )}
         </div>
         <button 
           onClick={toggleSidebar}
