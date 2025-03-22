@@ -40,7 +40,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   const isCollapsed = state === 'collapsed';
 
   return (
-    <div className={`flex flex-col h-full bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm transition-all duration-300 ${isCollapsed ? 'w-0 overflow-hidden' : 'w-full'}`}>
+    <div className={`flex flex-col h-full bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm transition-all duration-300 ${isCollapsed ? 'w-[3rem]' : 'w-full'}`}>
       {/* Header with toggles */}
       <div className="flex justify-between items-center p-3 border-b border-border">
         <div className="flex items-center gap-2">
@@ -96,7 +96,11 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
             )}
           </div>
         </ScrollArea>
-      ) : null}
+      ) : (
+        <div className="flex-1 flex justify-center p-2 mt-4">
+          <Folder className="h-5 w-5 text-muted-foreground" />
+        </div>
+      )}
     </div>
   );
 };
