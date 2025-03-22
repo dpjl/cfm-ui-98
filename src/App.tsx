@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "@/hooks/use-theme";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient({
@@ -31,7 +30,6 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <ThemeToggle />
         <BrowserRouter basename={getBasename()}>
           <Routes>
             <Route path="/" element={<Index />} />

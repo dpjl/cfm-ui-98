@@ -5,8 +5,8 @@ import GalleryContainer from '@/components/GalleryContainer';
 import { LanguageProvider } from '@/hooks/use-language';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageToggle } from '@/components/LanguageToggle';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 // Define container animation variants
@@ -28,31 +28,20 @@ const Index = () => {
 
   return (
     <LanguageProvider>
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={true}>
         <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
           <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
             <LanguageToggle />
             <ThemeToggle />
           </div>
           
-          <ResizablePanelGroup direction="horizontal" className="min-h-screen">
-            {/* Sidebar panel */}
-            <ResizablePanel 
-              defaultSize={20} 
-              minSize={15} 
-              maxSize={30}
-              className="bg-sidebar text-sidebar-foreground"
-            >
-              <AppSidebar
-                selectedDirectoryId={selectedDirectoryId}
-                onSelectDirectory={setSelectedDirectoryId}
-              />
-            </ResizablePanel>
+          <div className="flex h-screen w-full">
+            <AppSidebar
+              selectedDirectoryId={selectedDirectoryId}
+              onSelectDirectory={setSelectedDirectoryId}
+            />
             
-            <ResizableHandle withHandle />
-            
-            {/* Main content panel */}
-            <ResizablePanel defaultSize={80}>
+            <main className="flex-1 overflow-auto">
               <motion.div
                 variants={containerVariants}
                 initial="hidden"
@@ -64,8 +53,8 @@ const Index = () => {
                   directory={selectedDirectoryId} 
                 />
               </motion.div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+            </main>
+          </div>
         </div>
       </SidebarProvider>
     </LanguageProvider>

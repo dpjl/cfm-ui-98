@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchDirectoryTree, DirectoryNode } from '@/api/imageApi';
+import { fetchDirectoryTree } from '@/api/imageApi';
 import FolderTree from '@/components/FolderTree';
 import { useLanguage } from '@/hooks/use-language';
 import { Folder } from 'lucide-react';
@@ -41,7 +41,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   }, [directoryTree]);
 
   return (
-    <Sidebar>
+    <Sidebar className="border-none">
       <SidebarHeader className="flex justify-between items-center p-4">
         <div className="flex items-center gap-2">
           <Folder className="h-5 w-5" />
