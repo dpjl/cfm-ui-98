@@ -87,129 +87,107 @@ const Index = () => {
 
   return (
     <LanguageProvider>
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-        <div className="flex h-screen w-full overflow-hidden">
-          <ResizablePanelGroup
-            direction="horizontal"
-            className="w-full"
-          >
-            {/* Left Sidebar */}
-            <SidebarProvider defaultOpen={true}>
-              <ResizablePanel 
-                defaultSize={15} 
-                minSize={5}
-                maxSize={20}
-                className="border-r border-border"
-              >
-                <AppSidebar
-                  selectedDirectoryId={selectedDirectoryIdLeft}
-                  onSelectDirectory={setSelectedDirectoryIdLeft}
-                />
-              </ResizablePanel>
-            </SidebarProvider>
+      <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
+        {/* Main content container */}
+        <div className="flex h-full overflow-hidden">
+          {/* Left Sidebar */}
+          <SidebarProvider defaultOpen={true}>
+            <div className="h-full">
+              <AppSidebar
+                selectedDirectoryId={selectedDirectoryIdLeft}
+                onSelectDirectory={setSelectedDirectoryIdLeft}
+              />
+            </div>
+          </SidebarProvider>
 
-            {/* Resizable Handle */}
-            <ResizableHandle withHandle />
+          {/* Main content area with header and galleries */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Header for both galleries */}
+            <div className="p-4">
+              <GalleryHeader 
+                title="CFM"
+                columnsCount={columnsCount}
+                setColumnsCount={setColumnsCount}
+                isLoading={false}
+                selectedImages={[...selectedIdsLeft, ...selectedIdsRight]}
+                onRefresh={handleRefresh}
+                onDeleteSelected={() => {
+                  if (selectedIdsLeft.length > 0) {
+                    handleDeleteSelected('left');
+                  } else if (selectedIdsRight.length > 0) {
+                    handleDeleteSelected('right');
+                  }
+                }}
+                isDeletionPending={deleteMutation.isPending}
+              />
+            </div>
+            
+            {/* Galleries container */}
+            <div className="flex-1 overflow-hidden">
+              <ResizablePanelGroup direction="horizontal" className="h-full">
+                {/* Left Gallery */}
+                <ResizablePanel defaultSize={50} className="overflow-hidden">
+                  <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="h-full"
+                  >
+                    <GalleryContainer 
+                      title="Left Gallery" 
+                      directory={selectedDirectoryIdLeft}
+                      position="left"
+                      columnsCount={columnsCount}
+                      selectedIds={selectedIdsLeft}
+                      setSelectedIds={setSelectedIdsLeft}
+                      onDeleteSelected={() => handleDeleteSelected('left')}
+                      deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
+                      setDeleteDialogOpen={setDeleteDialogOpen}
+                      deleteMutation={deleteMutation}
+                      hideHeader={true}
+                    />
+                  </motion.div>
+                </ResizablePanel>
 
-            {/* Main Content Panel with Both Galleries */}
-            <ResizablePanel defaultSize={70} className="overflow-hidden">
-              <main className="relative overflow-auto h-full">
-                {/* Common Header for Both Galleries */}
-                <div className="p-6 pb-0">
-                  <GalleryHeader 
-                    title="CFM"
-                    columnsCount={columnsCount}
-                    setColumnsCount={setColumnsCount}
-                    isLoading={false}
-                    selectedImages={[...selectedIdsLeft, ...selectedIdsRight]}
-                    onRefresh={handleRefresh}
-                    onDeleteSelected={() => {
-                      if (selectedIdsLeft.length > 0) {
-                        handleDeleteSelected('left');
-                      } else if (selectedIdsRight.length > 0) {
-                        handleDeleteSelected('right');
-                      }
-                    }}
-                    isDeletionPending={deleteMutation.isPending}
-                  />
-                </div>
-                
-                {/* Galleries Container */}
-                <div className="flex h-[calc(100%-70px)]">
-                  <ResizablePanelGroup direction="horizontal" className="w-full">
-                    {/* Left Gallery */}
-                    <ResizablePanel defaultSize={50} className="overflow-hidden">
-                      <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="h-full"
-                      >
-                        <GalleryContainer 
-                          title="Left Gallery" 
-                          directory={selectedDirectoryIdLeft}
-                          position="left"
-                          columnsCount={columnsCount}
-                          selectedIds={selectedIdsLeft}
-                          setSelectedIds={setSelectedIdsLeft}
-                          onDeleteSelected={() => handleDeleteSelected('left')}
-                          deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
-                          setDeleteDialogOpen={setDeleteDialogOpen}
-                          deleteMutation={deleteMutation}
-                          hideHeader={true}
-                        />
-                      </motion.div>
-                    </ResizablePanel>
+                {/* Resizable Handle between galleries */}
+                <ResizableHandle withHandle />
 
-                    {/* Resizable Handle between galleries */}
-                    <ResizableHandle withHandle />
+                {/* Right Gallery */}
+                <ResizablePanel defaultSize={50} className="overflow-hidden">
+                  <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="h-full"
+                  >
+                    <GalleryContainer 
+                      title="Right Gallery" 
+                      directory={selectedDirectoryIdRight}
+                      position="right"
+                      columnsCount={columnsCount}
+                      selectedIds={selectedIdsRight}
+                      setSelectedIds={setSelectedIdsRight}
+                      onDeleteSelected={() => handleDeleteSelected('right')}
+                      deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
+                      setDeleteDialogOpen={setDeleteDialogOpen}
+                      deleteMutation={deleteMutation}
+                      hideHeader={true}
+                    />
+                  </motion.div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </div>
+          </div>
 
-                    {/* Right Gallery */}
-                    <ResizablePanel defaultSize={50} className="overflow-hidden">
-                      <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="h-full"
-                      >
-                        <GalleryContainer 
-                          title="Right Gallery" 
-                          directory={selectedDirectoryIdRight}
-                          position="right"
-                          columnsCount={columnsCount}
-                          selectedIds={selectedIdsRight}
-                          setSelectedIds={setSelectedIdsRight}
-                          onDeleteSelected={() => handleDeleteSelected('right')}
-                          deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
-                          setDeleteDialogOpen={setDeleteDialogOpen}
-                          deleteMutation={deleteMutation}
-                          hideHeader={true}
-                        />
-                      </motion.div>
-                    </ResizablePanel>
-                  </ResizablePanelGroup>
-                </div>
-              </main>
-            </ResizablePanel>
-
-            {/* Resizable Handle */}
-            <ResizableHandle withHandle />
-
-            {/* Right Sidebar */}
-            <SidebarProvider defaultOpen={true}>
-              <ResizablePanel 
-                defaultSize={15} 
-                minSize={5}
-                maxSize={20}
-                className="border-l border-border"
-              >
-                <AppSidebarRight
-                  selectedDirectoryId={selectedDirectoryIdRight}
-                  onSelectDirectory={setSelectedDirectoryIdRight}
-                />
-              </ResizablePanel>
-            </SidebarProvider>
-          </ResizablePanelGroup>
+          {/* Right Sidebar */}
+          <SidebarProvider defaultOpen={true}>
+            <div className="h-full">
+              <AppSidebarRight
+                selectedDirectoryId={selectedDirectoryIdRight}
+                onSelectDirectory={setSelectedDirectoryIdRight}
+              />
+            </div>
+          </SidebarProvider>
         </div>
       </div>
     </LanguageProvider>

@@ -40,7 +40,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   const isCollapsed = state === 'collapsed';
 
   return (
-    <div className={`flex flex-col h-full bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm transition-all duration-300 ${isCollapsed ? 'w-[3rem]' : 'w-full'}`}>
+    <div className={`flex flex-col h-full bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm transition-all duration-300 ${isCollapsed ? 'w-[3rem]' : 'w-[15rem]'}`}>
       {/* Header with toggles */}
       <div className="flex justify-between items-center p-3 border-b border-border">
         <div className="flex items-center gap-2">
