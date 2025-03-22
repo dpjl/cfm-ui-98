@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchDirectoryTree } from '@/api/imageApi';
 import FolderTree from '@/components/FolderTree';
 import { useLanguage } from '@/hooks/use-language';
+import { useSidebar } from '@/components/ui/sidebar';
 import { Folder } from 'lucide-react';
 import { 
   Sidebar, 
@@ -11,7 +12,8 @@ import {
   SidebarHeader, 
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarTrigger
+  SidebarTrigger,
+  SidebarRail
 } from '@/components/ui/sidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -25,6 +27,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   onSelectDirectory 
 }) => {
   const { t } = useLanguage();
+  const { state } = useSidebar();
   
   // Fetch directory tree data
   const { 
@@ -38,10 +41,12 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   // For debugging purposes
   useEffect(() => {
     console.log('Directory tree loaded:', directoryTree);
-  }, [directoryTree]);
+    console.log('Sidebar state:', state);
+  }, [directoryTree, state]);
 
   return (
-    <Sidebar className="border-none">
+    <Sidebar variant="sidebar" collapsible="icon" className="border-r border-border">
+      <SidebarRail />
       <SidebarHeader className="flex justify-between items-center p-4">
         <div className="flex items-center gap-2">
           <Folder className="h-5 w-5" />
