@@ -50,13 +50,13 @@ const Index = () => {
               <ResizableHandle withHandle />
 
               {/* Main Content Panel */}
-              <ResizablePanel defaultSize={80} className="overflow-hidden">
-                <main className="relative overflow-auto h-full">
+              <ResizablePanel defaultSize={80} className="flex-1 overflow-hidden">
+                <main className="relative overflow-auto h-full w-full">
                   <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="max-w-full mx-auto p-6"
+                    className="w-full h-full p-6"
                   >
                     <GalleryContainer 
                       title="CFM" 
