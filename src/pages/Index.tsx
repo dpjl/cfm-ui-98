@@ -5,7 +5,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteImages } from '@/api/imageApi';
 import AppSidebar from '@/components/AppSidebar';
-import AppSidebarRight from '@/components/AppSidebarRight';
 import HoverSidebar from '@/components/layout/HoverSidebar';
 import GalleriesContainer from '@/components/layout/GalleriesContainer';
 import PageHeader from '@/components/layout/PageHeader';
@@ -94,6 +93,7 @@ const Index = () => {
             <AppSidebar
               selectedDirectoryId={selectedDirectoryIdLeft}
               onSelectDirectory={setSelectedDirectoryIdLeft}
+              position="left"
             />
           </HoverSidebar>
 
@@ -133,9 +133,10 @@ const Index = () => {
             isHovering={hoveringRight} 
             onHoverChange={setHoveringRight}
           >
-            <AppSidebarRight
+            <AppSidebar
               selectedDirectoryId={selectedDirectoryIdRight}
               onSelectDirectory={setSelectedDirectoryIdRight}
+              position="right"
             />
           </HoverSidebar>
         </div>
