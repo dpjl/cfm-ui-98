@@ -1,0 +1,14 @@
+
+@layer components {
+  .image-shimmer {
+    @apply bg-gradient-to-r from-transparent via-white/10 to-transparent bg-[length:1000px_100%] animate-image-shimmer;
+  }
+  
+  .image-transition-in {
+    @apply animate-scale-in;
+  }
+  
+  .image-transition-out {
+    @apply animate-scale-out;
+  }
+}

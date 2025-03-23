@@ -1,0 +1,17 @@
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-glass rounded-xl;
+  }
+  
+  .dark .glass-panel {
+    @apply bg-slate-900/80 backdrop-blur-sm border border-slate-800/50 shadow-glass rounded-xl;
+  }
+  
+  /* Mobile responsive adjustments */
+  @media (max-width: 640px) {
+    .glass-panel {
+      @apply rounded-lg;
+    }
+  }
+}

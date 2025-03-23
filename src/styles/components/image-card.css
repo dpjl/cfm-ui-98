@@ -1,0 +1,42 @@
+
+@layer components {
+  .image-card {
+    @apply relative overflow-hidden rounded-lg transition-all duration-300 ease-out cursor-pointer shadow-subtle hover:shadow-elevation;
+    backface-visibility: hidden;
+  }
+  
+  .image-card.selected {
+    @apply ring-2 ring-primary ring-offset-2;
+  }
+  
+  .image-card img {
+    @apply w-full h-full object-cover transition-all duration-300 ease-out;
+  }
+  
+  .image-card:hover img {
+    @apply scale-105;
+  }
+  
+  .image-card .image-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 transition-opacity duration-300;
+  }
+  
+  .image-card:hover .image-overlay {
+    @apply opacity-100;
+  }
+  
+  .image-card .image-checkbox {
+    @apply absolute top-3 right-3 z-10 transition-all duration-200 ease-out;
+  }
+  
+  /* Mobile responsive adjustments */
+  @media (max-width: 640px) {
+    .image-card {
+      @apply rounded-md shadow-sm;
+    }
+    
+    .image-card.selected {
+      @apply ring-1 ring-offset-1;
+    }
+  }
+}
