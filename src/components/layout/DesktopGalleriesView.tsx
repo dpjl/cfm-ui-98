@@ -1,0 +1,103 @@
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import GalleryContainer from '@/components/GalleryContainer';
+
+// Define container animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { 
+      when: "beforeChildren",
+      staggerChildren: 0.1,
+      duration: 0.3
+    }
+  }
+};
+
+interface DesktopGalleriesViewProps {
+  columnsCount: number;
+  selectedDirectoryIdLeft: string;
+  selectedDirectoryIdRight: string;
+  selectedIdsLeft: string[];
+  setSelectedIdsLeft: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedIdsRight: string[];
+  setSelectedIdsRight: React.Dispatch<React.SetStateAction<string[]>>;
+  handleDeleteSelected: (side: 'left' | 'right') => void;
+  deleteDialogOpen: boolean;
+  activeSide: 'left' | 'right';
+  setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  deleteMutation: any;
+}
+
+const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
+  columnsCount,
+  selectedDirectoryIdLeft,
+  selectedDirectoryIdRight,
+  selectedIdsLeft,
+  setSelectedIdsLeft,
+  selectedIdsRight,
+  setSelectedIdsRight,
+  handleDeleteSelected,
+  deleteDialogOpen,
+  activeSide,
+  setDeleteDialogOpen,
+  deleteMutation
+}) => {
+  return (
+    <div className="flex-1 overflow-hidden">
+      <div className="flex h-full">
+        {/* Left Gallery */}
+        <div className="w-1/2 overflow-auto">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="h-full"
+          >
+            <GalleryContainer 
+              title="Left Gallery"
+              directory={selectedDirectoryIdLeft}
+              position="left"
+              columnsCount={columnsCount}
+              selectedIds={selectedIdsLeft}
+              setSelectedIds={setSelectedIdsLeft}
+              onDeleteSelected={() => handleDeleteSelected('left')}
+              deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              deleteMutation={deleteMutation}
+              hideHeader={true}
+            />
+          </motion.div>
+        </div>
+
+        {/* Right Gallery */}
+        <div className="w-1/2 overflow-auto">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="h-full"
+          >
+            <GalleryContainer 
+              title="Right Gallery"
+              directory={selectedDirectoryIdRight}
+              position="right"
+              columnsCount={columnsCount}
+              selectedIds={selectedIdsRight}
+              setSelectedIds={setSelectedIdsRight}
+              onDeleteSelected={() => handleDeleteSelected('right')}
+              deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              deleteMutation={deleteMutation}
+              hideHeader={true}
+            />
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DesktopGalleriesView;
