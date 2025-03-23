@@ -11,6 +11,7 @@ interface GalleryGridProps {
   onSelectId: (id: string) => void;
   onPreviewMedia?: (id: string) => void;
   columnsClassName?: string;
+  forceMobileColumns?: boolean;
 }
 
 const GalleryGrid: React.FC<GalleryGridProps> = ({
@@ -18,21 +19,24 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   selectedIds,
   onSelectId,
   onPreviewMedia,
-  columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
+  columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6",
+  forceMobileColumns = true
 }) => {
   const isMobile = useIsMobile();
   
-  // Déterminer si la classe contient déjà mobile-gallery-grid pour éviter la duplication
-  const hasCustomMobileClass = columnsClassName.includes('mobile-gallery-grid');
+  // Use a simpler approach to determine grid columns
+  let gridClasses = columnsClassName;
+  
+  // Only apply mobile-specific classes if forceMobileColumns is true
+  if (isMobile && forceMobileColumns) {
+    gridClasses = "grid-cols-2 mobile-gallery-grid";
+  }
   
   return (
     <div className={cn(
       "grid h-full content-start", 
       isMobile ? "gap-1" : "gap-4",
-      columnsClassName,
-      // Ajouter la classe mobile-gallery-grid uniquement si elle n'est pas déjà présente 
-      // et si nous sommes en mode mobile avec grid-cols-2
-      isMobile && !hasCustomMobileClass && columnsClassName.includes('grid-cols-2') ? "mobile-gallery-grid" : ""
+      gridClasses
     )}>
       <AnimatePresence>
         {mediaIds.map((id, index) => (

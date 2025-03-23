@@ -104,11 +104,6 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   };
 
   const getColumnsClassName = () => {
-    // For the dual view mode on mobile, force 2 columns
-    if (isMobile && forceMobileColumns) {
-      return "grid-cols-2 mobile-gallery-grid";
-    }
-    
     switch (columnsCount) {
       case 2: return "grid-cols-2";
       case 3: return "grid-cols-2 sm:grid-cols-3";
@@ -139,6 +134,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
           isLoading={isLoading}
           columnsClassName={getColumnsClassName()}
           onPreviewMedia={handlePreviewMedia}
+          forceMobileColumns={forceMobileColumns}
         />
       </motion.div>
       

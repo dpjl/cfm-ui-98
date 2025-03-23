@@ -25,6 +25,7 @@ interface GalleryProps {
   isLoading?: boolean;
   columnsClassName?: string;
   onPreviewMedia?: (id: string) => void;
+  forceMobileColumns?: boolean;
 }
 
 const Gallery: React.FC<GalleryProps> = ({
@@ -34,7 +35,8 @@ const Gallery: React.FC<GalleryProps> = ({
   onSelectId,
   isLoading = false,
   columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
-  onPreviewMedia
+  onPreviewMedia,
+  forceMobileColumns = true
 }) => {
   const [mounted, setMounted] = useState(false);
   const { t } = useLanguage();
@@ -101,6 +103,7 @@ const Gallery: React.FC<GalleryProps> = ({
             onSelectId={onSelectId}
             onPreviewMedia={onPreviewMedia}
             columnsClassName={columnsClassName}
+            forceMobileColumns={forceMobileColumns}
           />
         </div>
       )}
