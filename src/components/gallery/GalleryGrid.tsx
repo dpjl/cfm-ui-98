@@ -12,6 +12,7 @@ interface GalleryGridProps {
   onPreviewMedia?: (id: string) => void;
   columnsClassName?: string;
   viewMode?: 'single' | 'split';
+  showDates?: boolean;
 }
 
 const GalleryGrid: React.FC<GalleryGridProps> = ({
@@ -20,7 +21,8 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   onSelectId,
   onPreviewMedia,
   columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6",
-  viewMode = 'single'
+  viewMode = 'single',
+  showDates = false
 }) => {
   const isMobile = useIsMobile();
   
@@ -45,6 +47,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
             onSelect={() => onSelectId(id)}
             onPreview={() => onPreviewMedia ? onPreviewMedia(id) : null}
             index={index}
+            showDates={showDates}
           />
         ))}
       </AnimatePresence>

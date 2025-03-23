@@ -87,6 +87,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
                 isVideo={Boolean(isVideo)}
                 onLoad={() => setLoaded(true)}
                 loaded={loaded}
+                showDate={showDates}
               />
 
               <DateDisplay dateString={mediaInfo?.createdAt} showDate={showDates} />
