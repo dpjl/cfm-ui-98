@@ -29,6 +29,7 @@ interface ImageCardProps {
   type?: "image" | "video";
   onInView?: () => void;
   createdAt?: string;
+  showDates?: boolean;
 }
 
 const ImageCard: React.FC<ImageCardProps> = ({
@@ -40,7 +41,8 @@ const ImageCard: React.FC<ImageCardProps> = ({
   aspectRatio = "square",
   type = "image",
   onInView,
-  createdAt
+  createdAt,
+  showDates = false
 }) => {
   const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -127,7 +129,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
                 )}
 
                 {/* Use the improved DateDisplay component */}
-                <DateDisplay dateString={createdAt} />
+                <DateDisplay dateString={createdAt} showDate={showDates} />
 
                 <div className="image-overlay" />
                 <div className="image-checkbox" onClick={(e) => e.stopPropagation()}>

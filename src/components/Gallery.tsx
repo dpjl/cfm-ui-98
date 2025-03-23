@@ -39,6 +39,7 @@ const Gallery: React.FC<GalleryProps> = ({
   viewMode = 'single'
 }) => {
   const [mounted, setMounted] = useState(false);
+  const [showDates, setShowDates] = useState(false);
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   
@@ -64,6 +65,10 @@ const Gallery: React.FC<GalleryProps> = ({
         }
       });
     }
+  };
+
+  const toggleDates = () => {
+    setShowDates(prev => !prev);
   };
   
   if (isLoading) {
@@ -91,6 +96,8 @@ const Gallery: React.FC<GalleryProps> = ({
         selectedIds={selectedIds}
         mediaIds={mediaIds}
         onSelectAll={handleSelectAll}
+        showDates={showDates}
+        onToggleDates={toggleDates}
       />
       
       {mediaIds.length === 0 ? (
@@ -104,6 +111,7 @@ const Gallery: React.FC<GalleryProps> = ({
             onPreviewMedia={onPreviewMedia}
             columnsClassName={columnsClassName}
             viewMode={viewMode}
+            showDates={showDates}
           />
         </div>
       )}

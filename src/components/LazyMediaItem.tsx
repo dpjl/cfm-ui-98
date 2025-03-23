@@ -17,6 +17,7 @@ interface LazyMediaItemProps {
   onSelect: () => void;
   onPreview: () => void;
   index: number;
+  showDates?: boolean;
 }
 
 const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
@@ -24,7 +25,8 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   selected,
   onSelect,
   onPreview,
-  index
+  index,
+  showDates = false
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { elementRef, isIntersecting } = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true });
@@ -87,7 +89,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
                 loaded={loaded}
               />
 
-              <DateDisplay dateString={mediaInfo?.createdAt} />
+              <DateDisplay dateString={mediaInfo?.createdAt} showDate={showDates} />
 
               <div className="image-overlay" />
               <SelectionCheckbox

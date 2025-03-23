@@ -9,6 +9,7 @@ interface MediaItemRendererProps {
   isVideo: boolean;
   onLoad: () => void;
   loaded: boolean;
+  showDate?: boolean;
 }
 
 const MediaItemRenderer: React.FC<MediaItemRendererProps> = ({
@@ -16,7 +17,8 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = ({
   alt,
   isVideo,
   onLoad,
-  loaded
+  loaded,
+  showDate = false
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   
