@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface HoverSidebarProps {
   children: React.ReactNode;
@@ -37,9 +38,14 @@ const HoverSidebar: React.FC<HoverSidebarProps> = ({
           {!isHovering && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div 
-                className={`text-white font-medium tracking-wide transform ${position === 'left' ? 'rotate-90' : '-rotate-90'} origin-center whitespace-nowrap`}
+                className={`text-white font-medium tracking-wide transform ${position === 'left' ? '-rotate-90' : 'rotate-90'} origin-center whitespace-nowrap flex items-center gap-2`}
               >
                 {sidebarTitle}
+                {position === 'left' ? (
+                  <ChevronRight className="h-4 w-4 mt-0.5" />
+                ) : (
+                  <ChevronLeft className="h-4 w-4 mt-0.5" />
+                )}
               </div>
             </div>
           )}
