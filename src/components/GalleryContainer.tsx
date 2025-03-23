@@ -2,8 +2,8 @@
 import React from 'react';
 import Gallery from './Gallery';
 import { useQuery } from '@tanstack/react-query';
-import { getMediaIdsForDirectory } from '@/api/imageApi';
-import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+import { fetchMediaIds } from '@/api/imageApi';
+import DeleteConfirmDialog from './DeleteConfirmDialog';
 
 interface GalleryContainerProps {
   title: string;
@@ -35,7 +35,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   // Query to get media IDs for the directory
   const { data: mediaIds = [], isLoading } = useQuery({
     queryKey: ['mediaIds', directory],
-    queryFn: () => getMediaIdsForDirectory(directory),
+    queryFn: () => fetchMediaIds(directory),
   });
 
   // Function to handle selecting/deselecting an image
@@ -68,6 +68,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
         isLoading={isLoading}
         columnsClassName={columnsClassName}
         onPreviewMedia={handlePreviewMedia}
+        hideHeader={hideHeader}
       />
 
       {/* Delete confirmation dialog */}
