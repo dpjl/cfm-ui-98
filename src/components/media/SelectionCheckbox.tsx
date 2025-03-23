@@ -15,7 +15,7 @@ const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
   loaded
 }) => {
   return (
-    <div className="image-checkbox absolute top-2 right-2 z-20" onClick={(e) => e.stopPropagation()}>
+    <div className="image-checkbox" onClick={(e) => e.stopPropagation()}>
       <Checkbox 
         checked={selected}
         className={cn(

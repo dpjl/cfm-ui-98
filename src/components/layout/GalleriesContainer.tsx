@@ -47,7 +47,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
 }) => {
   return (
     <div className="flex-1 overflow-hidden">
-      <div className="flex h-full gap-1">
+      <div className="flex h-full">
         {/* Left Gallery */}
         <div className="w-1/2 overflow-auto">
           <motion.div

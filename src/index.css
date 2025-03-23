@@ -158,7 +158,6 @@
   
   .image-card.selected {
     @apply ring-2 ring-primary ring-offset-2;
-    z-index: 10; /* Ensure selected items appear above others */
   }
   
   .image-card img {
@@ -177,10 +176,9 @@
     @apply opacity-100;
   }
   
-  /* Remove this class as we're now positioning directly in the component */
-  /* .image-card .image-checkbox {
+  .image-card .image-checkbox {
     @apply absolute top-3 right-3 z-10 transition-all duration-200 ease-out;
-  } */
+  }
   
   .glass-panel {
     @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-glass rounded-xl;
