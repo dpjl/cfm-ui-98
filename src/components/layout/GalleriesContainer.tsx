@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import GalleryContainer from '@/components/GalleryContainer';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { GalleryHorizontal, GalleryVerticalEnd, GalleryVertical } from 'lucide-react';
+import { GalleryHorizontal, GalleryVerticalEnd, GalleryVertical, ArrowLeftRight } from 'lucide-react';
 
 // Define container animation variants
 const containerVariants = {
@@ -119,7 +120,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
             {/* Full width view when only one gallery is shown */}
             {mobileViewMode === 'left' && (
               <div className="w-full h-full overflow-hidden">
-                <div className="h-full overflow-auto">
+                <ScrollArea className="h-full">
                   <div className="p-2">
                     <GalleryContainer 
                       title="Left Gallery" 
@@ -135,13 +136,13 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
                       hideHeader={true}
                     />
                   </div>
-                </div>
+                </ScrollArea>
               </div>
             )}
             
             {mobileViewMode === 'right' && (
               <div className="w-full h-full overflow-hidden">
-                <div className="h-full overflow-auto">
+                <ScrollArea className="h-full">
                   <div className="p-2">
                     <GalleryContainer 
                       title="Right Gallery" 
@@ -157,7 +158,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
                       hideHeader={true}
                     />
                   </div>
-                </div>
+                </ScrollArea>
               </div>
             )}
             

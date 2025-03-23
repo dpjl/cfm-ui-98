@@ -13,22 +13,20 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface DeleteConfirmDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  isOpen: boolean;
   selectedCount: number;
   onConfirm: () => void;
-  isDeleting: boolean;
+  onCancel: () => void;
 }
 
 const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
-  open,
-  onOpenChange,
+  isOpen,
   selectedCount,
   onConfirm,
-  isDeleting
+  onCancel
 }) => {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <AlertDialogContent className="max-w-[400px]">
         <AlertDialogHeader>
           <AlertDialogTitle>
@@ -45,9 +43,8 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
           <AlertDialogAction
             onClick={onConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            disabled={isDeleting}
           >
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            Delete
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

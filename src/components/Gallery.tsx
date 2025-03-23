@@ -25,7 +25,6 @@ interface GalleryProps {
   isLoading?: boolean;
   columnsClassName?: string;
   onPreviewMedia?: (id: string) => void;
-  hideHeader?: boolean; // Adding the missing prop
 }
 
 const Gallery: React.FC<GalleryProps> = ({
@@ -35,8 +34,7 @@ const Gallery: React.FC<GalleryProps> = ({
   onSelectId,
   isLoading = false,
   columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
-  onPreviewMedia,
-  hideHeader = false // Adding default value
+  onPreviewMedia
 }) => {
   const [mounted, setMounted] = useState(false);
   const { t } = useLanguage();
@@ -82,20 +80,16 @@ const Gallery: React.FC<GalleryProps> = ({
   
   return (
     <div className="flex flex-col h-full space-y-2">
-      {!hideHeader && (
-        <>
-          <GalleryCountInfo 
-            photoCount={countInfo.photoCount} 
-            videoCount={countInfo.videoCount} 
-          />
-          
-          <GallerySelectionBar 
-            selectedIds={selectedIds}
-            mediaIds={mediaIds}
-            onSelectAll={handleSelectAll}
-          />
-        </>
-      )}
+      <GalleryCountInfo 
+        photoCount={countInfo.photoCount} 
+        videoCount={countInfo.videoCount} 
+      />
+      
+      <GallerySelectionBar 
+        selectedIds={selectedIds}
+        mediaIds={mediaIds}
+        onSelectAll={handleSelectAll}
+      />
       
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />
@@ -106,7 +100,7 @@ const Gallery: React.FC<GalleryProps> = ({
             selectedIds={selectedIds}
             onSelectId={onSelectId}
             onPreviewMedia={onPreviewMedia}
-            columnsClassName={columnsClassName}
+            columnsClassName={isMobile ? "grid-cols-2" : columnsClassName}
           />
         </div>
       )}
