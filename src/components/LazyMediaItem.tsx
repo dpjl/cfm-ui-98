@@ -66,6 +66,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
       initial="hidden"
       animate={isIntersecting ? "visible" : "hidden"}
       layout
+      className="relative"
     >
       {isIntersecting && (
         <MediaContextMenu onDownload={handleDownload} isVideo={Boolean(isVideo)}>
@@ -90,6 +91,8 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
               <DateDisplay dateString={mediaInfo?.createdAt} />
 
               <div className="image-overlay" />
+              
+              {/* Selection checkbox remains outside the card structure for better visibility */}
               <SelectionCheckbox
                 selected={selected}
                 onSelect={(e) => {
