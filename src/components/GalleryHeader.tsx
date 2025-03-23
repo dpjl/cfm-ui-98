@@ -1,8 +1,6 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Trash2, FolderSearch, RefreshCw } from 'lucide-react';
+import { FolderSearch } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/use-language';
 import { useIsMobile } from '@/hooks/use-breakpoint';
@@ -17,6 +15,7 @@ interface GalleryHeaderProps {
   onDeleteSelected: () => void;
   isDeletionPending: boolean;
   extraControls?: React.ReactNode;
+  hideMobileColumns?: boolean;
 }
 
 const GalleryHeader: React.FC<GalleryHeaderProps> = ({
@@ -28,7 +27,8 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
   onRefresh,
   onDeleteSelected,
   isDeletionPending,
-  extraControls
+  extraControls,
+  hideMobileColumns = false
 }) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
@@ -41,7 +41,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
           <div className="flex items-center">
             <FolderSearch className="h-5 w-5 text-primary mr-2" />
             <h1 className="text-xl font-bold tracking-tight truncate">
-              {t('title')}
+              {title}
             </h1>
           </div>
           
@@ -50,7 +50,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
           </div>
         </div>
         
-        <div className="flex items-center justify-between gap-2">
+        {!hideMobileColumns && (
           <div className="flex items-center gap-1 w-full">
             <span className="text-xs whitespace-nowrap">{t('columns')} {columnsCount}</span>
             <Slider
@@ -62,29 +62,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
               onValueChange={(value) => setColumnsCount(value[0])}
             />
           </div>
-          
-          <div className="flex gap-1">
-            <Button
-              onClick={onRefresh}
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
-            
-            <Button
-              onClick={onDeleteSelected}
-              variant="destructive"
-              size="icon"
-              className="h-8 w-8"
-              disabled={selectedImages.length === 0 || isDeletionPending}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        )}
       </div>
     );
   }
@@ -95,7 +73,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
       <div className="flex items-center">
         <FolderSearch className="h-9 w-9 text-primary mr-3" />
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          {t('title')}
+          {title}
         </h1>
       </div>
 
@@ -113,28 +91,6 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
         </div>
         
         {extraControls}
-        
-        <Button
-          onClick={onRefresh}
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          disabled={isLoading}
-        >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          {isLoading ? t('loading') : t('refresh')}
-        </Button>
-        
-        <Button
-          onClick={onDeleteSelected}
-          variant="destructive"
-          size="sm"
-          className="gap-2"
-          disabled={selectedImages.length === 0 || isDeletionPending}
-        >
-          <Trash2 className="h-4 w-4" />
-          {isDeletionPending ? t('deleting') : t('delete')}
-        </Button>
       </div>
     </div>
   );

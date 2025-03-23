@@ -7,6 +7,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import GalleryHeader from '@/components/GalleryHeader';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { MobileViewMode } from '@/types/gallery';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 interface PageHeaderProps {
   columnsCount: number;
@@ -81,13 +83,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           <TooltipTrigger asChild>
             <Button
               variant="outline"
-              size={isMobile ? "sm" : "icon"}
+              size="icon"
               onClick={onRefresh}
               disabled={isDeletionPending}
-              className={isMobile ? "px-2" : ""}
+              className="h-9 w-9"
             >
-              <RefreshCw className={isMobile ? "h-3 w-3 mr-1" : "h-4 w-4"} />
-              {isMobile && t('refresh')}
+              <RefreshCw className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
@@ -103,13 +104,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             <TooltipTrigger asChild>
               <Button
                 variant="destructive"
-                size={isMobile ? "sm" : "icon"}
+                size="icon"
                 onClick={onDelete}
                 disabled={isDeletionPending}
-                className={isMobile ? "px-2" : ""}
+                className="h-9 w-9"
               >
-                <Trash2 className={isMobile ? "h-3 w-3 mr-1" : "h-4 w-4"} />
-                {isMobile && `${t('delete')} (${selectedCount})`}
+                <Trash2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -126,12 +126,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                size={isMobile ? "sm" : "icon"}
+                size="icon"
                 onClick={onCloseSidebars}
-                className={isMobile ? "px-2" : ""}
+                className="h-9 w-9"
               >
-                <PanelLeftClose className={isMobile ? "h-3 w-3 mr-1" : "h-4 w-4"} />
-                {isMobile && t('close_sidebars')}
+                <PanelLeftClose className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -140,6 +139,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           </Tooltip>
         </TooltipProvider>
       )}
+      
+      {/* Language toggle */}
+      <LanguageToggle />
+      
+      {/* Theme toggle */}
+      <ThemeToggle />
     </div>
   );
 
@@ -154,6 +159,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       onDeleteSelected={onDelete}
       isDeletionPending={isDeletionPending}
       extraControls={extraControls}
+      hideMobileColumns={isMobile}
     />
   );
 };
