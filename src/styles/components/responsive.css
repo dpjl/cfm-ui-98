@@ -46,7 +46,8 @@
   .mobile-gallery-panel {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-    height: 100%;
+    height: 100vh;
+    max-height: calc(100vh - 140px); /* Account for header and other UI elements */
     padding: 0 2px;
   }
   

@@ -13,7 +13,7 @@ const breakpoints = {
 };
 
 export function useBreakpoint(breakpoint: Breakpoint) {
-  const [isAboveBreakpoint, setIsAboveBreakpoint] = React.useState<boolean | undefined>(undefined);
+  const [isAboveBreakpoint, setIsAboveBreakpoint] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     const checkBreakpoint = () => {
@@ -34,5 +34,22 @@ export function useBreakpoint(breakpoint: Breakpoint) {
 }
 
 export function useIsMobile() {
-  return !useBreakpoint('md'); // Consider anything below 'md' (768px) as mobile
+  const [isMobile, setIsMobile] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < breakpoints.md); // Consider anything below 'md' (768px) as mobile
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add event listener
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
 }

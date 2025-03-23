@@ -45,12 +45,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     <div className="flex items-center gap-2">
       {/* Mobile view mode switcher */}
       {isMobile && setMobileViewMode && (
-        <div className="flex items-center border rounded-md mr-1">
+        <div className="mobile-view-switcher">
           <Button
             variant={mobileViewMode === 'left' ? "default" : "ghost"}
             size="icon"
             onClick={() => setMobileViewMode('left')}
-            className="h-8 w-8 rounded-none rounded-l-md"
+            className="h-8 w-8"
           >
             <GalleryVertical className="h-4 w-4" />
           </Button>
@@ -59,7 +59,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             variant={mobileViewMode === 'both' ? "default" : "ghost"}
             size="icon"
             onClick={() => setMobileViewMode('both')}
-            className="h-8 w-8 rounded-none"
+            className="h-8 w-8"
           >
             <GalleryHorizontal className="h-4 w-4" />
           </Button>
@@ -68,7 +68,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             variant={mobileViewMode === 'right' ? "default" : "ghost"}
             size="icon"
             onClick={() => setMobileViewMode('right')}
-            className="h-8 w-8 rounded-none rounded-r-md"
+            className="h-8 w-8"
           >
             <GalleryVerticalEnd className="h-4 w-4" />
           </Button>
