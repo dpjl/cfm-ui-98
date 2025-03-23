@@ -31,11 +31,6 @@
     .mobile-header {
       @apply py-1 px-2;
     }
-    
-    /* Force gallery to show 2 columns */
-    .mobile-gallery-grid {
-      @apply grid-cols-2 !important;
-    }
   }
   
   /* Mobile view mode switcher */

@@ -54,7 +54,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               setDeleteDialogOpen={setDeleteDialogOpen}
               deleteMutation={deleteMutation}
               hideHeader={true}
-              forceMobileColumns={true}
+              viewMode="split"
             />
           </div>
           
@@ -72,7 +72,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               setDeleteDialogOpen={setDeleteDialogOpen}
               deleteMutation={deleteMutation}
               hideHeader={true}
-              forceMobileColumns={true}
+              viewMode="split"
             />
           </div>
         </div>
@@ -93,7 +93,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
             setDeleteDialogOpen={setDeleteDialogOpen}
             deleteMutation={deleteMutation}
             hideHeader={true}
-            forceMobileColumns={false}
+            viewMode="single"
           />
         </div>
       )}
@@ -113,7 +113,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
             setDeleteDialogOpen={setDeleteDialogOpen}
             deleteMutation={deleteMutation}
             hideHeader={true}
-            forceMobileColumns={false}
+            viewMode="single"
           />
         </div>
       )}

@@ -34,7 +34,7 @@ interface GalleryContainerProps {
   setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   deleteMutation: UseMutationResult<any, Error, string[], unknown>;
   hideHeader?: boolean;
-  forceMobileColumns?: boolean;
+  viewMode?: 'single' | 'split';
 }
 
 const GalleryContainer: React.FC<GalleryContainerProps> = ({ 
@@ -49,7 +49,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   setDeleteDialogOpen,
   deleteMutation,
   hideHeader = false,
-  forceMobileColumns = true
+  viewMode = 'single'
 }) => {
   const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -134,7 +134,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
           isLoading={isLoading}
           columnsClassName={getColumnsClassName()}
           onPreviewMedia={handlePreviewMedia}
-          forceMobileColumns={forceMobileColumns}
+          viewMode={viewMode}
         />
       </motion.div>
       

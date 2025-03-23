@@ -68,6 +68,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
               setDeleteDialogOpen={setDeleteDialogOpen}
               deleteMutation={deleteMutation}
               hideHeader={true}
+              viewMode="split"
             />
           </motion.div>
         </div>
@@ -92,6 +93,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
               setDeleteDialogOpen={setDeleteDialogOpen}
               deleteMutation={deleteMutation}
               hideHeader={true}
+              viewMode="split"
             />
           </motion.div>
         </div>
