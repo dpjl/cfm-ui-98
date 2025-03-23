@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, PanelLeft, PanelRight, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PanelLeft, PanelRight, ChevronDown, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import {
   Sheet,
@@ -76,7 +76,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
   // Desktop sheet implementation
   return (
     <>
-      {/* Closed state button/indicator */}
+      {/* Closed state button/indicator - simplified to only show text */}
       {!isOpen && (
         <Button
           variant="ghost"
@@ -92,10 +92,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <div className="flex flex-col items-center justify-center h-full gap-2">
-            {position === 'left' 
-              ? <ChevronRight size={16} className="text-foreground opacity-70" /> 
-              : <ChevronLeft size={16} className="text-foreground opacity-70" />}
+          <div className="flex items-center justify-center h-full">
             <div 
               className={cn(
                 "text-xs font-medium tracking-wide text-foreground/70 whitespace-nowrap", 
@@ -122,15 +119,14 @@ const SidePanel: React.FC<SidePanelProps> = ({
           <div className="h-full flex flex-col p-0 overflow-hidden">
             <div className="flex items-center justify-between p-3 border-b">
               <h3 className="text-sm font-medium">{title}</h3>
+              {/* Only use one icon for closing */}
               <Button 
                 variant="ghost" 
                 size="icon" 
                 className="h-7 w-7"
                 onClick={() => onOpenChange(false)}
               >
-                {position === 'left' 
-                  ? <ChevronLeft size={16} /> 
-                  : <ChevronRight size={16} />}
+                <X size={16} />
               </Button>
             </div>
             <div className="flex-1 overflow-hidden">

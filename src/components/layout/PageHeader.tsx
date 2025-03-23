@@ -150,7 +150,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   return (
     <GalleryHeader
-      title={t('media_gallery')}
+      title="CFM"
       columnsCount={columnsCount}
       setColumnsCount={setColumnsCount}
       isLoading={false}
