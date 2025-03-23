@@ -20,7 +20,7 @@ const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
         checked={selected}
         className={cn(
           "h-5 w-5 border-2",
-          selected ? "border-primary bg-primary" : "border-white bg-white/20",
+          selected ? "border-primary bg-primary shadow-md" : "border-white bg-white/20",
           "transition-all duration-200 ease-out",
           !loaded && "opacity-0"
         )}

@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -157,7 +156,7 @@
   }
   
   .image-card.selected {
-    @apply ring-2 ring-primary ring-offset-2;
+    @apply ring-4 ring-primary ring-offset-2 shadow-lg;
   }
   
   .image-card img {
