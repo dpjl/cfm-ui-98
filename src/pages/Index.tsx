@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
@@ -6,17 +5,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteImages } from '@/api/imageApi';
 import AppSidebar from '@/components/AppSidebar';
 import HoverSidebar from '@/components/layout/HoverSidebar';
-import GalleriesContainer, { MobileViewMode } from '@/components/layout/GalleriesContainer';
+import GalleriesContainer from '@/components/layout/GalleriesContainer';
 import PageHeader from '@/components/layout/PageHeader';
 import ServerStatusPanel from '@/components/ServerStatusPanel';
+import { MobileViewMode } from '@/types/gallery';
 
 const Index = () => {
   const { toast } = useToast();
-  // State to track the currently selected directories
   const [selectedDirectoryIdLeft, setSelectedDirectoryIdLeft] = useState<string>("directory1");
   const [selectedDirectoryIdRight, setSelectedDirectoryIdRight] = useState<string>("directory1");
   
-  // Shared state for the galleries
   const [columnsCount, setColumnsCount] = useState<number>(5);
   const [selectedIdsLeft, setSelectedIdsLeft] = useState<string[]>([]);
   const [selectedIdsRight, setSelectedIdsRight] = useState<string[]>([]);
@@ -28,18 +26,15 @@ const Index = () => {
   
   const queryClient = useQueryClient();
   
-  // Mutation for deleting images
   const deleteMutation = useMutation({
     mutationFn: deleteImages,
     onSuccess: () => {
-      // Show success message
       const activeSelectedIds = activeSide === 'left' ? selectedIdsLeft : selectedIdsRight;
       toast({
         title: `${activeSelectedIds.length} ${activeSelectedIds.length === 1 ? 'media' : 'media files'} deleted`,
         description: "The selected media files have been removed successfully.",
       });
       
-      // Reset selected images and close the dialog
       if (activeSide === 'left') {
         setSelectedIdsLeft([]);
       } else {
@@ -47,7 +42,6 @@ const Index = () => {
       }
       setDeleteDialogOpen(false);
       
-      // Refetch the image list to reflect the changes
       queryClient.invalidateQueries({ queryKey: ['mediaIds'] });
     },
     onError: (error) => {
@@ -81,24 +75,19 @@ const Index = () => {
     }
   };
 
-  // Function to close both sidebars
   const closeBothSidebars = () => {
     setHoveringLeft(false);
     setHoveringRight(false);
   };
 
-  // Check if any sidebar is open
   const isSidebarOpen = hoveringLeft || hoveringRight;
 
   return (
     <LanguageProvider>
       <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
-        {/* Server status panel at the top */}
         <ServerStatusPanel />
         
-        {/* Main layout container */}
         <div className="flex h-full overflow-hidden mt-9 relative">
-          {/* Left Sidebar with hover functionality */}
           <HoverSidebar 
             position="left" 
             isHovering={hoveringLeft} 
@@ -111,9 +100,7 @@ const Index = () => {
             />
           </HoverSidebar>
 
-          {/* Main content area with header and galleries */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Header for both galleries */}
             <PageHeader 
               columnsCount={columnsCount}
               setColumnsCount={setColumnsCount}
@@ -128,7 +115,6 @@ const Index = () => {
               setMobileViewMode={setMobileViewMode}
             />
             
-            {/* Galleries container with view mode control */}
             <GalleriesContainer 
               columnsCount={columnsCount}
               selectedIdsLeft={selectedIdsLeft}
@@ -147,7 +133,6 @@ const Index = () => {
             />
           </div>
 
-          {/* Right Sidebar with hover functionality */}
           <HoverSidebar 
             position="right" 
             isHovering={hoveringRight} 

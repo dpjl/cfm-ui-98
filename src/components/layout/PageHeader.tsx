@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import GalleryHeader from '@/components/GalleryHeader';
 import { useIsMobile } from '@/hooks/use-breakpoint';
-import { MobileViewMode } from './GalleriesContainer';
+import { MobileViewMode } from '@/types/gallery';
 
 interface PageHeaderProps {
   columnsCount: number;
