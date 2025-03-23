@@ -11,14 +11,12 @@ interface AppSidebarProps {
   selectedDirectoryId: string;
   onSelectDirectory: (directoryId: string) => void;
   position?: 'left' | 'right';
-  isHovering?: boolean;
 }
 
 const AppSidebar: React.FC<AppSidebarProps> = ({ 
   selectedDirectoryId, 
   onSelectDirectory,
-  position = 'left',
-  isHovering = true
+  position = 'left'
 }) => {
   const { t } = useLanguage();
   
@@ -36,36 +34,11 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
     console.log(`${position} directory tree loaded:`, directoryTree);
   }, [directoryTree, position]);
 
-  const isLeftSide = position === 'left';
-
   return (
-    <div className="flex flex-col h-full bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm transition-all duration-300 w-full overflow-hidden">
-      {/* Header */}
-      <div className="flex justify-between items-center p-3 border-b border-border">
-        {isLeftSide ? (
-          <>
-            <div className="flex items-center gap-2 overflow-hidden">
-              <Folder className="h-4 w-4 flex-shrink-0" />
-              <span className={`text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${isHovering ? 'opacity-100' : 'opacity-0'}`}>
-                {t('directories')}
-              </span>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex items-center gap-2 overflow-hidden">
-              <span className={`text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${isHovering ? 'opacity-100' : 'opacity-0'}`}>
-                {t('directories')}
-              </span>
-              <Folder className="h-4 w-4 flex-shrink-0" />
-            </div>
-          </>
-        )}
-      </div>
-      
+    <div className="flex flex-col h-full bg-card/90 backdrop-blur-sm w-full overflow-hidden">
       {/* Folder tree with proper scrolling */}
       <ScrollArea className="flex-1">
-        <div className="p-2">
+        <div className="p-3">
           {isLoading ? (
             <div className="flex flex-col gap-2 p-2">
               {Array.from({ length: 5 }).map((_, index) => (

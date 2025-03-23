@@ -24,22 +24,16 @@ const GallerySelectionBar: React.FC<GallerySelectionBarProps> = ({
       <Button
         onClick={onSelectAll}
         variant="outline"
-        size={isMobile ? "icon" : "sm"}
-        className={isMobile ? "h-8 w-8" : "gap-2"}
+        size="icon"
+        className="h-7 w-7"
       >
         {selectedIds.length === mediaIds.length ? (
-          <>
-            <Square className="h-4 w-4" />
-            {!isMobile && t('deselectAll')}
-          </>
+          <Square className="h-3.5 w-3.5" />
         ) : (
-          <>
-            <CheckSquare className="h-4 w-4" />
-            {!isMobile && t('selectAll')}
-          </>
+          <CheckSquare className="h-3.5 w-3.5" />
         )}
       </Button>
-      <div className={`text-sm text-muted-foreground ${isMobile ? 'text-xs' : ''}`}>
+      <div className={`text-xs text-muted-foreground`}>
         {selectedIds.length} {t('selected')}
       </div>
     </div>

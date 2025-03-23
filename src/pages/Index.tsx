@@ -4,7 +4,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteImages } from '@/api/imageApi';
 import AppSidebar from '@/components/AppSidebar';
-import HoverSidebar from '@/components/layout/HoverSidebar';
+import SidePanel from '@/components/layout/SidePanel';
 import GalleriesContainer from '@/components/layout/GalleriesContainer';
 import PageHeader from '@/components/layout/PageHeader';
 import ServerStatusPanel from '@/components/ServerStatusPanel';
@@ -20,8 +20,8 @@ const Index = () => {
   const [selectedIdsRight, setSelectedIdsRight] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeSide, setActiveSide] = useState<'left' | 'right'>('left');
-  const [hoveringLeft, setHoveringLeft] = useState(false);
-  const [hoveringRight, setHoveringRight] = useState(false);
+  const [leftPanelOpen, setLeftPanelOpen] = useState(false);
+  const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [mobileViewMode, setMobileViewMode] = useState<MobileViewMode>('both');
   
   const queryClient = useQueryClient();
@@ -76,11 +76,11 @@ const Index = () => {
   };
 
   const closeBothSidebars = () => {
-    setHoveringLeft(false);
-    setHoveringRight(false);
+    setLeftPanelOpen(false);
+    setRightPanelOpen(false);
   };
 
-  const isSidebarOpen = hoveringLeft || hoveringRight;
+  const isSidebarOpen = leftPanelOpen || rightPanelOpen;
 
   return (
     <LanguageProvider>
@@ -88,17 +88,18 @@ const Index = () => {
         <ServerStatusPanel />
         
         <div className="flex h-full overflow-hidden mt-9 relative">
-          <HoverSidebar 
+          <SidePanel 
             position="left" 
-            isHovering={hoveringLeft} 
-            onHoverChange={setHoveringLeft}
+            isOpen={leftPanelOpen} 
+            onOpenChange={setLeftPanelOpen}
+            title="Source"
           >
             <AppSidebar
               selectedDirectoryId={selectedDirectoryIdLeft}
               onSelectDirectory={setSelectedDirectoryIdLeft}
               position="left"
             />
-          </HoverSidebar>
+          </SidePanel>
 
           <div className="flex-1 flex flex-col overflow-hidden">
             <PageHeader 
@@ -133,17 +134,18 @@ const Index = () => {
             />
           </div>
 
-          <HoverSidebar 
+          <SidePanel 
             position="right" 
-            isHovering={hoveringRight} 
-            onHoverChange={setHoveringRight}
+            isOpen={rightPanelOpen} 
+            onOpenChange={setRightPanelOpen}
+            title="Destination"
           >
             <AppSidebar
               selectedDirectoryId={selectedDirectoryIdRight}
               onSelectDirectory={setSelectedDirectoryIdRight}
               position="right"
             />
-          </HoverSidebar>
+          </SidePanel>
         </div>
       </div>
     </LanguageProvider>
