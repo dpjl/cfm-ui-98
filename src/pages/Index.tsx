@@ -87,7 +87,7 @@ const Index = () => {
         <ServerStatusPanel />
         
         {/* Main layout container */}
-        <div className="flex h-full overflow-hidden mt-9">
+        <div className="flex h-full overflow-hidden mt-9 relative">
           {/* Left Sidebar with hover functionality */}
           <HoverSidebar 
             position="left" 

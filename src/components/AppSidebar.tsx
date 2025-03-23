@@ -39,7 +39,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   const isLeftSide = position === 'left';
 
   return (
-    <div className="flex flex-col h-full bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm transition-all duration-300 w-full">
+    <div className="flex flex-col h-full bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm transition-all duration-300 w-full overflow-hidden">
       {/* Header */}
       <div className="flex justify-between items-center p-3 border-b border-border">
         {isLeftSide ? (

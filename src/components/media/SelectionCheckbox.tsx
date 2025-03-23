@@ -15,12 +15,15 @@ const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
   loaded
 }) => {
   return (
-    <div className="image-checkbox" onClick={(e) => e.stopPropagation()}>
+    <div 
+      className="image-checkbox absolute top-2 left-2 z-20" 
+      onClick={(e) => e.stopPropagation()}
+    >
       <Checkbox 
         checked={selected}
         className={cn(
           "h-5 w-5 border-2",
-          selected ? "border-primary bg-primary" : "border-white bg-white/20",
+          selected ? "border-primary bg-primary shadow-md" : "border-white bg-white/30 shadow-sm",
           "transition-all duration-200 ease-out",
           !loaded && "opacity-0"
         )}

@@ -24,14 +24,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   isDeletionPending
 }) => {
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-2">
-        <div></div> {/* Spacer */}
-        <div className="flex items-center gap-2">
-          <LanguageToggle />
-          <ThemeToggle />
-        </div>
-      </div>
+    <div className="p-3">
       <GalleryHeader 
         title="CFM"
         columnsCount={columnsCount}
@@ -41,6 +34,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         onRefresh={onRefresh}
         onDeleteSelected={onDelete}
         isDeletionPending={isDeletionPending}
+        extraControls={
+          <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
+        }
       />
     </div>
   );

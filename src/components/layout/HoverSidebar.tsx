@@ -28,17 +28,23 @@ const HoverSidebar: React.FC<HoverSidebarProps> = ({
   
   return (
     <div 
-      className={`fixed ${position}-0 top-0 bottom-0 z-30`}
+      className={`fixed ${position}-0 top-1/2 -translate-y-1/2 z-30`}
       onMouseEnter={() => onHoverChange(true)}
       onMouseLeave={() => onHoverChange(false)}
+      style={{ 
+        transition: 'all 0.3s ease-in-out',
+        height: isHovering ? '100%' : 'auto', 
+        top: isHovering ? '0' : '50%', 
+        transform: isHovering ? 'translateY(0)' : 'translateY(-50%)' 
+      }}
     >
       <div className={`h-full transition-all duration-300 ${isHovering ? 'w-[16rem]' : 'w-[2rem]'}`}>
-        <div className={`h-full bg-slate-900/70 backdrop-blur-sm ${isHovering ? 'opacity-95' : 'opacity-70'} transition-opacity duration-300 relative`}>
+        <div className={`h-full bg-slate-900/70 backdrop-blur-sm ${isHovering ? 'opacity-95 rounded-none' : 'opacity-80 rounded-md rounded-l-none'} transition-all duration-300 relative`}>
           {/* Vertical text when sidebar is collapsed */}
           {!isHovering && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center p-2">
               <div 
-                className={`text-white font-medium tracking-wide transform ${position === 'left' ? '-rotate-90' : 'rotate-90'} origin-center whitespace-nowrap flex items-center gap-2`}
+                className={`text-white font-medium tracking-wide transform ${position === 'left' ? 'rotate-90' : '-rotate-90'} origin-center whitespace-nowrap flex items-center gap-2 cursor-pointer`}
               >
                 {sidebarTitle}
                 {position === 'left' ? (
@@ -51,7 +57,7 @@ const HoverSidebar: React.FC<HoverSidebarProps> = ({
           )}
           
           {/* Regular sidebar content - only visible when expanded */}
-          <div className={`transition-opacity duration-300 ${isHovering ? 'opacity-100' : 'opacity-0'}`}>
+          <div className={`transition-opacity duration-300 ${isHovering ? 'opacity-100 h-full' : 'opacity-0 h-0 overflow-hidden'}`}>
             {childrenWithProps}
           </div>
         </div>
