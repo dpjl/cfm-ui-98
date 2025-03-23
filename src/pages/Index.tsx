@@ -8,6 +8,7 @@ import AppSidebar from '@/components/AppSidebar';
 import HoverSidebar from '@/components/layout/HoverSidebar';
 import GalleriesContainer from '@/components/layout/GalleriesContainer';
 import PageHeader from '@/components/layout/PageHeader';
+import ServerStatusPanel from '@/components/ServerStatusPanel';
 
 const Index = () => {
   const { toast } = useToast();
@@ -82,8 +83,11 @@ const Index = () => {
   return (
     <LanguageProvider>
       <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
+        {/* Server status panel at the top */}
+        <ServerStatusPanel />
+        
         {/* Main layout container */}
-        <div className="flex h-full overflow-hidden">
+        <div className="flex h-full overflow-hidden mt-9">
           {/* Left Sidebar with hover functionality */}
           <HoverSidebar 
             position="left" 

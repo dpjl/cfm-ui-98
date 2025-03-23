@@ -37,7 +37,32 @@ for media_id in SAMPLE_MEDIA_IDS:
         "createdAt": created_date
     }
 
+# Mock server status
+MOCK_SERVER_STATUS = {
+    "isAccessible": True,
+    "sourceDirectory": "/home/user/cfm/source_images",
+    "destinationDirectory": "/home/user/cfm/processed_images",
+    "sourceFileCount": 3487,
+    "destinationFileCount": 3152,
+    "lastExecutionDate": (datetime.now() - timedelta(hours=3, minutes=27)).isoformat(),
+    "destinationFormat": "YYYY/MM/DD/Original_Filename"
+}
+
 # API Routes
+@app.get("/status")
+async def get_server_status():
+    """Return the status of the server and application"""
+    # In a real implementation, this would check actual statuses
+    # Generate some random variation in the counts to simulate changes
+    MOCK_SERVER_STATUS["sourceFileCount"] = 3487 + random.randint(-10, 10)
+    MOCK_SERVER_STATUS["destinationFileCount"] = 3152 + random.randint(-5, 5)
+    MOCK_SERVER_STATUS["lastExecutionDate"] = (datetime.now() - timedelta(
+        hours=random.randint(0, 5), 
+        minutes=random.randint(0, 59)
+    )).isoformat()
+    
+    return MOCK_SERVER_STATUS
+
 @app.get("/media")
 async def get_media_ids(directory: str) -> List[str]:
     """Return just the IDs of media in the specified directory"""
@@ -94,7 +119,7 @@ app.mount("/", StaticFiles(directory="dist", html=False), name="static")
 @app.get("/{full_path:path}")
 async def serve_index(full_path: str):
     # Skip API paths to prevent this catch-all from intercepting API requests
-    if full_path.startswith("media") or full_path.startswith("info") or full_path.startswith("thumbnail"):
+    if full_path.startswith("media") or full_path.startswith("info") or full_path.startswith("thumbnail") or full_path.startswith("status"):
         return JSONResponse(status_code=404, content={"detail": "Not Found"})
     
     # Handle direct requests to index.html (although we have an explicit route above)
