@@ -38,21 +38,6 @@
     }
   }
   
-  /* Side-by-side gallery container for mobile */
-  .mobile-galleries-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    height: 100%;
-    overflow: hidden;
-  }
-  
-  .mobile-gallery-wrapper {
-    height: 100%;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  
   /* Mobile view mode switcher */
   .mobile-view-switcher {
     display: flex;

@@ -102,8 +102,9 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   };
 
   const getColumnsClassName = () => {
+    // For the dual view mode on mobile, force 2 columns
     if (isMobile) {
-      return "grid-cols-2"; // Force 2 columns on mobile
+      return "grid-cols-2 mobile-gallery-grid";
     }
     
     switch (columnsCount) {
@@ -119,13 +120,14 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   };
   
   const containerPadding = isMobile ? "p-1" : "p-4";
-  const panelPadding = isMobile ? "p-2" : "p-4";
+  const panelPadding = isMobile ? "p-1" : "p-4";
   
   return (
     <div className={`h-full flex flex-col ${containerPadding}`}>
       <motion.div 
         variants={itemVariants}
         className={`glass-panel ${panelPadding} flex-1 overflow-auto flex flex-col`}
+        style={{ height: "100%" }}
       >
         <Gallery
           title={title}

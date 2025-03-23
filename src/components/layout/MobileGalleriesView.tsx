@@ -36,12 +36,12 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   deleteMutation
 }) => {
   return (
-    <div className="flex-1 overflow-hidden">
+    <div className="flex-1 overflow-hidden h-full">
       {/* Side-by-side galleries in 'both' mode */}
       {mobileViewMode === 'both' && (
-        <div className="mobile-galleries-container h-full">
+        <div className="h-full grid grid-cols-2 gap-1">
           {/* Left Gallery */}
-          <div className="mobile-gallery-wrapper">
+          <div className="h-full overflow-hidden">
             <GalleryContainer 
               title="Left Gallery"
               directory={selectedDirectoryIdLeft}
@@ -58,7 +58,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
           </div>
           
           {/* Right Gallery */}
-          <div className="mobile-gallery-wrapper">
+          <div className="h-full overflow-hidden">
             <GalleryContainer 
               title="Right Gallery"
               directory={selectedDirectoryIdRight}
