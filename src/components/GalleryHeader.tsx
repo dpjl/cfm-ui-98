@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2, FolderSearch, RefreshCw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/use-language';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 
 interface GalleryHeaderProps {
   title: string;
@@ -30,7 +31,65 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
   extraControls
 }) => {
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
   
+  // Render smaller header for mobile
+  if (isMobile) {
+    return (
+      <div className="flex flex-col w-full gap-2 mb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <FolderSearch className="h-5 w-5 text-primary mr-2" />
+            <h1 className="text-xl font-bold tracking-tight truncate">
+              {t('title')}
+            </h1>
+          </div>
+          
+          <div className="flex items-center gap-1">
+            {extraControls}
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1 w-full">
+            <span className="text-xs whitespace-nowrap">{t('columns')} {columnsCount}</span>
+            <Slider
+              className="w-full"
+              value={[columnsCount]}
+              min={2}
+              max={8}
+              step={1}
+              onValueChange={(value) => setColumnsCount(value[0])}
+            />
+          </div>
+          
+          <div className="flex gap-1">
+            <Button
+              onClick={onRefresh}
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              disabled={isLoading}
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </Button>
+            
+            <Button
+              onClick={onDeleteSelected}
+              variant="destructive"
+              size="icon"
+              className="h-8 w-8"
+              disabled={selectedImages.length === 0 || isDeletionPending}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Desktop header
   return (
     <div className="flex justify-between items-center mb-6 w-full">
       <div className="flex items-center">

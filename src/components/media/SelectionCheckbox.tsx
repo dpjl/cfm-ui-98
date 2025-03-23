@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 
 interface SelectionCheckboxProps {
   selected: boolean;
@@ -14,15 +15,21 @@ const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
   onSelect,
   loaded
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <div 
-      className="image-checkbox absolute top-2 left-2 z-20" 
+      className={cn(
+        "image-checkbox absolute z-20",
+        isMobile ? "top-1 left-1" : "top-2 left-2"
+      )}
       onClick={(e) => e.stopPropagation()}
     >
       <Checkbox 
         checked={selected}
         className={cn(
-          "h-5 w-5 border-2",
+          "border-2",
+          isMobile ? "h-4 w-4" : "h-5 w-5",
           selected ? "border-primary bg-primary shadow-md" : "border-white bg-white/30 shadow-sm",
           "transition-all duration-200 ease-out",
           !loaded && "opacity-0"

@@ -3,6 +3,7 @@ import React from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import LazyMediaItem from '@/components/LazyMediaItem';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 
 interface GalleryGridProps {
   mediaIds: string[];
@@ -19,8 +20,14 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   onPreviewMedia,
   columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <div className={cn("grid gap-4 h-full overflow-auto content-start", columnsClassName)}>
+    <div className={cn(
+      "grid gap-4 h-full overflow-auto content-start", 
+      isMobile ? "gap-2" : "gap-4",
+      columnsClassName
+    )}>
       <AnimatePresence>
         {mediaIds.map((id, index) => (
           <LazyMediaItem

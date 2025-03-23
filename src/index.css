@@ -97,10 +97,11 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    @apply text-base md:text-base;
   }
   
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-hidden;
   }
   
   ::selection {
@@ -147,6 +148,18 @@
 
   .dark .sidebar-bg {
     @apply bg-slate-900;
+  }
+  
+  /* Mobile-specific styles */
+  @media (max-width: 640px) {
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    
+    body {
+      @apply text-sm;
+    }
   }
 }
 
@@ -198,5 +211,20 @@
   
   .image-transition-out {
     @apply animate-scale-out;
+  }
+  
+  /* Mobile responsive adjustments */
+  @media (max-width: 640px) {
+    .image-card {
+      @apply rounded-md shadow-sm;
+    }
+    
+    .image-card.selected {
+      @apply ring-1 ring-offset-1;
+    }
+    
+    .glass-panel {
+      @apply rounded-lg;
+    }
   }
 }

@@ -3,6 +3,7 @@ import React from 'react';
 import GalleryHeader from '@/components/GalleryHeader';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 
 interface PageHeaderProps {
   columnsCount: number;
@@ -23,8 +24,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   onDelete,
   isDeletionPending
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <div className="p-3">
+    <div className={`p-3 ${isMobile ? 'pb-1' : ''}`}>
       <GalleryHeader 
         title="CFM"
         columnsCount={columnsCount}
