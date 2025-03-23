@@ -1,11 +1,10 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import GalleryContainer from '@/components/GalleryContainer';
 import { useIsMobile } from '@/hooks/use-breakpoint';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { GalleryHorizontal, GalleryVerticalEnd, GalleryVertical, ArrowLeftRight } from 'lucide-react';
+import { GalleryHorizontal, GalleryVertical, GalleryVerticalEnd } from 'lucide-react';
 
 // Define container animation variants
 const containerVariants = {
@@ -58,152 +57,124 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
-  // Mode switcher button for mobile
-  const renderModeSwitcher = () => {
+  // Render mobile view mode switcher buttons
+  const renderMobileViewSwitcher = () => {
     if (!isMobile || !setMobileViewMode) return null;
     
     return (
-      <div className="fixed bottom-4 right-4 z-10 bg-background/80 backdrop-blur-sm rounded-full p-1 shadow-lg">
-        {mobileViewMode === 'both' && (
-          <div className="flex gap-1">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={() => setMobileViewMode('left')}
-              className="h-10 w-10 rounded-full"
-            >
-              <GalleryVertical className="h-5 w-5" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={() => setMobileViewMode('right')}
-              className="h-10 w-10 rounded-full"
-            >
-              <GalleryVerticalEnd className="h-5 w-5" />
-            </Button>
-          </div>
-        )}
+      <div className="mobile-view-switcher">
+        <Button 
+          variant={mobileViewMode === 'left' ? "default" : "outline"} 
+          size="icon" 
+          onClick={() => setMobileViewMode('left')}
+          className="h-10 w-10 rounded-full"
+        >
+          <GalleryVertical className="h-5 w-5" />
+        </Button>
         
-        {mobileViewMode === 'left' && (
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => setMobileViewMode('both')}
-            className="h-10 w-10 rounded-full"
-          >
-            <GalleryHorizontal className="h-5 w-5" />
-          </Button>
-        )}
+        <Button 
+          variant={mobileViewMode === 'both' ? "default" : "outline"} 
+          size="icon" 
+          onClick={() => setMobileViewMode('both')}
+          className="h-10 w-10 rounded-full"
+        >
+          <GalleryHorizontal className="h-5 w-5" />
+        </Button>
         
-        {mobileViewMode === 'right' && (
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => setMobileViewMode('both')}
-            className="h-10 w-10 rounded-full"
-          >
-            <GalleryHorizontal className="h-5 w-5" />
-          </Button>
-        )}
+        <Button 
+          variant={mobileViewMode === 'right' ? "default" : "outline"} 
+          size="icon" 
+          onClick={() => setMobileViewMode('right')}
+          className="h-10 w-10 rounded-full"
+        >
+          <GalleryVerticalEnd className="h-5 w-5" />
+        </Button>
       </div>
     );
   };
 
-  // Mobile view with optimized galleries
+  // Mobile view
   if (isMobile) {
     return (
-      <div className="flex-1 overflow-hidden flex flex-col">
-        <div className="flex flex-col h-full">
-          {/* Mobile galleries container */}
-          <div className="flex-1 flex overflow-hidden">
-            {/* Full width view when only one gallery is shown */}
-            {mobileViewMode === 'left' && (
-              <div className="w-full h-full overflow-hidden">
-                <ScrollArea className="h-full">
-                  <div className="p-2">
-                    <GalleryContainer 
-                      title="Left Gallery" 
-                      directory={selectedDirectoryIdLeft}
-                      position="left"
-                      columnsCount={4} // Show 4 columns when in single gallery mode
-                      selectedIds={selectedIdsLeft}
-                      setSelectedIds={setSelectedIdsLeft}
-                      onDeleteSelected={() => handleDeleteSelected('left')}
-                      deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
-                      setDeleteDialogOpen={setDeleteDialogOpen}
-                      deleteMutation={deleteMutation}
-                      hideHeader={true}
-                    />
-                  </div>
-                </ScrollArea>
-              </div>
-            )}
+      <div className="flex-1 overflow-hidden">
+        {/* Mobile view with optimized galleries */}
+        {mobileViewMode === 'both' && (
+          <div className="mobile-galleries-container h-full">
+            {/* Left Gallery */}
+            <div className="mobile-gallery-wrapper">
+              <GalleryContainer 
+                title="Left Gallery"
+                directory={selectedDirectoryIdLeft}
+                position="left"
+                columnsCount={2}
+                selectedIds={selectedIdsLeft}
+                setSelectedIds={setSelectedIdsLeft}
+                onDeleteSelected={() => handleDeleteSelected('left')}
+                deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
+                setDeleteDialogOpen={setDeleteDialogOpen}
+                deleteMutation={deleteMutation}
+                hideHeader={true}
+              />
+            </div>
             
-            {mobileViewMode === 'right' && (
-              <div className="w-full h-full overflow-hidden">
-                <ScrollArea className="h-full">
-                  <div className="p-2">
-                    <GalleryContainer 
-                      title="Right Gallery" 
-                      directory={selectedDirectoryIdRight}
-                      position="right"
-                      columnsCount={4} // Show 4 columns when in single gallery mode
-                      selectedIds={selectedIdsRight}
-                      setSelectedIds={setSelectedIdsRight}
-                      onDeleteSelected={() => handleDeleteSelected('right')}
-                      deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
-                      setDeleteDialogOpen={setDeleteDialogOpen}
-                      deleteMutation={deleteMutation}
-                      hideHeader={true}
-                    />
-                  </div>
-                </ScrollArea>
-              </div>
-            )}
-            
-            {mobileViewMode === 'both' && (
-              <div className="mobile-gallery-container">
-                {/* Left Side */}
-                <div className="mobile-gallery-panel">
-                  <GalleryContainer 
-                    title="Left Gallery" 
-                    directory={selectedDirectoryIdLeft}
-                    position="left"
-                    columnsCount={2} // Force 2 columns in split view
-                    selectedIds={selectedIdsLeft}
-                    setSelectedIds={setSelectedIdsLeft}
-                    onDeleteSelected={() => handleDeleteSelected('left')}
-                    deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
-                    setDeleteDialogOpen={setDeleteDialogOpen}
-                    deleteMutation={deleteMutation}
-                    hideHeader={true}
-                  />
-                </div>
-                
-                {/* Right Side */}
-                <div className="mobile-gallery-panel">
-                  <GalleryContainer 
-                    title="Right Gallery" 
-                    directory={selectedDirectoryIdRight}
-                    position="right"
-                    columnsCount={2} // Force 2 columns in split view
-                    selectedIds={selectedIdsRight}
-                    setSelectedIds={setSelectedIdsRight}
-                    onDeleteSelected={() => handleDeleteSelected('right')}
-                    deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
-                    setDeleteDialogOpen={setDeleteDialogOpen}
-                    deleteMutation={deleteMutation}
-                    hideHeader={true}
-                  />
-                </div>
-              </div>
-            )}
+            {/* Right Gallery */}
+            <div className="mobile-gallery-wrapper">
+              <GalleryContainer 
+                title="Right Gallery"
+                directory={selectedDirectoryIdRight}
+                position="right"
+                columnsCount={2}
+                selectedIds={selectedIdsRight}
+                setSelectedIds={setSelectedIdsRight}
+                onDeleteSelected={() => handleDeleteSelected('right')}
+                deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
+                setDeleteDialogOpen={setDeleteDialogOpen}
+                deleteMutation={deleteMutation}
+                hideHeader={true}
+              />
+            </div>
           </div>
-        </div>
+        )}
+        
+        {/* Full width single gallery views */}
+        {mobileViewMode === 'left' && (
+          <div className="h-full overflow-hidden px-1">
+            <GalleryContainer 
+              title="Left Gallery"
+              directory={selectedDirectoryIdLeft}
+              position="left"
+              columnsCount={4}
+              selectedIds={selectedIdsLeft}
+              setSelectedIds={setSelectedIdsLeft}
+              onDeleteSelected={() => handleDeleteSelected('left')}
+              deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              deleteMutation={deleteMutation}
+              hideHeader={true}
+            />
+          </div>
+        )}
+        
+        {mobileViewMode === 'right' && (
+          <div className="h-full overflow-hidden px-1">
+            <GalleryContainer 
+              title="Right Gallery"
+              directory={selectedDirectoryIdRight}
+              position="right"
+              columnsCount={4}
+              selectedIds={selectedIdsRight}
+              setSelectedIds={setSelectedIdsRight}
+              onDeleteSelected={() => handleDeleteSelected('right')}
+              deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              deleteMutation={deleteMutation}
+              hideHeader={true}
+            />
+          </div>
+        )}
         
         {/* Mode switcher floating button */}
-        {renderModeSwitcher()}
+        {renderMobileViewSwitcher()}
       </div>
     );
   }
@@ -221,7 +192,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
             className="h-full"
           >
             <GalleryContainer 
-              title="Left Gallery" 
+              title="Left Gallery"
               directory={selectedDirectoryIdLeft}
               position="left"
               columnsCount={columnsCount}
@@ -245,7 +216,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
             className="h-full"
           >
             <GalleryContainer 
-              title="Right Gallery" 
+              title="Right Gallery"
               directory={selectedDirectoryIdRight}
               position="right"
               columnsCount={columnsCount}

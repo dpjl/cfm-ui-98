@@ -25,8 +25,8 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   return (
     <div className={cn(
       "grid h-full content-start", 
-      isMobile ? "gap-1" : "gap-4",
-      columnsClassName
+      isMobile ? "gap-1 mobile-gallery-grid" : "gap-4",
+      isMobile && columnsClassName.includes('grid-cols-2') ? "grid-cols-2" : columnsClassName
     )}>
       <AnimatePresence>
         {mediaIds.map((id, index) => (

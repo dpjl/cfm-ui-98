@@ -13,21 +13,33 @@ const breakpoints = {
 };
 
 export function useBreakpoint(breakpoint: Breakpoint) {
-  const [isAboveBreakpoint, setIsAboveBreakpoint] = React.useState<boolean | undefined>(undefined);
+  const [isAboveBreakpoint, setIsAboveBreakpoint] = React.useState(() => {
+    if (typeof window === 'undefined') return undefined;
+    return window.innerWidth >= breakpoints[breakpoint];
+  });
 
   React.useEffect(() => {
     const checkBreakpoint = () => {
       setIsAboveBreakpoint(window.innerWidth >= breakpoints[breakpoint]);
     };
 
+    // Add event listener with debounce for better performance
+    let timeoutId: number | undefined;
+    const handleResize = () => {
+      if (timeoutId) window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(checkBreakpoint, 100);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
     // Initial check
     checkBreakpoint();
-
-    // Add event listener
-    window.addEventListener('resize', checkBreakpoint);
     
     // Cleanup
-    return () => window.removeEventListener('resize', checkBreakpoint);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
   }, [breakpoint]);
 
   return isAboveBreakpoint;
