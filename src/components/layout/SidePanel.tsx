@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, PanelLeft, PanelRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PanelLeft, PanelRight, ChevronDown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import {
   Sheet,
@@ -118,7 +118,6 @@ const SidePanel: React.FC<SidePanelProps> = ({
             "w-72 p-0 border-0 shadow-lg bg-card/95 backdrop-blur-sm",
             position === 'left' ? "border-r" : "border-l"
           )}
-          overlayClassName="fixed inset-0 z-30"
         >
           <div className="h-full flex flex-col p-0 overflow-hidden">
             <div className="flex items-center justify-between p-3 border-b">
