@@ -24,8 +24,8 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   
   return (
     <div className={cn(
-      "grid gap-4 h-full overflow-auto content-start", 
-      isMobile ? "gap-2" : "gap-4",
+      "grid h-full content-start", 
+      isMobile ? "gap-1" : "gap-4",
       columnsClassName
     )}>
       <AnimatePresence>

@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useQuery, useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
 import MediaPreview from '@/components/MediaPreview';
 import { fetchMediaIds, deleteImages } from '@/api/imageApi';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 
 // Define animation variants
 const itemVariants = {
@@ -50,6 +51,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
 }) => {
   const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const isMobile = useIsMobile();
   
   // Fetch media IDs from a specified directory
   const { 
@@ -100,6 +102,10 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   };
 
   const getColumnsClassName = () => {
+    if (isMobile) {
+      return "grid-cols-2"; // Force 2 columns on mobile
+    }
+    
     switch (columnsCount) {
       case 2: return "grid-cols-2";
       case 3: return "grid-cols-2 sm:grid-cols-3";
@@ -112,11 +118,14 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     }
   };
   
+  const containerPadding = isMobile ? "p-1" : "p-4";
+  const panelPadding = isMobile ? "p-2" : "p-4";
+  
   return (
-    <div className="h-full flex flex-col p-4">
+    <div className={`h-full flex flex-col ${containerPadding}`}>
       <motion.div 
         variants={itemVariants}
-        className="glass-panel p-4 flex-1 overflow-auto flex flex-col"
+        className={`glass-panel ${panelPadding} flex-1 overflow-auto flex flex-col`}
       >
         <Gallery
           title={title}

@@ -10,6 +10,7 @@
 @import './components/glass-effects.css';
 @import './components/image-card.css';
 @import './components/transitions.css';
+@import './components/responsive.css';
 
 /* Utilities */
 @import './utilities.css';

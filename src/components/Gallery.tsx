@@ -6,6 +6,7 @@ import GalleryEmptyState from './gallery/GalleryEmptyState';
 import GallerySkeletons from './gallery/GallerySkeletons';
 import GallerySelectionBar from './gallery/GallerySelectionBar';
 import GalleryCountInfo from './gallery/GalleryCountInfo';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 
 export interface ImageItem {
   id: string;
@@ -37,6 +38,7 @@ const Gallery: React.FC<GalleryProps> = ({
 }) => {
   const [mounted, setMounted] = useState(false);
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
   
   // We'll update these counts when we have metadata
   const [countInfo, setCountInfo] = useState({ photoCount: 0, videoCount: 0 });
@@ -77,7 +79,7 @@ const Gallery: React.FC<GalleryProps> = ({
   }
   
   return (
-    <div className="flex flex-col h-full space-y-4">
+    <div className="flex flex-col h-full space-y-2">
       <GalleryCountInfo 
         photoCount={countInfo.photoCount} 
         videoCount={countInfo.videoCount} 
@@ -92,13 +94,13 @@ const Gallery: React.FC<GalleryProps> = ({
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />
       ) : (
-        <div className="mt-2">
+        <div className={isMobile ? "mt-1" : "mt-2"}>
           <GalleryGrid
             mediaIds={mediaIds}
             selectedIds={selectedIds}
             onSelectId={onSelectId}
             onPreviewMedia={onPreviewMedia}
-            columnsClassName={columnsClassName}
+            columnsClassName={isMobile ? "grid-cols-2" : columnsClassName}
           />
         </div>
       )}

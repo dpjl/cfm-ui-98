@@ -1,0 +1,51 @@
+
+/* Mobile optimization styles */
+@layer components {
+  /* Gallery specific responsive styles */
+  @media (max-width: 640px) {
+    .glass-panel {
+      @apply rounded-md shadow-sm border-0;
+    }
+    
+    .glass-panel-content {
+      @apply p-2;
+    }
+    
+    /* Smaller padding and gaps for mobile */
+    .mobile-compact {
+      @apply p-1 gap-1;
+    }
+    
+    /* Adjust the scrollbar for mobile */
+    .mobile-scroll-area {
+      @apply overflow-auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Image card adjustments for mobile */
+    .image-card {
+      @apply shadow-none;
+    }
+    
+    /* Header adjustments for mobile */
+    .mobile-header {
+      @apply py-1 px-2;
+    }
+  }
+  
+  /* Side-by-side gallery container for mobile */
+  .mobile-gallery-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 4px;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .mobile-gallery-panel {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
+  }
+}
