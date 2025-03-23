@@ -31,6 +31,15 @@
     .mobile-header {
       @apply py-1 px-2;
     }
+    
+    /* Date display adjustments for small thumbnails on mobile */
+    .date-display-small {
+      @apply text-[7px] px-0.5 py-0.5;
+    }
+    
+    .date-display-small .date-icon {
+      @apply h-1.5 w-1.5;
+    }
   }
   
   /* Mobile view mode switcher */

@@ -17,6 +17,7 @@ import {
 import { Download, Video, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import DateDisplay from './media/DateDisplay';
 
 interface ImageCardProps {
   src: string;
@@ -51,11 +52,11 @@ const ImageCard: React.FC<ImageCardProps> = ({
     }
   }, [onInView]);
   
-  // Détection basée sur alt (nom de fichier) au lieu de src
+  // Determine based on alt (file name) instead of src
   const isVideo = type === "video" || alt.match(/\.(mp4|webm|ogg|mov)$/i);
   
   const handleDownload = () => {
-    // Créer un lien temporaire pour déclencher le téléchargement
+    // Create a temporary link to trigger download
     const a = document.createElement('a');
     a.href = src;
     a.download = alt;
@@ -76,9 +77,6 @@ const ImageCard: React.FC<ImageCardProps> = ({
     }
   };
   
-  // Formater la date si disponible
-  const formattedDate = createdAt ? format(new Date(createdAt), 'dd MMM yyyy', { locale: fr }) : null;
-  
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -88,11 +86,11 @@ const ImageCard: React.FC<ImageCardProps> = ({
               <div 
                 className={cn(
                   "image-card group relative", 
-                  "aspect-square", // Toujours utiliser un aspect carré
+                  "aspect-square", // Always use square aspect
                   selected && "selected",
                   !loaded && "animate-pulse bg-muted"
                 )}
-                onClick={onPreview} // On ouvre l'aperçu au clic général
+                onClick={onPreview}
                 onMouseOver={handleMouseOver}
                 onMouseOut={handleMouseOut}
               >
@@ -128,13 +126,8 @@ const ImageCard: React.FC<ImageCardProps> = ({
                   />
                 )}
 
-                {/* Date creation overlay */}
-                {formattedDate && (
-                  <div className="absolute bottom-2 left-2 z-10 bg-black/70 px-2 py-1 rounded-md text-white text-xs flex items-center">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    {formattedDate}
-                  </div>
-                )}
+                {/* Use the improved DateDisplay component */}
+                <DateDisplay dateString={createdAt} />
 
                 <div className="image-overlay" />
                 <div className="image-checkbox" onClick={(e) => e.stopPropagation()}>
