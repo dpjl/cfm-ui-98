@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { motion } from 'framer-motion';
 import GalleryContainer from '@/components/GalleryContainer';
 import { useIsMobile } from '@/hooks/use-breakpoint';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { GalleryHorizontal, GalleryVerticalEnd, GalleryVertical } from 'lucide-react';
 
