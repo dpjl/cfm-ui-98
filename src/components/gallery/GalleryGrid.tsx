@@ -22,11 +22,17 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
+  // Déterminer si la classe contient déjà mobile-gallery-grid pour éviter la duplication
+  const hasCustomMobileClass = columnsClassName.includes('mobile-gallery-grid');
+  
   return (
     <div className={cn(
       "grid h-full content-start", 
-      isMobile ? "gap-1 mobile-gallery-grid" : "gap-4",
-      isMobile && columnsClassName.includes('grid-cols-2') ? "grid-cols-2" : columnsClassName
+      isMobile ? "gap-1" : "gap-4",
+      columnsClassName,
+      // Ajouter la classe mobile-gallery-grid uniquement si elle n'est pas déjà présente 
+      // et si nous sommes en mode mobile avec grid-cols-2
+      isMobile && !hasCustomMobileClass && columnsClassName.includes('grid-cols-2') ? "mobile-gallery-grid" : ""
     )}>
       <AnimatePresence>
         {mediaIds.map((id, index) => (

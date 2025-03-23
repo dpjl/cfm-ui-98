@@ -100,7 +100,7 @@ const Gallery: React.FC<GalleryProps> = ({
             selectedIds={selectedIds}
             onSelectId={onSelectId}
             onPreviewMedia={onPreviewMedia}
-            columnsClassName={isMobile ? "grid-cols-2" : columnsClassName}
+            columnsClassName={columnsClassName}
           />
         </div>
       )}

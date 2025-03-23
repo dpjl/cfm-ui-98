@@ -34,6 +34,7 @@ interface GalleryContainerProps {
   setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   deleteMutation: UseMutationResult<any, Error, string[], unknown>;
   hideHeader?: boolean;
+  forceMobileColumns?: boolean;
 }
 
 const GalleryContainer: React.FC<GalleryContainerProps> = ({ 
@@ -47,7 +48,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   deleteDialogOpen,
   setDeleteDialogOpen,
   deleteMutation,
-  hideHeader = false
+  hideHeader = false,
+  forceMobileColumns = true
 }) => {
   const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -103,7 +105,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
 
   const getColumnsClassName = () => {
     // For the dual view mode on mobile, force 2 columns
-    if (isMobile) {
+    if (isMobile && forceMobileColumns) {
       return "grid-cols-2 mobile-gallery-grid";
     }
     

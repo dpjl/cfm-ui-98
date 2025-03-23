@@ -44,8 +44,8 @@ const SidePanel: React.FC<SidePanelProps> = ({
             className={cn(
               "fixed z-40 rounded-full shadow-md bg-primary text-primary-foreground hover:bg-primary/90",
               position === 'left' 
-                ? "left-3 top-[4.5rem]" 
-                : "right-3 top-[4.5rem]"
+                ? "left-3 bottom-[4.5rem]" 
+                : "right-3 bottom-[4.5rem]"
             )}
           >
             {position === 'left' ? <PanelLeft size={18} /> : <PanelRight size={18} />}
