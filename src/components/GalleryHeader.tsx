@@ -15,6 +15,7 @@ interface GalleryHeaderProps {
   onRefresh: () => void;
   onDeleteSelected: () => void;
   isDeletionPending: boolean;
+  extraControls?: React.ReactNode;
 }
 
 const GalleryHeader: React.FC<GalleryHeaderProps> = ({
@@ -25,7 +26,8 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
   selectedImages,
   onRefresh,
   onDeleteSelected,
-  isDeletionPending
+  isDeletionPending,
+  extraControls
 }) => {
   const { t } = useLanguage();
   
@@ -50,6 +52,8 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
             onValueChange={(value) => setColumnsCount(value[0])}
           />
         </div>
+        
+        {extraControls}
         
         <Button
           onClick={onRefresh}
