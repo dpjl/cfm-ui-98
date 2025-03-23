@@ -1,15 +1,12 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Gallery from '@/components/Gallery';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
-import { useToast } from '@/components/ui/use-toast';
-import { useQuery, useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
+import { useQuery, UseMutationResult } from '@tanstack/react-query';
 import MediaPreview from '@/components/MediaPreview';
-import { fetchMediaIds, deleteImages } from '@/api/imageApi';
+import { fetchMediaIds } from '@/api/imageApi';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 
-// Define animation variants
 const itemVariants = {
   hidden: { y: 20, opacity: 0 },
   visible: { 
@@ -55,7 +52,6 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const isMobile = useIsMobile();
   
-  // Fetch media IDs from a specified directory
   const { 
     data: mediaIds = [], 
     isLoading,
@@ -116,8 +112,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     }
   };
   
-  const containerPadding = isMobile ? "p-1" : "p-4";
-  const panelPadding = isMobile ? "p-1" : "p-4";
+  const containerPadding = isMobile ? "p-0.5" : "p-1";
+  const panelPadding = isMobile ? "p-0.5" : "p-1";
   
   return (
     <div className={`h-full flex flex-col ${containerPadding}`}>
