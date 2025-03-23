@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import { Button } from '@/components/ui/button';
 
 interface HoverSidebarProps {
   children: React.ReactNode;
@@ -28,6 +29,11 @@ const HoverSidebar: React.FC<HoverSidebarProps> = ({
 
   // Vertical title text that appears when sidebar is collapsed
   const sidebarTitle = position === 'left' ? 'Source' : 'Destination';
+  
+  // Close button handler
+  const handleClose = () => {
+    onHoverChange(false);
+  };
   
   // Mobile version
   if (isMobile) {
@@ -57,18 +63,14 @@ const HoverSidebar: React.FC<HoverSidebarProps> = ({
           {/* Sidebar content - only visible when expanded */}
           <div className={`transition-opacity duration-300 ${isHovering ? 'opacity-100 h-full' : 'opacity-0 h-0 overflow-hidden'}`}>
             {isHovering && (
-              <div className="absolute top-4 right-4">
-                <button 
-                  className="p-2 rounded-full bg-slate-800/50 text-white"
-                  onClick={() => onHoverChange(false)}
-                >
-                  {position === 'left' ? (
-                    <ChevronLeft className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
+              <Button
+                variant="ghost" 
+                size="icon"
+                className="absolute top-4 right-4 rounded-full bg-slate-800/50 text-white hover:bg-slate-700/70"
+                onClick={handleClose}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             )}
             {childrenWithProps}
           </div>
@@ -110,6 +112,16 @@ const HoverSidebar: React.FC<HoverSidebarProps> = ({
           
           {/* Regular sidebar content - only visible when expanded */}
           <div className={`transition-opacity duration-300 ${isHovering ? 'opacity-100 h-full' : 'opacity-0 h-0 overflow-hidden'}`}>
+            {isHovering && (
+              <Button
+                variant="ghost" 
+                size="icon"
+                className="absolute top-4 right-4 rounded-full bg-slate-800/50 text-white hover:bg-slate-700/70 z-50"
+                onClick={handleClose}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
             {childrenWithProps}
           </div>
         </div>

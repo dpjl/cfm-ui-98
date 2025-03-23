@@ -80,6 +80,15 @@ const Index = () => {
     }
   };
 
+  // Function to close both sidebars
+  const closeBothSidebars = () => {
+    setHoveringLeft(false);
+    setHoveringRight(false);
+  };
+
+  // Check if any sidebar is open
+  const isSidebarOpen = hoveringLeft || hoveringRight;
+
   return (
     <LanguageProvider>
       <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
@@ -112,6 +121,8 @@ const Index = () => {
               onRefresh={handleRefresh}
               onDelete={handleDelete}
               isDeletionPending={deleteMutation.isPending}
+              isSidebarOpen={isSidebarOpen}
+              onCloseSidebars={closeBothSidebars}
             />
             
             {/* Galleries container - fixed 50/50 split */}
