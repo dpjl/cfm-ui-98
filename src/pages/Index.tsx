@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteImages } from '@/api/imageApi';
 import AppSidebar from '@/components/AppSidebar';
 import HoverSidebar from '@/components/layout/HoverSidebar';
-import GalleriesContainer from '@/components/layout/GalleriesContainer';
+import GalleriesContainer, { MobileViewMode } from '@/components/layout/GalleriesContainer';
 import PageHeader from '@/components/layout/PageHeader';
 import ServerStatusPanel from '@/components/ServerStatusPanel';
 
@@ -24,6 +24,7 @@ const Index = () => {
   const [activeSide, setActiveSide] = useState<'left' | 'right'>('left');
   const [hoveringLeft, setHoveringLeft] = useState(false);
   const [hoveringRight, setHoveringRight] = useState(false);
+  const [mobileViewMode, setMobileViewMode] = useState<MobileViewMode>('both');
   
   const queryClient = useQueryClient();
   
@@ -123,9 +124,11 @@ const Index = () => {
               isDeletionPending={deleteMutation.isPending}
               isSidebarOpen={isSidebarOpen}
               onCloseSidebars={closeBothSidebars}
+              mobileViewMode={mobileViewMode}
+              setMobileViewMode={setMobileViewMode}
             />
             
-            {/* Galleries container - fixed 50/50 split */}
+            {/* Galleries container with view mode control */}
             <GalleriesContainer 
               columnsCount={columnsCount}
               selectedIdsLeft={selectedIdsLeft}
@@ -139,6 +142,8 @@ const Index = () => {
               activeSide={activeSide}
               deleteMutation={deleteMutation}
               handleDeleteSelected={handleDeleteSelected}
+              mobileViewMode={mobileViewMode}
+              setMobileViewMode={setMobileViewMode}
             />
           </div>
 

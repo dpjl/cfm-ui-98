@@ -47,5 +47,29 @@
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     height: 100%;
+    padding: 0 2px;
+  }
+  
+  /* Mobile view mode switcher in header */
+  .mobile-view-switcher {
+    display: flex;
+    align-items: center;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+  
+  .mobile-view-switcher button {
+    @apply h-8 w-8;
+    border-radius: 0;
+  }
+  
+  .mobile-view-switcher button:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+  }
+  
+  .mobile-view-switcher button:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
   }
 }
