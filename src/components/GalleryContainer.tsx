@@ -46,11 +46,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const isMobile = useIsMobile();
   
-  // Map position left/right to source/destination for API calls
-  const apiPosition = position === 'left' ? 'source' : 'destination';
-  
   // Fetch media IDs for the selected directory - optimized with memoized queryKey
-  const queryKey = [`mediaIds-${position}`, directory, filter, apiPosition];
+  const queryKey = [`mediaIds-${position}`, directory, filter];
   
   const { 
     data = [], 
@@ -59,7 +56,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     error
   } = useQuery({
     queryKey: queryKey,
-    queryFn: () => fetchMediaIds(directory, filter, apiPosition),
+    queryFn: () => fetchMediaIds(directory, filter),
     enabled: !!directory,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -95,8 +92,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   
   // Handle confirming deletion - memoized callback
   const handleConfirmDelete = useCallback(() => {
-    deleteMutation.mutate({ ids: selectedIds, position: apiPosition });
-  }, [deleteMutation, selectedIds, apiPosition]);
+    deleteMutation.mutate(selectedIds);
+  }, [deleteMutation, selectedIds]);
   
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -132,7 +129,6 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
           onDeleteSelected={onDeleteSelected}
           title={title}
           filter={filter}
-          position={apiPosition}
         />
       </div>
       

@@ -14,7 +14,6 @@ interface GalleryGridProps {
   viewMode?: 'single' | 'split';
   showDates?: boolean;
   updateMediaInfo?: (id: string, info: DetailedMediaInfo | null) => void;
-  position?: 'source' | 'destination';
 }
 
 // Create a memoized version of LazyMediaItem
@@ -27,8 +26,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   columnsCount,
   viewMode = 'single',
   showDates = false,
-  updateMediaInfo,
-  position = 'source'
+  updateMediaInfo
 }) => {
   const isMobile = useIsMobile();
   
@@ -70,7 +68,6 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
             index={index}
             showDates={showDates}
             updateMediaInfo={updateMediaInfo}
-            position={position}
           />
         ))}
       </AnimatePresence>

@@ -18,7 +18,6 @@ interface GalleryContentProps {
   onDeleteSelected: () => void;
   title: string;
   filter?: string;
-  position?: 'source' | 'destination';
 }
 
 const GalleryContent: React.FC<GalleryContentProps> = ({
@@ -33,8 +32,7 @@ const GalleryContent: React.FC<GalleryContentProps> = ({
   onPreviewItem,
   onDeleteSelected,
   title,
-  filter = 'all',
-  position = 'source'
+  filter = 'all'
 }) => {
   if (isLoading) {
     return <GallerySkeletons columnsCount={columnsCount} />;
@@ -59,7 +57,6 @@ const GalleryContent: React.FC<GalleryContentProps> = ({
       onPreviewMedia={onPreviewItem}
       viewMode={viewMode}
       onDeleteSelected={onDeleteSelected}
-      position={position}
     />
   );
 };
