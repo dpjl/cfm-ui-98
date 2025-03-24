@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
@@ -90,7 +89,7 @@ const Index = () => {
       <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
         <ServerStatusPanel />
         
-        <div className="flex h-full overflow-hidden mt-9 relative">
+        <div className="flex h-full overflow-hidden mt-2 relative">
           <SidePanel 
             position="left" 
             isOpen={leftPanelOpen} 

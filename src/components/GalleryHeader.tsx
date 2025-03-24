@@ -37,7 +37,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
   // Render smaller header for mobile
   if (isMobile) {
     return (
-      <div className="flex flex-col w-full gap-2 mb-2">
+      <div className="flex flex-col w-full gap-1 mb-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             {title}
@@ -53,7 +53,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
   
   // Desktop header
   return (
-    <div className="flex justify-between items-center mb-4 w-full">
+    <div className="flex justify-between items-center mb-3 w-full">
       <div className="flex items-center">
         {title}
       </div>
