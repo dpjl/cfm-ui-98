@@ -133,7 +133,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   return (
     <GalleryHeader
-      title={<Logo />} // This is causing the type error - needs to be fixed
+      title={<Logo />}
       columnsCount={columnsCount}
       setColumnsCount={setColumnsCount}
       isLoading={false}
@@ -142,7 +142,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       onDeleteSelected={onDelete}
       isDeletionPending={isDeletionPending}
       extraControls={extraControls}
-      hideMobileColumns={isMobile}
+      hideMobileColumns={false}
       hideDeleteButton={true}
     />
   );

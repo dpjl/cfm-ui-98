@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchMediaIds } from '@/api/imageApi';
+import Gallery from '@/components/Gallery';
 import GalleryGrid from '@/components/gallery/GalleryGrid';
 import GalleryHeader from '@/components/GalleryHeader';
 import { useLanguage } from '@/hooks/use-language';
@@ -92,6 +93,12 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     }
   };
   
+  // Handle previewing an item
+  const handlePreviewItem = (id: string) => {
+    console.log(`Preview item: ${id}`);
+    // Preview functionality would be implemented here
+  };
+  
   // Handle canceling deletion
   const handleCancelDelete = () => {
     setDeleteDialogOpen(false);
@@ -99,30 +106,37 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   
   // Handle confirming deletion
   const handleConfirmDelete = () => {
-    deleteMutation.mutate({
-      ids: selectedIds,
-      position
-    });
+    deleteMutation.mutate(selectedIds);
   };
   
   // Determine if all items are selected
   const allSelected = mediaIds.length > 0 && selectedIds.length === mediaIds.length;
   
+  // Generate the proper class for the number of columns
+  const getColumnsClassName = () => {
+    if (viewMode === 'split') {
+      // When in split mode, reduce the number of columns
+      return `grid-cols-${Math.max(2, Math.min(columnsCount - 1, 4))}`;
+    }
+    return `grid-cols-${columnsCount}`;
+  };
+  
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Gallery Header - only shown if hideHeader is false */}
       {!hideHeader && (
-        <GalleryHeader
-          title={title}
-          columnsCount={columnsCount}
-          setColumnsCount={() => {}} // Dummy function as this prop is required but not used here
-          isLoading={isLoading}
-          selectedImages={selectedIds}
-          onRefresh={() => {}} // Dummy function as this prop is required but not used here
-          onDeleteSelected={onDeleteSelected}
-          isDeletionPending={false} // Add this required prop
-          // Remove onSelectAll and allSelected as they're not in the GalleryHeader props
-        />
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-2">
+          <GalleryHeader
+            title={title}
+            columnsCount={columnsCount}
+            setColumnsCount={() => {}} // Dummy function as this is controlled at a higher level
+            isLoading={isLoading}
+            selectedImages={selectedIds}
+            onRefresh={() => {}} // Dummy function as refresh is handled at a higher level
+            onDeleteSelected={onDeleteSelected}
+            isDeletionPending={deleteMutation.isPending}
+          />
+        </div>
       )}
       
       {/* Gallery Content */}
@@ -154,13 +168,16 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
             </div>
           </div>
         ) : (
-          <GalleryGrid
+          <Gallery
+            title={title}
             mediaIds={mediaIds}
             selectedIds={selectedIds}
             onSelectId={handleSelectItem}
-            columnsClassName={`grid-cols-${columnsCount}`}
+            isLoading={isLoading}
+            columnsClassName={getColumnsClassName()}
+            onPreviewMedia={handlePreviewItem}
             viewMode={viewMode}
-            showDates={false}
+            onDeleteSelected={onDeleteSelected}
           />
         )}
       </div>

@@ -29,7 +29,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
   onDeleteSelected,
   isDeletionPending,
   extraControls,
-  hideMobileColumns = true,
+  hideMobileColumns = false,
   hideDeleteButton = false
 }) => {
   const { t } = useLanguage();
