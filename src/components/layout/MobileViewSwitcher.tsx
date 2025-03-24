@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { GalleryHorizontal, GalleryVertical, GalleryVerticalEnd } from 'lucide-react';
 import { MobileViewMode } from '@/types/gallery';
@@ -13,12 +13,25 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
   mobileViewMode,
   setMobileViewMode
 }) => {
+  // Use memoized callbacks to prevent unnecessary re-renders
+  const handleLeftView = useCallback(() => {
+    setMobileViewMode('left');
+  }, [setMobileViewMode]);
+  
+  const handleSplitView = useCallback(() => {
+    setMobileViewMode('both');
+  }, [setMobileViewMode]);
+  
+  const handleRightView = useCallback(() => {
+    setMobileViewMode('right');
+  }, [setMobileViewMode]);
+  
   return (
-    <div className="mobile-view-switcher fixed bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 bg-background/80 backdrop-blur-sm p-2 rounded-full shadow-md border border-border/40">
+    <div className="mobile-view-switcher fixed bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 bg-background shadow-md border border-border rounded-full p-2">
       <Button 
         variant={mobileViewMode === 'left' ? "default" : "outline"} 
         size="icon" 
-        onClick={() => setMobileViewMode('left')}
+        onClick={handleLeftView}
         className="h-10 w-10 rounded-full"
         title="Source Gallery View"
       >
@@ -28,7 +41,7 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
       <Button 
         variant={mobileViewMode === 'both' ? "default" : "outline"} 
         size="icon" 
-        onClick={() => setMobileViewMode('both')}
+        onClick={handleSplitView}
         className="h-10 w-10 rounded-full"
         title="Split View"
       >
@@ -38,7 +51,7 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
       <Button 
         variant={mobileViewMode === 'right' ? "default" : "outline"} 
         size="icon" 
-        onClick={() => setMobileViewMode('right')}
+        onClick={handleRightView}
         className="h-10 w-10 rounded-full"
         title="Destination Gallery View"
       >

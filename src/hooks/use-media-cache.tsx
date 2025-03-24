@@ -41,9 +41,14 @@ export function useMediaCache() {
     cache.info.set(cacheKey, info);
   }, [cache.info]);
 
-  // Just for debugging purposes
+  // Just for debugging purposes - reduced frequency of logging
   useEffect(() => {
-    console.log(`Cache stats - Thumbnails: ${cache.thumbnails.size}, Info: ${cache.info.size}`);
+    const logInterval = 10000; // Log once every 10 seconds
+    const intervalId = setInterval(() => {
+      console.log(`Cache stats - Thumbnails: ${cache.thumbnails.size}, Info: ${cache.info.size}`);
+    }, logInterval);
+    
+    return () => clearInterval(intervalId);
   }, [cache.thumbnails.size, cache.info.size]);
 
   return {

@@ -48,8 +48,8 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
           {/* Left Gallery - always in the DOM, positioned absolutely when not in view */}
           <div className={`h-full transition-all duration-300 ${
             mobileViewMode === 'both' ? 'w-1/2 relative' : 
-            mobileViewMode === 'left' ? 'w-full relative' : 
-            'w-full absolute inset-0 opacity-30 pointer-events-none z-0'
+            mobileViewMode === 'left' ? 'w-full relative z-10' : 
+            'w-full absolute inset-0 opacity-0 pointer-events-none z-0'
           }`}>
             <GalleryContainer 
               title="Left Gallery"
@@ -77,8 +77,8 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
           {/* Right Gallery - always in the DOM, positioned absolutely when not in view */}
           <div className={`h-full transition-all duration-300 ${
             mobileViewMode === 'both' ? 'w-1/2 relative' : 
-            mobileViewMode === 'right' ? 'w-full relative' : 
-            'w-full absolute inset-0 opacity-30 pointer-events-none z-0'
+            mobileViewMode === 'right' ? 'w-full relative z-10' : 
+            'w-full absolute inset-0 opacity-0 pointer-events-none z-0'
           }`}>
             <GalleryContainer 
               title="Right Gallery"
