@@ -1,46 +1,42 @@
-
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import Gallery from '@/components/Gallery';
-import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
-import { useQuery, UseMutationResult } from '@tanstack/react-query';
-import MediaPreview from '@/components/MediaPreview';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { fetchMediaIds } from '@/api/imageApi';
-import { useIsMobile } from '@/hooks/use-breakpoint';
+import GalleryGrid from '@/components/gallery/GalleryGrid';
+import GalleryHeader from '@/components/GalleryHeader';
+import { useLanguage } from '@/hooks/use-language';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import { MediaFilter } from '@/components/AppSidebar';
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { 
-    y: 0, 
-    opacity: 1,
-    transition: {
-      duration: 0.4,
-      ease: [0.22, 1, 0.36, 1]
-    }
-  }
-};
 
 interface GalleryContainerProps {
   title: string;
   directory: string;
-  position?: 'left' | 'right';
+  position: 'left' | 'right';
   columnsCount: number;
   selectedIds: string[];
   setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
   onDeleteSelected: () => void;
   deleteDialogOpen: boolean;
   setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  deleteMutation: UseMutationResult<any, Error, string[], unknown>;
+  deleteMutation: any;
   hideHeader?: boolean;
   viewMode?: 'single' | 'split';
   filter?: MediaFilter;
 }
 
-const GalleryContainer: React.FC<GalleryContainerProps> = ({ 
-  title, 
+const GalleryContainer: React.FC<GalleryContainerProps> = ({
+  title,
   directory,
-  position = 'left',
+  position,
   columnsCount,
   selectedIds,
   setSelectedIds,
@@ -52,104 +48,144 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   viewMode = 'single',
   filter = 'all'
 }) => {
-  const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const { t } = useLanguage();
+  const [mediaIds, setMediaIds] = useState<string[]>([]);
   
+  // Fetch media IDs for the selected directory
   const { 
-    data: mediaIds = [], 
+    data = [], 
     isLoading,
-    refetch
+    isError,
+    error
   } = useQuery({
     queryKey: ['mediaIds', directory, position, filter],
-    queryFn: () => fetchMediaIds(directory, filter),
+    queryFn: () => fetchMediaIds(directory, position, filter),
+    enabled: !!directory,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
   
-  const handleSelectId = (id: string) => {
-    setSelectedIds(prev => 
-      prev.includes(id) 
-        ? prev.filter(mediaId => mediaId !== id)
-        : [...prev, id]
-    );
+  // Update mediaIds when data changes
+  useEffect(() => {
+    if (data && Array.isArray(data)) {
+      setMediaIds(data);
+    }
+  }, [data]);
+  
+  // Handle selecting/deselecting an item
+  const handleSelectItem = (id: string) => {
+    setSelectedIds(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(item => item !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
   };
   
-  const confirmDelete = () => {
-    deleteMutation.mutate(selectedIds);
-  };
-
-  const handlePreviewMedia = (mediaId: string) => {
-    setPreviewMediaId(mediaId);
-    setIsPreviewOpen(true);
-  };
-
-  const handleNavigateMedia = (direction: 'prev' | 'next') => {
-    if (!previewMediaId || mediaIds.length === 0) return;
-    
-    const currentIndex = mediaIds.indexOf(previewMediaId);
-    if (currentIndex === -1) return;
-    
-    let newIndex;
-    if (direction === 'prev') {
-      newIndex = (currentIndex - 1 + mediaIds.length) % mediaIds.length;
+  // Handle selecting all items
+  const handleSelectAll = () => {
+    if (selectedIds.length === mediaIds.length) {
+      setSelectedIds([]);
     } else {
-      newIndex = (currentIndex + 1) % mediaIds.length;
+      setSelectedIds([...mediaIds]);
     }
-    
-    setPreviewMediaId(mediaIds[newIndex]);
   };
   
-  const closePreview = () => {
-    setIsPreviewOpen(false);
-    setTimeout(() => setPreviewMediaId(null), 300);
+  // Handle canceling deletion
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
   };
-
-  const getColumnsClassName = () => {
-    switch (columnsCount) {
-      case 2: return "grid-cols-2";
-      case 3: return "grid-cols-2 sm:grid-cols-3";
-      case 4: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4";
-      case 5: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
-      case 6: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6";
-      case 7: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7";
-      case 8: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8";
-      default: return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
-    }
+  
+  // Handle confirming deletion
+  const handleConfirmDelete = () => {
+    deleteMutation.mutate({
+      ids: selectedIds,
+      position
+    });
   };
+  
+  // Determine if all items are selected
+  const allSelected = mediaIds.length > 0 && selectedIds.length === mediaIds.length;
   
   return (
-    <div className="h-full flex flex-col overflow-auto">
-      <motion.div 
-        variants={itemVariants}
-        className="flex-1 overflow-auto"
-        style={{ height: "100%" }}
-      >
-        <Gallery
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Gallery Header - only shown if hideHeader is false */}
+      {!hideHeader && (
+        <GalleryHeader
           title={title}
-          mediaIds={mediaIds}
-          selectedIds={selectedIds}
-          onSelectId={handleSelectId}
+          columnsCount={columnsCount}
           isLoading={isLoading}
-          columnsClassName={getColumnsClassName()}
-          onPreviewMedia={handlePreviewMedia}
-          viewMode={viewMode}
+          selectedImages={selectedIds}
+          onSelectAll={handleSelectAll}
           onDeleteSelected={onDeleteSelected}
+          allSelected={allSelected}
         />
-      </motion.div>
+      )}
       
-      <MediaPreview
-        mediaId={previewMediaId}
-        isOpen={isPreviewOpen}
-        onClose={closePreview}
-        allMediaIds={mediaIds}
-        onNavigate={handleNavigateMedia}
-      />
+      {/* Gallery Content */}
+      <div className="flex-1 overflow-auto">
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
+            {Array.from({ length: 20 }).map((_, index) => (
+              <Skeleton key={index} className="aspect-square rounded-md" />
+            ))}
+          </div>
+        ) : isError ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center p-4">
+              <p className="text-destructive font-medium mb-2">Error loading media</p>
+              <p className="text-sm text-muted-foreground">
+                {error instanceof Error ? error.message : 'An unknown error occurred'}
+              </p>
+            </div>
+          </div>
+        ) : mediaIds.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center p-4">
+              <p className="font-medium mb-2">No media found</p>
+              <p className="text-sm text-muted-foreground">
+                {filter !== 'all' 
+                  ? 'Try changing the filter or selecting a different folder'
+                  : 'Select a different folder or upload some media'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <GalleryGrid
+            mediaIds={mediaIds}
+            selectedIds={selectedIds}
+            onSelectId={handleSelectItem}
+            columnsClassName={`grid-cols-${columnsCount}`}
+            viewMode={viewMode}
+          />
+        )}
+      </div>
       
-      <DeleteConfirmDialog
-        isOpen={deleteDialogOpen}
-        selectedCount={selectedIds.length}
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteDialogOpen(false)}
-      />
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t('delete_confirmation_title')}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('delete_confirmation_description', { count: selectedIds.length })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDelete} disabled={deleteMutation.isPending}>
+              {t('cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmDelete}
+              disabled={deleteMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteMutation.isPending ? t('deleting') : t('delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

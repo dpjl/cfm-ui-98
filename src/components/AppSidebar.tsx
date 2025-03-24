@@ -5,9 +5,8 @@ import { fetchDirectoryTree } from '@/api/imageApi';
 import FolderTree from '@/components/FolderTree';
 import { useLanguage } from '@/hooks/use-language';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Check, Filter, Folder, ImageOff } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Folder, ImageIcon, Files, Copy, Fingerprint } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 
@@ -25,8 +24,7 @@ interface AppSidebarProps {
 interface FilterOption {
   id: MediaFilter;
   label: string;
-  description: string;
-  icon?: React.ReactNode;
+  icon: React.ReactNode;
 }
 
 const AppSidebar: React.FC<AppSidebarProps> = ({ 
@@ -38,39 +36,33 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
 }) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState<string>('folders');
   
-  // Filter options with clearer terminology
+  // Filter options with simpler labels
   const filterOptions: FilterOption[] = [
     { 
       id: 'all', 
-      label: 'All Media', 
-      description: 'Show all available media',
-      icon: <Folder className="h-4 w-4" />
+      label: 'All Media',
+      icon: <Folder className="h-3 w-3" />
     },
     { 
       id: 'unique', 
-      label: 'No Duplicates', 
-      description: 'Show media that appears only once in this gallery',
-      icon: <ImageOff className="h-4 w-4" />
+      label: 'No Duplicates',
+      icon: <ImageIcon className="h-3 w-3" />
     },
     { 
       id: 'duplicates', 
-      label: 'Has Duplicates', 
-      description: 'Show media that appears multiple times in this gallery',
-      icon: <Filter className="h-4 w-4" />
+      label: 'Duplicates',
+      icon: <Copy className="h-3 w-3" />
     },
     { 
       id: 'exclusive', 
-      label: 'Exclusive', 
-      description: 'Show media that appears only in this gallery, not in the other',
-      icon: <Filter className="h-4 w-4" />
+      label: 'Unique to Gallery',
+      icon: <Fingerprint className="h-3 w-3" />
     },
     { 
       id: 'common', 
-      label: 'Common', 
-      description: 'Show media that appears in both galleries',
-      icon: <Filter className="h-4 w-4" />
+      label: 'In Both Galleries',
+      icon: <Files className="h-3 w-3" />
     }
   ];
   
@@ -94,80 +86,53 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-card/90 backdrop-blur-sm w-full overflow-hidden">
-      {/* Tab navigation */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="px-2 pt-2">
-          <TabsList className="w-full">
-            <TabsTrigger value="folders" className="flex-1">
-              Folders
-            </TabsTrigger>
-            <TabsTrigger value="filters" className="flex-1">
-              Filters
-            </TabsTrigger>
-          </TabsList>
-        </div>
-        
-        {/* Folders tab content */}
-        <TabsContent value="folders" className="flex-1 h-[calc(100%-40px)]">
-          <ScrollArea className="flex-1 h-full">
-            <div className="p-3">
-              {isLoading ? (
-                <div className="flex flex-col gap-2 p-2">
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <div 
-                      key={index} 
-                      className="h-4 bg-muted rounded-md animate-pulse" 
-                    />
-                  ))}
-                </div>
-              ) : (
-                <FolderTree 
-                  directories={directoryTree}
-                  selectedDirectoryId={selectedDirectoryId}
-                  onSelectDirectory={onSelectDirectory}
-                />
+      {/* Filters at the top */}
+      <div className="p-3 border-b">
+        <div className="flex flex-wrap gap-1.5 mb-1">
+          {filterOptions.map((option) => (
+            <Badge
+              key={option.id}
+              variant={selectedFilter === option.id ? "default" : "outline"}
+              className={cn(
+                "cursor-pointer transition-colors py-1 px-2", 
+                selectedFilter === option.id 
+                  ? "bg-primary hover:bg-primary/90" 
+                  : "hover:bg-primary/10 hover:text-primary-foreground"
               )}
+              onClick={() => handleFilterChange(option.id)}
+            >
+              <span className="flex items-center gap-1">
+                {option.icon}
+                <span className={isMobile ? "text-[10px]" : "text-xs"}>
+                  {option.label}
+                </span>
+              </span>
+            </Badge>
+          ))}
+        </div>
+      </div>
+      
+      {/* Folder tree */}
+      <ScrollArea className="flex-1 h-[calc(100%-52px)]">
+        <div className="p-3">
+          {isLoading ? (
+            <div className="flex flex-col gap-2 p-2">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div 
+                  key={index} 
+                  className="h-4 bg-muted rounded-md animate-pulse" 
+                />
+              ))}
             </div>
-          </ScrollArea>
-        </TabsContent>
-        
-        {/* Filters tab content */}
-        <TabsContent value="filters" className="flex-1 h-[calc(100%-40px)]">
-          <ScrollArea className="flex-1 h-full">
-            <div className="p-3 space-y-2">
-              <div className="text-sm font-medium mb-1">Media Filters</div>
-              
-              {/* Filter options */}
-              <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-1"} gap-2`}>
-                {filterOptions.map((option) => (
-                  <Button
-                    key={option.id}
-                    variant={selectedFilter === option.id ? "default" : "outline"}
-                    className={cn(
-                      "w-full justify-start gap-2 h-auto py-2", 
-                      selectedFilter === option.id ? "bg-primary/10" : ""
-                    )}
-                    onClick={() => handleFilterChange(option.id)}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <div className="flex items-center gap-2">
-                        {option.icon}
-                        <span>{option.label}</span>
-                      </div>
-                      {selectedFilter === option.id && (
-                        <Check className="h-4 w-4" />
-                      )}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5 pl-6">
-                      {option.description}
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </ScrollArea>
-        </TabsContent>
-      </Tabs>
+          ) : (
+            <FolderTree 
+              directories={directoryTree}
+              selectedDirectoryId={selectedDirectoryId}
+              onSelectDirectory={onSelectDirectory}
+            />
+          )}
+        </div>
+      </ScrollArea>
     </div>
   );
 };

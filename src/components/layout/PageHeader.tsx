@@ -124,9 +124,16 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     </div>
   );
 
+  // Custom header logo component
+  const Logo = () => (
+    <div className="flex items-center">
+      <img src="/logo.svg" alt="Media Analyzer" className="h-8 w-8" />
+    </div>
+  );
+
   return (
     <GalleryHeader
-      title="CFM"
+      title={<Logo />}
       columnsCount={columnsCount}
       setColumnsCount={setColumnsCount}
       isLoading={false}
@@ -136,6 +143,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       isDeletionPending={isDeletionPending}
       extraControls={extraControls}
       hideMobileColumns={isMobile}
+      hideDeleteButton={true}
     />
   );
 };

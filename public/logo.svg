@@ -5,4 +5,9 @@
   <rect x="12" y="15" width="18" height="12" rx="2" stroke="#0FA0CE" stroke-width="2" stroke-linejoin="round" />
   <circle cx="27" cy="19" r="2" fill="#33C3F0" />
   <path d="M12 27L17 22L20 25L25 20L30 25" stroke="#0FA0CE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M15 31L27 31" stroke="#1EAEDB" stroke-width="2" stroke-linecap="round" />
+  <path d="M18 34L24 34" stroke="#1EAEDB" stroke-width="2" stroke-linecap="round" />
+  <path d="M21 12L21 8" stroke="#1EAEDB" stroke-width="2" stroke-linecap="round" />
+  <path d="M27 14L30 11" stroke="#1EAEDB" stroke-width="2" stroke-linecap="round" />
+  <path d="M15 14L12 11" stroke="#1EAEDB" stroke-width="2" stroke-linecap="round" />
 </svg>
