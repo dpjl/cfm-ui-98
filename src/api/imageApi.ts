@@ -1,4 +1,3 @@
-
 import { ImageItem } from '@/components/Gallery';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
@@ -9,6 +8,17 @@ export interface DirectoryNode {
   id: string;
   name: string;
   children?: DirectoryNode[];
+}
+
+export interface DetailedMediaInfo {
+  alt: string;
+  createdAt: string | null;
+  name?: string;
+  path?: string;
+  size?: string;
+  cameraModel?: string;
+  hash?: string;
+  duplicatesCount?: number;
 }
 
 export async function fetchDirectoryTree(position?: 'left' | 'right'): Promise<DirectoryNode[]> {
@@ -70,8 +80,8 @@ export async function fetchMediaIds(directory: string): Promise<string[]> {
   }
 }
 
-export async function fetchMediaInfo(id: string): Promise<{ alt: string, createdAt: string }> {
-  const url = `${API_BASE_URL}/info?id=${encodeURIComponent(id)}`;
+export async function fetchMediaInfo(id: string, detailed: boolean = false): Promise<DetailedMediaInfo> {
+  const url = `${API_BASE_URL}/info?id=${encodeURIComponent(id)}${detailed ? '&detailed=true' : ''}`;
   console.log(`Fetching media info for ID ${id} from:`, url);
   
   try {
@@ -83,16 +93,27 @@ export async function fetchMediaInfo(id: string): Promise<{ alt: string, created
     }
     
     const data = await response.json();
-    console.log(`Media info for ID ${id}:`, data);
+    console.log(`Media info for ID ${id}${detailed ? ' (detailed)' : ''}:`, data);
     return data;
   } catch (error) {
     console.error(`Error fetching media info for ID ${id}:`, error);
     
     // Return mock data for development
-    const mockInfo = { 
+    const mockInfo: DetailedMediaInfo = { 
       alt: `Mock Media ${id}`, 
-      createdAt: new Date().toISOString() 
+      createdAt: new Date().toISOString(),
     };
+    
+    // Add detailed mock data if detailed parameter is true
+    if (detailed) {
+      mockInfo.name = `file_${id}.jpg`;
+      mockInfo.path = `/media/photos/${mockInfo.name}`;
+      mockInfo.size = `${Math.floor(Math.random() * 10000) + 500}KB`;
+      mockInfo.cameraModel = ["iPhone 13 Pro", "Canon EOS 5D", "Sony Alpha A7III", "Nikon Z6"][Math.floor(Math.random() * 4)];
+      mockInfo.hash = `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
+      mockInfo.duplicatesCount = Math.floor(Math.random() * 3);
+    }
+    
     console.log(`Using mock media info for ${id}:`, mockInfo);
     return mockInfo;
   }

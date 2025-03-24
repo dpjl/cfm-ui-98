@@ -15,7 +15,6 @@ interface LazyMediaItemProps {
   id: string;
   selected: boolean;
   onSelect: () => void;
-  onPreview: () => void;
   index: number;
   showDates?: boolean;
 }
@@ -24,7 +23,6 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   id,
   selected,
   onSelect,
-  onPreview,
   index,
   showDates = false
 }) => {
@@ -79,7 +77,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
                 selected && "selected",
                 !loaded && "animate-pulse bg-muted"
               )}
-              onClick={onPreview}
+              onClick={onSelect}
             >
               <MediaItemRenderer
                 src={thumbnailUrl}

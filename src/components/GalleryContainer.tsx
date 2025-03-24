@@ -129,6 +129,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
           columnsClassName={getColumnsClassName()}
           onPreviewMedia={handlePreviewMedia}
           viewMode={viewMode}
+          onDeleteSelected={onDeleteSelected}
         />
       </motion.div>
       

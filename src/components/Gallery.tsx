@@ -5,7 +5,10 @@ import GalleryGrid from './gallery/GalleryGrid';
 import GalleryEmptyState from './gallery/GalleryEmptyState';
 import GallerySkeletons from './gallery/GallerySkeletons';
 import GallerySelectionBar from './gallery/GallerySelectionBar';
+import MediaInfoPanel from './media/MediaInfoPanel';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import { getMediaUrl } from '@/api/imageApi';
+import { useToast } from '@/components/ui/use-toast';
 
 export interface ImageItem {
   id: string;
@@ -25,6 +28,7 @@ interface GalleryProps {
   columnsClassName?: string;
   onPreviewMedia?: (id: string) => void;
   viewMode?: 'single' | 'split';
+  onDeleteSelected: () => void;
 }
 
 const Gallery: React.FC<GalleryProps> = ({
@@ -35,12 +39,14 @@ const Gallery: React.FC<GalleryProps> = ({
   isLoading = false,
   columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
   onPreviewMedia,
-  viewMode = 'single'
+  viewMode = 'single',
+  onDeleteSelected
 }) => {
   const [mounted, setMounted] = useState(false);
   const [showDates, setShowDates] = useState(false);
   const { t } = useLanguage();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   
   useEffect(() => {
     setMounted(true);
@@ -65,6 +71,27 @@ const Gallery: React.FC<GalleryProps> = ({
     setShowDates(prev => !prev);
   };
   
+  const handleDownloadSelected = (ids: string[]) => {
+    if (ids.length === 0) return;
+    
+    // For a single file, trigger direct download
+    if (ids.length === 1) {
+      const a = document.createElement('a');
+      a.href = getMediaUrl(ids[0]);
+      a.download = `media-${ids[0]}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return;
+    }
+    
+    // For multiple files, show a notification (actual batch download would require server-side implementation)
+    toast({
+      title: "Multiple files download",
+      description: `Downloading ${ids.length} files is not supported yet. Please select one file at a time.`,
+    });
+  };
+  
   if (isLoading) {
     return (
       <div className="flex flex-col h-full">
@@ -85,6 +112,15 @@ const Gallery: React.FC<GalleryProps> = ({
           showDates={showDates}
           onToggleDates={toggleDates}
         />
+        
+        {selectedIds.length > 0 && (
+          <MediaInfoPanel 
+            selectedIds={selectedIds}
+            onOpenPreview={(id) => onPreviewMedia ? onPreviewMedia(id) : null}
+            onDeleteSelected={onDeleteSelected}
+            onDownloadSelected={handleDownloadSelected}
+          />
+        )}
       </div>
       
       {mediaIds.length === 0 ? (
@@ -95,7 +131,6 @@ const Gallery: React.FC<GalleryProps> = ({
             mediaIds={mediaIds}
             selectedIds={selectedIds}
             onSelectId={onSelectId}
-            onPreviewMedia={onPreviewMedia}
             columnsClassName={columnsClassName}
             viewMode={viewMode}
             showDates={showDates}

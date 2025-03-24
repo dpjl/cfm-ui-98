@@ -9,7 +9,6 @@ interface GalleryGridProps {
   mediaIds: string[];
   selectedIds: string[];
   onSelectId: (id: string) => void;
-  onPreviewMedia?: (id: string) => void;
   columnsClassName?: string;
   viewMode?: 'single' | 'split';
   showDates?: boolean;
@@ -19,7 +18,6 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   mediaIds,
   selectedIds,
   onSelectId,
-  onPreviewMedia,
   columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6",
   viewMode = 'single',
   showDates = false
@@ -50,7 +48,6 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
             id={id}
             selected={selectedIds.includes(id)}
             onSelect={() => onSelectId(id)}
-            onPreview={() => onPreviewMedia ? onPreviewMedia(id) : null}
             index={index}
             showDates={showDates}
           />
