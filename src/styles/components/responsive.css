@@ -58,110 +58,64 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   
-  /* Mobile galleries container */
+  /* Mobile galleries container - simplified approach */
   .mobile-galleries-container {
     position: relative;
     width: 100%;
     height: 100%;
+    display: flex;
     overflow: hidden;
   }
   
-  /* Mobile gallery states - Both galleries are always present but may be visually hidden */
+  /* Basic gallery styles */
   .gallery-source,
   .gallery-destination {
-    position: absolute;
-    top: 0;
-    height: 100%;
     transition: all 0.3s ease-in-out;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    will-change: transform, opacity, width;
-    overflow: auto; /* Modifier: changer de hidden à auto pour permettre le défilement */
+    overflow: auto;
+    height: 100%;
   }
   
-  /* Both view mode - display both galleries side by side */
-  .view-both .gallery-source {
-    left: 0;
-    width: 50%;
-    transform: translateX(0);
-    opacity: 1;
-    z-index: 10;
-  }
-  
+  /* View mode styles - simplified implementation */
+  .view-both .gallery-source,
   .view-both .gallery-destination {
-    left: 50%;
     width: 50%;
-    transform: translateX(0);
-    opacity: 1;
-    z-index: 10;
+    flex: 1;
   }
   
-  /* Left (source) view mode - full width for source gallery, hide destination */
   .view-left .gallery-source {
-    left: 0;
     width: 100%;
-    transform: translateX(0);
-    opacity: 1;
-    z-index: 20;
+    flex: 1;
   }
   
   .view-left .gallery-destination {
-    left: 100%;
-    width: 50%;
-    transform: translateX(0);
-    opacity: 0;
-    z-index: 1;
-    pointer-events: none;
+    width: 0;
+    flex: 0;
+    overflow: hidden;
   }
   
-  /* Right (destination) view mode - hide source, full width for destination */
   .view-right .gallery-source {
-    left: -50%;
-    width: 50%;
-    transform: translateX(0);
-    opacity: 0;
-    z-index: 1;
-    pointer-events: none;
+    width: 0;
+    flex: 0;
+    overflow: hidden;
   }
   
   .view-right .gallery-destination {
-    left: 0;
     width: 100%;
-    transform: translateX(0);
-    opacity: 1;
-    z-index: 20;
+    flex: 1;
   }
 
   /* Add a visual separator between galleries when both are visible */
-  .view-both::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    height: 100%;
-    width: 1px;
-    background-color: var(--border);
-    opacity: 0.6;
-    z-index: 20;
-    pointer-events: none;
+  .view-both .gallery-source {
+    border-right: 1px solid var(--border);
   }
   
   /* Optimize image grid for mobile views */
-  .view-both .gallery-source .grid,
-  .view-both .gallery-destination .grid {
+  .view-both .gallery-grid {
     padding: 0.5rem !important; /* Use smaller padding when side by side */
   }
   
-  .view-left .gallery-source .grid,
-  .view-right .gallery-destination .grid {
+  .view-left .gallery-grid,
+  .view-right .gallery-grid {
     padding: 1rem !important; /* Use larger padding when full width */
-  }
-  
-  /* Improved performance for mobile transitions */
-  @media (prefers-reduced-motion: no-preference) {
-    .gallery-source,
-    .gallery-destination {
-      transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, width 0.3s ease-in-out, left 0.3s ease-in-out;
-    }
   }
 }

@@ -45,9 +45,8 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   const { t } = useLanguage();
   
   // Calculer le nombre de colonnes en fonction du mode d'affichage
-  // Exactement comme demandé:
-  // - 4 colonnes en mode source ou destination uniquement
-  // - 2 colonnes quand les deux sont affichées côte à côte
+  // 4 colonnes en mode source ou destination uniquement
+  // 2 colonnes quand les deux sont affichées côte à côte
   const leftColumnsCount = useMemo(() => 
     mobileViewMode === 'both' ? 2 : 4
   , [mobileViewMode]);
@@ -61,7 +60,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
       <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
         {/* Container pour les deux galeries avec transitions fluides */}
         <div className={cn("mobile-galleries-container", `view-${mobileViewMode}`)}>
-          {/* Galerie Source (Gauche) - Toujours montée, visibilité contrôlée par CSS */}
+          {/* Galerie Source (Gauche) */}
           <div className="gallery-source">
             <GalleryContainer 
               title={t('source_gallery')}
@@ -81,7 +80,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
             />
           </div>
           
-          {/* Galerie Destination (Droite) - Toujours montée, visibilité contrôlée par CSS */}
+          {/* Galerie Destination (Droite) */}
           <div className="gallery-destination">
             <GalleryContainer 
               title={t('destination_gallery')}
