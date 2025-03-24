@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, ArrowLeft, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ImageItem } from './Gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { useLanguage } from '@/hooks/use-language';
@@ -14,6 +13,7 @@ interface MediaPreviewProps {
   isOpen: boolean;
   allMediaIds: string[];
   onNavigate?: (direction: 'prev' | 'next') => void;
+  position?: 'source' | 'destination';
 }
 
 const MediaPreview: React.FC<MediaPreviewProps> = ({ 
@@ -21,7 +21,8 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
   onClose, 
   isOpen, 
   allMediaIds = [],
-  onNavigate 
+  onNavigate,
+  position = 'source'
 }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const { t } = useLanguage();
@@ -78,7 +79,7 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
 
   const currentId = currentIndex !== -1 && allMediaIds[currentIndex] ? allMediaIds[currentIndex] : mediaId;
   const isVideo = currentId.match(/\.(mp4|webm|ogg|mov)$/i);
-  const mediaUrl = getMediaUrl(currentId);
+  const mediaUrl = getMediaUrl(currentId, position);
 
   return (
     <AnimatePresence>
