@@ -32,9 +32,10 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
-  // Always use 2 columns on mobile for side-by-side galleries
+  // Always use 2 columns on mobile when in split view mode
   const actualColumnsCount = useMemo(() => {
-    return isMobile ? 2 : columnsCount;
+    if (isMobile) return 2;
+    return columnsCount;
   }, [columnsCount, isMobile]);
   
   // Generate grid style based on columns count - memoized
@@ -54,7 +55,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   
   return (
     <div 
-      className={cn("grid w-full content-start p-1 gallery-grid overflow-y-auto", gapClass)}
+      className={cn("grid w-full content-start gallery-grid", gapClass)}
       style={gridStyle}
     >
       <AnimatePresence>

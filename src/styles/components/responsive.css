@@ -42,27 +42,28 @@
     }
   }
   
-  /* Mobile Galleries Container - Simplified side-by-side layout */
+  /* Mobile Galleries Container - Fixed side-by-side layout */
   .mobile-galleries-container {
     display: flex;
     flex-direction: row;
-    height: 100%;
     width: 100%;
-    overflow: hidden;
+    height: 100%;
+    overflow: hidden; /* Hide overflow on container */
   }
   
   /* Mobile gallery panels */
   .mobile-gallery-panel {
-    flex: 1;
+    flex: 0 0 50%; /* Each gallery takes exactly half the width */
     height: 100%;
-    overflow-y: auto;
+    overflow-y: auto; /* Enable scrolling within each panel */
     -webkit-overflow-scrolling: touch;
-    padding: 0.25rem;
+    padding: 0 2px; /* Minimal horizontal padding */
+    max-width: 50%; /* Ensure they never exceed 50% */
   }
   
   /* Ensure the gallery grid takes full height and scrolls properly */
   .mobile-gallery-panel .gallery-grid {
-    height: auto;
     min-height: 100%;
+    width: 100%;
   }
 }

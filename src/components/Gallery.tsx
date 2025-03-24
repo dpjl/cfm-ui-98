@@ -138,34 +138,40 @@ const Gallery: React.FC<GalleryProps> = ({
   // Memoize whether to show the media info panel
   const showMediaInfoPanel = selectedIds.length > 0;
   
+  // Use a simplified layout for mobile split view
+  const containerClass = isMobile && viewMode === 'split' ? 'h-full overflow-auto' : 'flex flex-col h-full relative';
+  
   return (
-    <div className="flex flex-col h-full relative">
-      <div className="sticky top-0 z-10 p-2">
-        <GallerySelectionBar 
-          selectedIds={selectedIds}
-          mediaIds={mediaIds}
-          onSelectAll={handleSelectAll}
-          onDeselectAll={handleDeselectAll}
-          showDates={showDates}
-          onToggleDates={toggleDates}
-        />
-        
-        {showMediaInfoPanel && (
-          <MediaInfoPanel 
+    <div className={containerClass}>
+      {/* Only show top controls on desktop or in single view mode */}
+      {(!isMobile || viewMode === 'single') && (
+        <div className="sticky top-0 z-10 p-2">
+          <GallerySelectionBar 
             selectedIds={selectedIds}
-            onOpenPreview={handleOpenPreview}
-            onDeleteSelected={onDeleteSelected}
-            onDownloadSelected={handleDownloadSelected}
-            mediaInfoMap={mediaInfoMap}
-            position={position}
+            mediaIds={mediaIds}
+            onSelectAll={handleSelectAll}
+            onDeselectAll={handleDeselectAll}
+            showDates={showDates}
+            onToggleDates={toggleDates}
           />
-        )}
-      </div>
+          
+          {showMediaInfoPanel && (
+            <MediaInfoPanel 
+              selectedIds={selectedIds}
+              onOpenPreview={handleOpenPreview}
+              onDeleteSelected={onDeleteSelected}
+              onDownloadSelected={handleDownloadSelected}
+              mediaInfoMap={mediaInfoMap}
+              position={position}
+            />
+          )}
+        </div>
+      )}
       
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />
       ) : (
-        <div className="flex-1 overflow-auto">
+        <div className={isMobile && viewMode === 'split' ? 'h-full' : 'flex-1 overflow-auto'}>
           <GalleryGrid
             mediaIds={mediaIds}
             selectedIds={selectedIds}

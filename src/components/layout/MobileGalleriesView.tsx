@@ -56,7 +56,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               setDeleteDialogOpen={setDeleteDialogOpen}
               deleteMutation={deleteMutation}
               hideHeader={true}
-              viewMode="single"
+              viewMode="split"
               filter={leftFilter}
             />
           </div>
@@ -75,7 +75,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               setDeleteDialogOpen={setDeleteDialogOpen}
               deleteMutation={deleteMutation}
               hideHeader={true}
-              viewMode="single"
+              viewMode="split"
               filter={rightFilter}
             />
           </div>

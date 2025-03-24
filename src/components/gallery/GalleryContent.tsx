@@ -4,6 +4,7 @@ import Gallery from '@/components/Gallery';
 import GalleryEmptyState from '@/components/gallery/GalleryEmptyState';
 import GallerySkeletons from '@/components/gallery/GallerySkeletons';
 import GalleryError from '@/components/gallery/GalleryError';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 
 interface GalleryContentProps {
   mediaIds: string[];
@@ -36,6 +37,8 @@ const GalleryContent: React.FC<GalleryContentProps> = ({
   filter = 'all',
   position = 'source'
 }) => {
+  const isMobile = useIsMobile();
+
   if (isLoading) {
     return <GallerySkeletons columnsCount={columnsCount} />;
   }
@@ -48,19 +51,22 @@ const GalleryContent: React.FC<GalleryContentProps> = ({
     return <GalleryEmptyState filter={filter} />;
   }
 
+  // Wrap the gallery in a div that allows scrolling on mobile
   return (
-    <Gallery
-      title={title}
-      mediaIds={mediaIds}
-      selectedIds={selectedIds}
-      onSelectId={onSelectId}
-      isLoading={isLoading}
-      columnsCount={columnsCount}
-      onPreviewMedia={onPreviewItem}
-      viewMode={viewMode}
-      onDeleteSelected={onDeleteSelected}
-      position={position}
-    />
+    <div className={isMobile && viewMode === 'split' ? 'h-full overflow-auto' : ''}>
+      <Gallery
+        title={title}
+        mediaIds={mediaIds}
+        selectedIds={selectedIds}
+        onSelectId={onSelectId}
+        isLoading={isLoading}
+        columnsCount={columnsCount}
+        onPreviewMedia={onPreviewItem}
+        viewMode={viewMode}
+        onDeleteSelected={onDeleteSelected}
+        position={position}
+      />
+    </div>
   );
 };
 

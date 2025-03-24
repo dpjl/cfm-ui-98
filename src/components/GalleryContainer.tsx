@@ -98,10 +98,15 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     deleteMutation.mutate({ ids: selectedIds, position: apiPosition });
   }, [deleteMutation, selectedIds, apiPosition]);
   
+  // Class for the main container
+  const containerClass = isMobile && viewMode === 'split' 
+    ? 'h-full overflow-hidden' 
+    : 'flex flex-col h-full overflow-hidden';
+  
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className={containerClass}>
       {/* Gallery Header - only shown if hideHeader is false */}
-      {!hideHeader && (
+      {!hideHeader && !isMobile && (
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-2">
           <GalleryHeader
             title={title}
@@ -118,7 +123,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
       )}
       
       {/* Gallery Content */}
-      <div className="flex-1 overflow-auto">
+      <div className={isMobile && viewMode === 'split' ? 'h-full' : 'flex-1 overflow-auto'}>
         <GalleryContent
           mediaIds={mediaIds}
           selectedIds={selectedIds}
