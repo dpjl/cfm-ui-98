@@ -44,16 +44,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
 }) => {
   const { t } = useLanguage();
   
-  // Determine the container class based on the view mode
-  const containerClass = useMemo(() => {
-    switch(mobileViewMode) {
-      case 'left': return 'view-left';
-      case 'right': return 'view-right';
-      default: return 'view-both';
-    }
-  }, [mobileViewMode]);
-  
-  // Calculate columns count based on view mode
+  // Calculate columns count based on view mode for better display
   const leftColumnsCount = useMemo(() => 
     mobileViewMode === 'left' ? 4 : 2
   , [mobileViewMode]);
@@ -65,9 +56,9 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   return (
     <div className="flex-1 overflow-hidden h-full">
       <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
-        {/* Container for both galleries with view mode class */}
-        <div className={cn("mobile-galleries-container", containerClass)}>
-          {/* Source Gallery (Left) */}
+        {/* Container for both galleries with smoother transitions */}
+        <div className={cn("mobile-galleries-container", `view-${mobileViewMode}`)}>
+          {/* Source Gallery (Left) - Always mounted, visibility controlled by CSS */}
           <div className="gallery-source">
             <GalleryContainer 
               title={t('source_gallery')}
@@ -87,10 +78,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
             />
           </div>
           
-          {/* Vertical Separator */}
-          <div className="gallery-separator" />
-          
-          {/* Destination Gallery (Right) */}
+          {/* Destination Gallery (Right) - Always mounted, visibility controlled by CSS */}
           <div className="gallery-destination">
             <GalleryContainer 
               title={t('destination_gallery')}

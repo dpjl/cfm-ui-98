@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckSquare, Square, Calendar, CalendarOff } from 'lucide-react';
+import { CheckSquare, Square, Calendar, CalendarOff, X } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -10,6 +10,7 @@ interface GallerySelectionBarProps {
   selectedIds: string[];
   mediaIds: string[];
   onSelectAll: () => void;
+  onDeselectAll: () => void;
   showDates: boolean;
   onToggleDates: () => void;
 }
@@ -18,6 +19,7 @@ const GallerySelectionBar: React.FC<GallerySelectionBarProps> = ({
   selectedIds,
   mediaIds,
   onSelectAll,
+  onDeselectAll,
   showDates,
   onToggleDates,
 }) => {
@@ -27,19 +29,46 @@ const GallerySelectionBar: React.FC<GallerySelectionBarProps> = ({
   return (
     <div className="flex items-center justify-between w-full bg-background/90 backdrop-blur-sm py-1.5 px-3 rounded-md z-10 shadow-sm border border-border/30">
       <div className="flex items-center gap-2">
-        <Button
-          onClick={onSelectAll}
-          variant="outline"
-          size="icon"
-          className="h-7 w-7"
-        >
-          {selectedIds.length === mediaIds.length ? (
-            <Square className="h-3.5 w-3.5" />
-          ) : (
-            <CheckSquare className="h-3.5 w-3.5" />
-          )}
-        </Button>
+        {/* Select All Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onSelectAll}
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+              >
+                <CheckSquare className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{t('select_all')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
+        {/* Deselect All Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onDeselectAll}
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+                disabled={selectedIds.length === 0}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{t('deselect_all')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        {/* Toggle Dates Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>

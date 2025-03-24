@@ -1,4 +1,5 @@
-import { MediaPosition } from '@/types/gallery';
+
+import { ImageItem } from '@/components/Gallery';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -53,9 +54,10 @@ export async function fetchDirectoryTree(position?: 'left' | 'right'): Promise<D
   }
 }
 
-export async function fetchMediaIds(directory: string, filter: string = 'all'): Promise<string[]> {
-  const url = `${API_BASE_URL}/media?directory=${encodeURIComponent(directory)}${filter !== 'all' ? `&filter=${filter}` : ''}`;
-  console.log("Fetching media IDs from:", url);
+export async function fetchMediaIds(directory: string, filter: string = 'all', position: 'source' | 'destination' = 'source'): Promise<string[]> {
+  // Use position parameter for directory context
+  const url = `${API_BASE_URL}/media?directory=${encodeURIComponent(directory)}&position=${position}${filter !== 'all' ? `&filter=${filter}` : ''}`;
+  console.log(`Fetching media IDs from: ${url} for position: ${position}`);
   
   try {
     const response = await fetch(url);
@@ -67,21 +69,21 @@ export async function fetchMediaIds(directory: string, filter: string = 'all'): 
     }
     
     const data = await response.json();
-    console.log("Received media IDs:", data);
+    console.log(`Received media IDs for ${position}:`, data);
     
     return data;
   } catch (error) {
-    console.error("Error fetching media IDs:", error);
+    console.error(`Error fetching media IDs for ${position}:`, error);
     
     // Return mock data for development
-    console.log("Using mock media IDs due to error");
-    const mockMediaIds = Array.from({ length: 20 }, (_, i) => `mock-media-${i}`);
+    console.log(`Using mock media IDs for ${position} due to error`);
+    const mockMediaIds = Array.from({ length: 20 }, (_, i) => `mock-media-${position}-${i}`);
     return mockMediaIds;
   }
 }
 
-export async function fetchMediaInfo(id: string): Promise<DetailedMediaInfo> {
-  const url = `${API_BASE_URL}/info?id=${encodeURIComponent(id)}`;
+export async function fetchMediaInfo(id: string, position: 'source' | 'destination' = 'source'): Promise<DetailedMediaInfo> {
+  const url = `${API_BASE_URL}/info?id=${encodeURIComponent(id)}&position=${position}`;
   console.log(`Fetching media info for ID ${id} from:`, url);
   
   try {
@@ -93,48 +95,48 @@ export async function fetchMediaInfo(id: string): Promise<DetailedMediaInfo> {
     }
     
     const data = await response.json();
-    console.log(`Media info for ID ${id}:`, data);
+    console.log(`Media info for ID ${id} (${position}):`, data);
     return data;
   } catch (error) {
-    console.error(`Error fetching media info for ID ${id}:`, error);
+    console.error(`Error fetching media info for ID ${id} (${position}):`, error);
     
     // Return mock data for development
     const mockInfo: DetailedMediaInfo = { 
-      alt: `Mock Media ${id}`, 
+      alt: `Mock Media ${id} (${position})`, 
       createdAt: new Date().toISOString(),
       name: `file_${id}.jpg`,
-      path: `/media/photos/${id}`,
+      path: `/media/${position}/${id}`,
       size: `${Math.floor(Math.random() * 10000) + 500}KB`,
       cameraModel: ["iPhone 13 Pro", "Canon EOS 5D", "Sony Alpha A7III", "Nikon Z6"][Math.floor(Math.random() * 4)],
       hash: `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
       duplicatesCount: Math.floor(Math.random() * 3)
     };
     
-    console.log(`Using mock media info for ${id}:`, mockInfo);
+    console.log(`Using mock media info for ${id} (${position}):`, mockInfo);
     return mockInfo;
   }
 }
 
-export function getThumbnailUrl(id: string): string {
+export function getThumbnailUrl(id: string, position: 'source' | 'destination' = 'source'): string {
   // If it looks like a mock ID, return a placeholder image
   if (id.startsWith('mock-media-')) {
     // Use a placeholder service to generate a random colored image
     return `https://via.placeholder.com/300x300/${Math.floor(Math.random()*16777215).toString(16)}/FFFFFF?text=${id}`;
   }
-  return `${API_BASE_URL}/thumbnail?id=${encodeURIComponent(id)}`;
+  return `${API_BASE_URL}/thumbnail?id=${encodeURIComponent(id)}&position=${position}`;
 }
 
-export function getMediaUrl(id: string): string {
+export function getMediaUrl(id: string, position: 'source' | 'destination' = 'source'): string {
   // If it looks like a mock ID, return a placeholder image
   if (id.startsWith('mock-media-')) {
     return `https://via.placeholder.com/800x600/${Math.floor(Math.random()*16777215).toString(16)}/FFFFFF?text=${id}`;
   }
-  return `${API_BASE_URL}/media?id=${encodeURIComponent(id)}`;
+  return `${API_BASE_URL}/media?id=${encodeURIComponent(id)}&position=${position}`;
 }
 
-export async function deleteImages(imageIds: string[]): Promise<{ success: boolean, message: string }> {
+export async function deleteImages(imageIds: string[], position: 'source' | 'destination' = 'source'): Promise<{ success: boolean, message: string }> {
   const url = `${API_BASE_URL}/images`;
-  console.log("Deleting images at:", url, "IDs:", imageIds);
+  console.log(`Deleting images at: ${url}, IDs: ${imageIds}, position: ${position}`);
   
   try {
     const response = await fetch(url, {
@@ -142,7 +144,7 @@ export async function deleteImages(imageIds: string[]): Promise<{ success: boole
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ imageIds }),
+      body: JSON.stringify({ imageIds, position }),
     });
     
     if (!response.ok) {
@@ -152,13 +154,13 @@ export async function deleteImages(imageIds: string[]): Promise<{ success: boole
     }
     
     const data = await response.json();
-    console.log("Delete response:", data);
+    console.log(`Delete response for ${position}:`, data);
     return data;
   } catch (error) {
-    console.error("Error deleting images:", error);
+    console.error(`Error deleting images for ${position}:`, error);
     
     // Return mock response for development
-    console.log("Using mock delete response due to error");
-    return { success: true, message: `Successfully deleted ${imageIds.length} image(s)` };
+    console.log(`Using mock delete response for ${position} due to error`);
+    return { success: true, message: `Successfully deleted ${imageIds.length} image(s) from ${position}` };
   }
 }
