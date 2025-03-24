@@ -76,7 +76,7 @@
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     will-change: transform, opacity, width;
-    overflow: hidden;
+    overflow: auto; /* Modifier: changer de hidden à auto pour permettre le défilement */
   }
   
   /* Both view mode - display both galleries side by side */

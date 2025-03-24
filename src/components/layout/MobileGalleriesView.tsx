@@ -44,21 +44,24 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
 }) => {
   const { t } = useLanguage();
   
-  // Calculate columns count based on view mode for better display
+  // Calculer le nombre de colonnes en fonction du mode d'affichage
+  // Exactement comme demandé:
+  // - 4 colonnes en mode source ou destination uniquement
+  // - 2 colonnes quand les deux sont affichées côte à côte
   const leftColumnsCount = useMemo(() => 
-    mobileViewMode === 'left' ? 4 : 2
+    mobileViewMode === 'both' ? 2 : 4
   , [mobileViewMode]);
   
   const rightColumnsCount = useMemo(() => 
-    mobileViewMode === 'right' ? 4 : 2
+    mobileViewMode === 'both' ? 2 : 4
   , [mobileViewMode]);
   
   return (
     <div className="flex-1 overflow-hidden h-full">
       <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
-        {/* Container for both galleries with smoother transitions */}
+        {/* Container pour les deux galeries avec transitions fluides */}
         <div className={cn("mobile-galleries-container", `view-${mobileViewMode}`)}>
-          {/* Source Gallery (Left) - Always mounted, visibility controlled by CSS */}
+          {/* Galerie Source (Gauche) - Toujours montée, visibilité contrôlée par CSS */}
           <div className="gallery-source">
             <GalleryContainer 
               title={t('source_gallery')}
@@ -78,7 +81,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
             />
           </div>
           
-          {/* Destination Gallery (Right) - Always mounted, visibility controlled by CSS */}
+          {/* Galerie Destination (Droite) - Toujours montée, visibilité contrôlée par CSS */}
           <div className="gallery-destination">
             <GalleryContainer 
               title={t('destination_gallery')}
@@ -100,7 +103,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
         </div>
       </div>
       
-      {/* Mode switcher floating button */}
+      {/* Bouton flottant pour changer de mode */}
       <MobileViewSwitcher 
         mobileViewMode={mobileViewMode}
         setMobileViewMode={setMobileViewMode}
