@@ -116,6 +116,8 @@ export async function fetchMediaInfo(id: string, position: 'source' | 'destinati
   }
 }
 
+// These functions are now just utility functions to get the URLs
+// The actual caching is handled by the components
 export function getThumbnailUrl(id: string, position: 'source' | 'destination'): string {
   // If it looks like a mock ID, return a placeholder image
   if (id.startsWith('mock-media-')) {

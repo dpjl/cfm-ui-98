@@ -10,6 +10,7 @@ import DateDisplay from './media/DateDisplay';
 import SelectionCheckbox from './media/SelectionCheckbox';
 import MediaContextMenu from './media/MediaContextMenu';
 import MediaTooltip from './media/MediaTooltip';
+import { useMediaCache } from '@/hooks/use-media-cache';
 
 interface LazyMediaItemProps {
   id: string;
@@ -33,6 +34,26 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   const [loaded, setLoaded] = useState(false);
   const { elementRef, isIntersecting } = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true });
   const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting, position);
+  const { getCachedThumbnailUrl, setCachedThumbnailUrl } = useMediaCache();
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  
+  // Load thumbnail URL, using cache if available
+  useEffect(() => {
+    if (isIntersecting) {
+      // First check if we have it in the cache
+      const cachedUrl = getCachedThumbnailUrl(id, position);
+      if (cachedUrl) {
+        console.log(`Using cached thumbnail for ${id} (${position})`);
+        setThumbnailUrl(cachedUrl);
+        return;
+      }
+      
+      // If not in cache, get the URL and cache it
+      const url = getThumbnailUrl(id, position);
+      setThumbnailUrl(url);
+      setCachedThumbnailUrl(id, position, url);
+    }
+  }, [id, isIntersecting, position, getCachedThumbnailUrl, setCachedThumbnailUrl]);
   
   // Update the parent component with media info when it's loaded
   useEffect(() => {
@@ -44,10 +65,10 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   // Determine if this is a video based on the alt text if available
   const isVideo = mediaInfo?.alt ? mediaInfo.alt.match(/\.(mp4|webm|ogg|mov)$/i) : false;
   
-  const thumbnailUrl = getThumbnailUrl(id, position);
-  
   const handleDownload = () => {
     // Create a temporary link to trigger the download
+    if (!thumbnailUrl) return;
+    
     const a = document.createElement('a');
     a.href = thumbnailUrl;
     a.download = mediaInfo?.alt || id;
@@ -75,7 +96,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
       animate={isIntersecting ? "visible" : "hidden"}
       layout="position"
     >
-      {isIntersecting && (
+      {isIntersecting && thumbnailUrl && (
         <MediaContextMenu onDownload={handleDownload} isVideo={Boolean(isVideo)}>
           <MediaTooltip content={mediaInfo?.alt || id}>
             <div 
