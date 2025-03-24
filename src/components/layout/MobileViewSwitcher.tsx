@@ -1,9 +1,10 @@
 
 import React, { memo } from 'react';
 import { Button } from '@/components/ui/button';
-import { GalleryHorizontal, GalleryVertical, GalleryVerticalEnd } from 'lucide-react';
+import { GalleryVertical, GalleryHorizontal, GalleryVerticalEnd } from 'lucide-react';
 import { MobileViewMode } from '@/types/gallery';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/hooks/use-language';
 
 interface MobileViewSwitcherProps {
   mobileViewMode: MobileViewMode;
@@ -14,22 +15,24 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
   mobileViewMode,
   setMobileViewMode
 }) => {
+  const { t } = useLanguage();
+  
   // Prevent re-renders by using separate handlers
-  const handleLeftView = () => setMobileViewMode('left');
+  const handleSourceView = () => setMobileViewMode('left');
   const handleBothView = () => setMobileViewMode('both');
-  const handleRightView = () => setMobileViewMode('right');
+  const handleDestinationView = () => setMobileViewMode('right');
   
   return (
     <div className="mobile-view-switcher">
       <Button 
         variant={mobileViewMode === 'left' ? "default" : "outline"} 
         size="icon" 
-        onClick={handleLeftView}
+        onClick={handleSourceView}
         className={cn(
           "h-10 w-10 rounded-full transition-all",
           mobileViewMode === 'left' ? "shadow-md" : "shadow-sm"
         )}
-        aria-label="Show left gallery only"
+        aria-label="Show source gallery only"
       >
         <GalleryVertical className="h-5 w-5" />
       </Button>
@@ -50,12 +53,12 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
       <Button 
         variant={mobileViewMode === 'right' ? "default" : "outline"} 
         size="icon" 
-        onClick={handleRightView}
+        onClick={handleDestinationView}
         className={cn(
           "h-10 w-10 rounded-full transition-all",
           mobileViewMode === 'right' ? "shadow-md" : "shadow-sm"
         )}
-        aria-label="Show right gallery only"
+        aria-label="Show destination gallery only"
       >
         <GalleryVerticalEnd className="h-5 w-5" />
       </Button>

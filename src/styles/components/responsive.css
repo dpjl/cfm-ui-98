@@ -40,15 +40,6 @@
     .date-display-small .date-icon {
       @apply h-1.5 w-1.5;
     }
-    
-    /* Fix for mobile dual gallery layout */
-    .mobile-gallery-dual {
-      @apply flex flex-row !important;
-    }
-    
-    .mobile-gallery-dual > div {
-      @apply w-1/2 !important;
-    }
   }
   
   /* Mobile view mode switcher */
@@ -67,18 +58,82 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   
-  /* Gallery container transitions for mobile views */
-  .gallery-container {
+  /* Mobile galleries container */
+  .mobile-galleries-container {
     position: relative;
     width: 100%;
     height: 100%;
     overflow: hidden;
   }
   
-  .gallery-container > div {
-    transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
-    will-change: opacity, transform;
+  /* Mobile gallery states */
+  .gallery-source,
+  .gallery-destination {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, width 0.3s ease-in-out;
+    will-change: transform, opacity, width;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+  }
+  
+  /* Both view mode */
+  .view-both .gallery-source {
+    transform: translateX(0);
+    width: 50%;
+  }
+  
+  .view-both .gallery-destination {
+    transform: translateX(50%);
+    width: 50%;
+  }
+  
+  /* Left (source) view mode */
+  .view-left .gallery-source {
+    transform: translateX(0);
+    width: 100%;
+    opacity: 1;
+    z-index: 10;
+  }
+  
+  .view-left .gallery-destination {
+    transform: translateX(100%);
+    opacity: 0;
+    z-index: 1;
+  }
+  
+  /* Right (destination) view mode */
+  .view-right .gallery-source {
+    transform: translateX(-100%);
+    opacity: 0;
+    z-index: 1;
+  }
+  
+  .view-right .gallery-destination {
+    transform: translateX(0);
+    width: 100%;
+    opacity: 1;
+    z-index: 10;
+  }
+  
+  /* Gallery separator */
+  .gallery-separator {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 100%;
+    width: 1px;
+    background-color: var(--border);
+    opacity: 0.6;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 20;
+  }
+  
+  .view-left .gallery-separator,
+  .view-right .gallery-separator {
+    opacity: 0;
   }
 }

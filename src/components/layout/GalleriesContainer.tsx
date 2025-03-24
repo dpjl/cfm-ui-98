@@ -45,7 +45,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
-  // Mobile view
+  // Mobile view - using our refactored component
   if (isMobile) {
     return (
       <MobileGalleriesView

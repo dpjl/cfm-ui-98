@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchMediaIds } from '@/api/imageApi';
 import GalleryHeader from '@/components/GalleryHeader';
@@ -46,14 +46,16 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const isMobile = useIsMobile();
   
-  // Fetch media IDs for the selected directory
+  // Fetch media IDs for the selected directory - optimized with memoized queryKey
+  const queryKey = [`mediaIds-${position}`, directory, filter];
+  
   const { 
     data = [], 
     isLoading,
     isError,
     error
   } = useQuery({
-    queryKey: ['mediaIds', directory, position, filter],
+    queryKey: queryKey,
     queryFn: () => fetchMediaIds(directory, filter),
     enabled: !!directory,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -66,8 +68,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     }
   }, [data]);
   
-  // Handle selecting/deselecting an item
-  const handleSelectItem = (id: string) => {
+  // Handle selecting/deselecting an item - memoized callback
+  const handleSelectItem = useCallback((id: string) => {
     setSelectedIds(prev => {
       if (prev.includes(id)) {
         return prev.filter(item => item !== id);
@@ -75,23 +77,23 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
         return [...prev, id];
       }
     });
-  };
+  }, [setSelectedIds]);
   
-  // Handle previewing an item
-  const handlePreviewItem = (id: string) => {
+  // Handle previewing an item - memoized callback
+  const handlePreviewItem = useCallback((id: string) => {
     console.log(`Preview item: ${id}`);
     // Preview functionality would be implemented here
-  };
+  }, []);
   
-  // Handle canceling deletion
-  const handleCancelDelete = () => {
+  // Handle canceling deletion - memoized callback
+  const handleCancelDelete = useCallback(() => {
     setDeleteDialogOpen(false);
-  };
+  }, [setDeleteDialogOpen]);
   
-  // Handle confirming deletion
-  const handleConfirmDelete = () => {
+  // Handle confirming deletion - memoized callback
+  const handleConfirmDelete = useCallback(() => {
     deleteMutation.mutate(selectedIds);
-  };
+  }, [deleteMutation, selectedIds]);
   
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -143,4 +145,4 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   );
 };
 
-export default GalleryContainer;
+export default React.memo(GalleryContainer);

@@ -32,10 +32,10 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   
   // Generate grid template columns style based on column count - memoized
   const gridStyle = useMemo(() => {
-    // On mobile, use fixed columns based on viewMode
+    // On mobile, we now respect the columnsCount from props which will be set by the parent based on view mode
     if (isMobile) {
       return { 
-        gridTemplateColumns: viewMode === 'split' ? 'repeat(2, minmax(0, 1fr))' : 'repeat(4, minmax(0, 1fr))'
+        gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
       };
     }
     
@@ -43,15 +43,15 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
     return { 
       gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
     };
-  }, [columnsCount, isMobile, viewMode]);
+  }, [columnsCount, isMobile]);
   
   // Determine the gap size based on device and view mode - memoized
   const gapClass = useMemo(() => {
     if (isMobile) {
-      return viewMode === 'split' ? 'gap-1' : 'gap-2';
+      return columnsCount <= 2 ? 'gap-1' : 'gap-2';
     }
     return 'gap-4';
-  }, [isMobile, viewMode]);
+  }, [isMobile, columnsCount]);
   
   return (
     <div 
@@ -75,4 +75,4 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   );
 };
 
-export default GalleryGrid;
+export default memo(GalleryGrid);

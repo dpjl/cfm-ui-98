@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
-import { Separator } from '@/components/ui/separator';
 import { MediaFilter } from '@/components/AppSidebar';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/hooks/use-language';
 
 interface MobileGalleriesViewProps {
   mobileViewMode: MobileViewMode;
@@ -42,74 +42,38 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   leftFilter = 'all',
   rightFilter = 'all'
 }) => {
+  const { t } = useLanguage();
+  
+  // Determine the container class based on the view mode
+  const containerClass = useMemo(() => {
+    switch(mobileViewMode) {
+      case 'left': return 'view-left';
+      case 'right': return 'view-right';
+      default: return 'view-both';
+    }
+  }, [mobileViewMode]);
+  
+  // Calculate columns count based on view mode
+  const leftColumnsCount = useMemo(() => 
+    mobileViewMode === 'left' ? 4 : 2
+  , [mobileViewMode]);
+  
+  const rightColumnsCount = useMemo(() => 
+    mobileViewMode === 'right' ? 4 : 2
+  , [mobileViewMode]);
+  
   return (
     <div className="flex-1 overflow-hidden h-full">
       <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
-        {/* Both galleries are always rendered but visibility is toggled */}
-        <div className="gallery-container h-full relative">
-          {/* Split View - Both Galleries Side by Side */}
-          <div 
-            className={cn(
-              "h-full flex flex-row absolute inset-0 transition-opacity duration-200",
-              mobileViewMode === 'both' ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            )}
-          >
-            {/* Left Gallery */}
-            <div className="h-full w-1/2 overflow-hidden">
-              <GalleryContainer 
-                title="Left Gallery"
-                directory={selectedDirectoryIdLeft}
-                position="left"
-                columnsCount={2} // Fixed at 2 for mobile split view
-                selectedIds={selectedIdsLeft}
-                setSelectedIds={setSelectedIdsLeft}
-                onDeleteSelected={() => handleDeleteSelected('left')}
-                deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
-                setDeleteDialogOpen={setDeleteDialogOpen}
-                deleteMutation={deleteMutation}
-                hideHeader={true}
-                viewMode="split"
-                filter={leftFilter}
-                hideMobileColumns={true}
-              />
-            </div>
-            
-            {/* Gallery Separator */}
-            <Separator orientation="vertical" className="bg-border/60" />
-            
-            {/* Right Gallery */}
-            <div className="h-full w-1/2 overflow-hidden">
-              <GalleryContainer 
-                title="Right Gallery"
-                directory={selectedDirectoryIdRight}
-                position="right"
-                columnsCount={2} // Fixed at 2 for mobile split view
-                selectedIds={selectedIdsRight}
-                setSelectedIds={setSelectedIdsRight}
-                onDeleteSelected={() => handleDeleteSelected('right')}
-                deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
-                setDeleteDialogOpen={setDeleteDialogOpen}
-                deleteMutation={deleteMutation}
-                hideHeader={true}
-                viewMode="split"
-                filter={rightFilter}
-                hideMobileColumns={true}
-              />
-            </div>
-          </div>
-          
-          {/* Left Gallery Full View */}
-          <div 
-            className={cn(
-              "h-full absolute inset-0 transition-opacity duration-200",
-              mobileViewMode === 'left' ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            )}
-          >
+        {/* Container for both galleries with view mode class */}
+        <div className={cn("mobile-galleries-container", containerClass)}>
+          {/* Source Gallery (Left) */}
+          <div className="gallery-source">
             <GalleryContainer 
-              title="Left Gallery"
+              title={t('source_gallery')}
               directory={selectedDirectoryIdLeft}
               position="left"
-              columnsCount={4} // 4 columns for single view
+              columnsCount={leftColumnsCount}
               selectedIds={selectedIdsLeft}
               setSelectedIds={setSelectedIdsLeft}
               onDeleteSelected={() => handleDeleteSelected('left')}
@@ -123,18 +87,16 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
             />
           </div>
           
-          {/* Right Gallery Full View */}
-          <div 
-            className={cn(
-              "h-full absolute inset-0 transition-opacity duration-200",
-              mobileViewMode === 'right' ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            )}
-          >
+          {/* Vertical Separator */}
+          <div className="gallery-separator" />
+          
+          {/* Destination Gallery (Right) */}
+          <div className="gallery-destination">
             <GalleryContainer 
-              title="Right Gallery"
+              title={t('destination_gallery')}
               directory={selectedDirectoryIdRight}
               position="right"
-              columnsCount={4} // 4 columns for single view
+              columnsCount={rightColumnsCount}
               selectedIds={selectedIdsRight}
               setSelectedIds={setSelectedIdsRight}
               onDeleteSelected={() => handleDeleteSelected('right')}
@@ -159,4 +121,4 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   );
 };
 
-export default MobileGalleriesView;
+export default React.memo(MobileGalleriesView);
