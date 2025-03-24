@@ -40,30 +40,30 @@
     .date-display-small .date-icon {
       @apply h-1.5 w-1.5;
     }
+    
+    /* Fix for mobile dual gallery layout */
+    .mobile-gallery-dual {
+      @apply flex flex-row !important;
+    }
+    
+    .mobile-gallery-dual > div {
+      @apply w-1/2 !important;
+    }
   }
   
-  /* Mobile Galleries Container - Fixed side-by-side layout */
-  .mobile-galleries-container {
+  /* Mobile view mode switcher */
+  .mobile-view-switcher {
     display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: 100%;
-    overflow: hidden; /* Hide overflow on container */
-  }
-  
-  /* Mobile gallery panels */
-  .mobile-gallery-panel {
-    flex: 0 0 50%; /* Each gallery takes exactly half the width */
-    height: 100%;
-    overflow-y: auto; /* Enable scrolling within each panel */
-    -webkit-overflow-scrolling: touch;
-    padding: 0 2px; /* Minimal horizontal padding */
-    max-width: 50%; /* Ensure they never exceed 50% */
-  }
-  
-  /* Ensure the gallery grid takes full height and scrolls properly */
-  .mobile-gallery-panel .gallery-grid {
-    min-height: 100%;
-    width: 100%;
+    align-items: center;
+    gap: 0.25rem;
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 50;
+    background: rgba(var(--background), 0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 9999px;
+    padding: 0.25rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 }

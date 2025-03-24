@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import GalleryGrid from './gallery/GalleryGrid';
 import GalleryEmptyState from './gallery/GalleryEmptyState';
@@ -11,6 +11,15 @@ import { getMediaUrl, DetailedMediaInfo } from '@/api/imageApi';
 import { useToast } from '@/components/ui/use-toast';
 import MediaPreview from './MediaPreview';
 
+export interface ImageItem {
+  id: string;
+  src?: string;
+  alt?: string;
+  directory?: string;
+  createdAt?: string;
+  type?: "image" | "video";
+}
+
 interface GalleryProps {
   title: string;
   mediaIds: string[];
@@ -21,7 +30,6 @@ interface GalleryProps {
   onPreviewMedia?: (id: string) => void;
   viewMode?: 'single' | 'split';
   onDeleteSelected: () => void;
-  position?: 'source' | 'destination';
 }
 
 const Gallery: React.FC<GalleryProps> = ({
@@ -33,8 +41,7 @@ const Gallery: React.FC<GalleryProps> = ({
   columnsCount,
   onPreviewMedia,
   viewMode = 'single',
-  onDeleteSelected,
-  position = 'source'
+  onDeleteSelected
 }) => {
   const [showDates, setShowDates] = useState(false);
   const [mediaInfoMap, setMediaInfoMap] = useState<Map<string, DetailedMediaInfo | null>>(new Map());
@@ -44,44 +51,39 @@ const Gallery: React.FC<GalleryProps> = ({
   const { toast } = useToast();
 
   // Collect media info from child components
-  const updateMediaInfo = useCallback((id: string, info: DetailedMediaInfo | null) => {
+  const updateMediaInfo = (id: string, info: DetailedMediaInfo | null) => {
     setMediaInfoMap(prev => {
       const newMap = new Map(prev);
       newMap.set(id, info);
       return newMap;
     });
-  }, []);
+  };
 
-  // Select/deselect all handlers
-  const handleSelectAll = useCallback(() => {
-    // Select all unselected media
-    mediaIds.forEach(id => {
-      if (!selectedIds.includes(id)) {
-        onSelectId(id);
-      }
-    });
-  }, [mediaIds, selectedIds, onSelectId]);
-
-  const handleDeselectAll = useCallback(() => {
-    // Deselect all selected media
-    if (selectedIds.length > 0) {
+  const handleSelectAll = () => {
+    if (selectedIds.length === mediaIds.length) {
+      // Deselect all media
       selectedIds.forEach(id => onSelectId(id));
+    } else {
+      // Select all unselected media
+      mediaIds.forEach(id => {
+        if (!selectedIds.includes(id)) {
+          onSelectId(id);
+        }
+      });
     }
-  }, [selectedIds, onSelectId]);
+  };
 
-  // Toggle dates visibility
-  const toggleDates = useCallback(() => {
+  const toggleDates = () => {
     setShowDates(prev => !prev);
-  }, []);
+  };
   
-  // Handle download of selected items
-  const handleDownloadSelected = useCallback((ids: string[]) => {
+  const handleDownloadSelected = (ids: string[]) => {
     if (ids.length === 0) return;
     
     // For a single file, trigger direct download
     if (ids.length === 1) {
       const a = document.createElement('a');
-      a.href = getMediaUrl(ids[0], position);
+      a.href = getMediaUrl(ids[0]);
       a.download = `media-${ids[0]}`;
       document.body.appendChild(a);
       a.click();
@@ -94,21 +96,20 @@ const Gallery: React.FC<GalleryProps> = ({
       title: "Multiple files download",
       description: `Downloading ${ids.length} files is not supported yet. Please select one file at a time.`,
     });
-  }, [toast, position]);
+  };
   
-  // Preview media handlers
-  const handleOpenPreview = useCallback((id: string) => {
+  const handleOpenPreview = (id: string) => {
     setPreviewMediaId(id);
     if (onPreviewMedia) {
       onPreviewMedia(id);
     }
-  }, [onPreviewMedia]);
+  };
   
-  const handleClosePreview = useCallback(() => {
+  const handleClosePreview = () => {
     setPreviewMediaId(null);
-  }, []);
+  };
   
-  const handleNavigatePreview = useCallback((direction: 'prev' | 'next') => {
+  const handleNavigatePreview = (direction: 'prev' | 'next') => {
     if (!previewMediaId || mediaIds.length === 0) return;
     
     const currentIndex = mediaIds.indexOf(previewMediaId);
@@ -122,9 +123,8 @@ const Gallery: React.FC<GalleryProps> = ({
     }
     
     setPreviewMediaId(mediaIds[newIndex]);
-  }, [previewMediaId, mediaIds]);
+  };
   
-  // Render loading skeleton if data is loading
   if (isLoading) {
     return (
       <div className="flex flex-col h-full">
@@ -135,43 +135,32 @@ const Gallery: React.FC<GalleryProps> = ({
     );
   }
   
-  // Memoize whether to show the media info panel
-  const showMediaInfoPanel = selectedIds.length > 0;
-  
-  // Use a simplified layout for mobile split view
-  const containerClass = isMobile && viewMode === 'split' ? 'h-full overflow-auto' : 'flex flex-col h-full relative';
-  
   return (
-    <div className={containerClass}>
-      {/* Only show top controls on desktop or in single view mode */}
-      {(!isMobile || viewMode === 'single') && (
-        <div className="sticky top-0 z-10 p-2">
-          <GallerySelectionBar 
+    <div className="flex flex-col h-full relative">
+      <div className="sticky top-0 z-10 p-2">
+        <GallerySelectionBar 
+          selectedIds={selectedIds}
+          mediaIds={mediaIds}
+          onSelectAll={handleSelectAll}
+          showDates={showDates}
+          onToggleDates={toggleDates}
+        />
+        
+        {selectedIds.length > 0 && (
+          <MediaInfoPanel 
             selectedIds={selectedIds}
-            mediaIds={mediaIds}
-            onSelectAll={handleSelectAll}
-            onDeselectAll={handleDeselectAll}
-            showDates={showDates}
-            onToggleDates={toggleDates}
+            onOpenPreview={handleOpenPreview}
+            onDeleteSelected={onDeleteSelected}
+            onDownloadSelected={handleDownloadSelected}
+            mediaInfoMap={mediaInfoMap}
           />
-          
-          {showMediaInfoPanel && (
-            <MediaInfoPanel 
-              selectedIds={selectedIds}
-              onOpenPreview={handleOpenPreview}
-              onDeleteSelected={onDeleteSelected}
-              onDownloadSelected={handleDownloadSelected}
-              mediaInfoMap={mediaInfoMap}
-              position={position}
-            />
-          )}
-        </div>
-      )}
+        )}
+      </div>
       
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />
       ) : (
-        <div className={isMobile && viewMode === 'split' ? 'h-full' : 'flex-1 overflow-auto'}>
+        <div className="flex-1 overflow-auto">
           <GalleryGrid
             mediaIds={mediaIds}
             selectedIds={selectedIds}
@@ -180,7 +169,6 @@ const Gallery: React.FC<GalleryProps> = ({
             viewMode={viewMode}
             showDates={showDates}
             updateMediaInfo={updateMediaInfo}
-            position={position}
           />
         </div>
       )}
@@ -191,10 +179,9 @@ const Gallery: React.FC<GalleryProps> = ({
         onClose={handleClosePreview}
         allMediaIds={mediaIds}
         onNavigate={handleNavigatePreview}
-        position={position}
       />
     </div>
   );
 };
 
-export default React.memo(Gallery);
+export default Gallery;

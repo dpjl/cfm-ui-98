@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
@@ -9,6 +8,7 @@ import SidePanel from '@/components/layout/SidePanel';
 import GalleriesContainer from '@/components/layout/GalleriesContainer';
 import PageHeader from '@/components/layout/PageHeader';
 import ServerStatusPanel from '@/components/ServerStatusPanel';
+import { MobileViewMode } from '@/types/gallery';
 
 const Index = () => {
   const { toast } = useToast();
@@ -22,15 +22,14 @@ const Index = () => {
   const [activeSide, setActiveSide] = useState<'left' | 'right'>('left');
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
+  const [mobileViewMode, setMobileViewMode] = useState<MobileViewMode>('both');
   const [leftFilter, setLeftFilter] = useState<MediaFilter>('all');
   const [rightFilter, setRightFilter] = useState<MediaFilter>('all');
   
   const queryClient = useQueryClient();
   
   const deleteMutation = useMutation({
-    mutationFn: ({ ids, position }: { ids: string[], position: 'source' | 'destination' }) => {
-      return deleteImages(ids, position);
-    },
+    mutationFn: deleteImages,
     onSuccess: () => {
       const activeSelectedIds = activeSide === 'left' ? selectedIdsLeft : selectedIdsRight;
       toast({
@@ -117,6 +116,8 @@ const Index = () => {
               isDeletionPending={deleteMutation.isPending}
               isSidebarOpen={isSidebarOpen}
               onCloseSidebars={closeBothSidebars}
+              mobileViewMode={mobileViewMode}
+              setMobileViewMode={setMobileViewMode}
             />
             
             <GalleriesContainer 
@@ -132,6 +133,8 @@ const Index = () => {
               activeSide={activeSide}
               deleteMutation={deleteMutation}
               handleDeleteSelected={handleDeleteSelected}
+              mobileViewMode={mobileViewMode}
+              setMobileViewMode={setMobileViewMode}
               leftFilter={leftFilter}
               rightFilter={rightFilter}
             />

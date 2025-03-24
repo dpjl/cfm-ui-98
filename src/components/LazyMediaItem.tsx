@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
 import { useMediaInfo } from '@/hooks/use-media-info';
@@ -18,19 +18,7 @@ interface LazyMediaItemProps {
   index: number;
   showDates?: boolean;
   updateMediaInfo?: (id: string, info: any) => void;
-  position?: 'source' | 'destination';
 }
-
-// Animation variants - simplified for better performance
-const itemVariants = {
-  hidden: { opacity: 0 },
-  visible: { 
-    opacity: 1,
-    transition: {
-      duration: 0.2
-    }
-  }
-};
 
 const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   id,
@@ -38,18 +26,11 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   onSelect,
   index,
   showDates = false,
-  updateMediaInfo,
-  position = 'source'
+  updateMediaInfo
 }) => {
   const [loaded, setLoaded] = useState(false);
-  const { elementRef, isIntersecting } = useIntersectionObserver({ 
-    threshold: 0.1, 
-    freezeOnceVisible: true,
-    rootMargin: '200px' // Increased for better preloading
-  });
-  
-  // Pass the position to useMediaInfo
-  const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting, position);
+  const { elementRef, isIntersecting } = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true });
+  const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting);
   
   // Update the parent component with media info when it's loaded
   useEffect(() => {
@@ -61,10 +42,9 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   // Determine if this is a video based on the alt text if available
   const isVideo = mediaInfo?.alt ? mediaInfo.alt.match(/\.(mp4|webm|ogg|mov)$/i) : false;
   
-  // Pass position to getThumbnailUrl
-  const thumbnailUrl = getThumbnailUrl(id, position);
+  const thumbnailUrl = getThumbnailUrl(id);
   
-  const handleDownload = useCallback(() => {
+  const handleDownload = () => {
     // Create a temporary link to trigger the download
     const a = document.createElement('a');
     a.href = thumbnailUrl;
@@ -72,12 +52,18 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-  }, [thumbnailUrl, mediaInfo?.alt, id]);
+  };
   
-  // Don't render anything until we know if the element is intersecting
-  if (elementRef === null) {
-    return null;
-  }
+  // Animation variants - simplified for better performance
+  const itemVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        duration: 0.2
+      }
+    }
+  };
   
   return (
     <motion.div
@@ -86,9 +72,8 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
       initial="hidden"
       animate={isIntersecting ? "visible" : "hidden"}
       layout="position"
-      layoutId={`item-${id}-${position}`}
     >
-      {isIntersecting ? (
+      {isIntersecting && (
         <MediaContextMenu onDownload={handleDownload} isVideo={Boolean(isVideo)}>
           <MediaTooltip content={mediaInfo?.alt || id}>
             <div 
@@ -123,12 +108,12 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
             </div>
           </MediaTooltip>
         </MediaContextMenu>
-      ) : (
-        <div className="aspect-square bg-muted rounded-lg"></div>
+      )}
+      {!isIntersecting && (
+        <div className="aspect-square bg-muted animate-pulse rounded-lg"></div>
       )}
     </motion.div>
   );
 };
 
-// Memoize the component to prevent unnecessary re-renders
-export default memo(LazyMediaItem);
+export default LazyMediaItem;

@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { RefreshCw, PanelLeftClose } from 'lucide-react';
+import { RefreshCw, PanelLeftClose, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import GalleryHeader from '@/components/GalleryHeader';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import { MobileViewMode } from '@/types/gallery';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,8 @@ interface PageHeaderProps {
   isDeletionPending: boolean;
   isSidebarOpen?: boolean;
   onCloseSidebars?: () => void;
+  mobileViewMode?: MobileViewMode;
+  setMobileViewMode?: React.Dispatch<React.SetStateAction<MobileViewMode>>;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -31,7 +34,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   onDelete,
   isDeletionPending,
   isSidebarOpen = false,
-  onCloseSidebars
+  onCloseSidebars,
+  mobileViewMode = 'both',
+  setMobileViewMode
 }) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
@@ -39,6 +44,38 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   // Prepare extra buttons for the header
   const extraControls = (
     <div className="flex items-center gap-2">
+      {/* Mobile view mode switcher */}
+      {isMobile && setMobileViewMode && (
+        <div className="flex items-center border rounded-md mr-1">
+          <Button
+            variant={mobileViewMode === 'left' ? "default" : "ghost"}
+            size="icon"
+            onClick={() => setMobileViewMode('left')}
+            className="h-8 w-8 rounded-none rounded-l-md"
+          >
+            <GalleryVertical className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant={mobileViewMode === 'both' ? "default" : "ghost"}
+            size="icon"
+            onClick={() => setMobileViewMode('both')}
+            className="h-8 w-8 rounded-none"
+          >
+            <GalleryHorizontal className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant={mobileViewMode === 'right' ? "default" : "ghost"}
+            size="icon"
+            onClick={() => setMobileViewMode('right')}
+            className="h-8 w-8 rounded-none rounded-r-md"
+          >
+            <GalleryVerticalEnd className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
       {/* Refresh button */}
       <TooltipProvider>
         <Tooltip>

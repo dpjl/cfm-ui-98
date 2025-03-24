@@ -1,5 +1,5 @@
 
-import React, { useMemo, memo } from 'react';
+import React from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import LazyMediaItem from '@/components/LazyMediaItem';
@@ -14,11 +14,7 @@ interface GalleryGridProps {
   viewMode?: 'single' | 'split';
   showDates?: boolean;
   updateMediaInfo?: (id: string, info: DetailedMediaInfo | null) => void;
-  position?: 'source' | 'destination';
 }
-
-// Memoized version of LazyMediaItem
-const MemoizedLazyMediaItem = memo(LazyMediaItem);
 
 const GalleryGrid: React.FC<GalleryGridProps> = ({
   mediaIds,
@@ -27,40 +23,41 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   columnsCount,
   viewMode = 'single',
   showDates = false,
-  updateMediaInfo,
-  position = 'source'
+  updateMediaInfo
 }) => {
   const isMobile = useIsMobile();
   
-  // Always use 2 columns on mobile when in split view mode
-  const actualColumnsCount = useMemo(() => {
-    if (isMobile) return 2;
-    return columnsCount;
-  }, [columnsCount, isMobile]);
-  
-  // Generate grid style based on columns count - memoized
-  const gridStyle = useMemo(() => {
-    return { 
-      gridTemplateColumns: `repeat(${actualColumnsCount}, minmax(0, 1fr))`
-    };
-  }, [actualColumnsCount]);
-  
-  // Determine gap class based on device and view mode - memoized
-  const gapClass = useMemo(() => {
+  // Generate grid template columns style based on column count
+  const getGridStyle = () => {
+    // On mobile, use fixed columns based on viewMode
     if (isMobile) {
-      return 'gap-1';
+      return { 
+        gridTemplateColumns: viewMode === 'split' ? 'repeat(2, minmax(0, 1fr))' : 'repeat(4, minmax(0, 1fr))'
+      };
+    }
+    
+    // On desktop, use the exact number of columns specified
+    return { 
+      gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
+    };
+  };
+  
+  // Determine the gap size based on device and view mode
+  const getGapClass = () => {
+    if (isMobile) {
+      return viewMode === 'split' ? 'gap-1' : 'gap-2';
     }
     return 'gap-4';
-  }, [isMobile]);
+  };
   
   return (
     <div 
-      className={cn("grid w-full content-start gallery-grid", gapClass)}
-      style={gridStyle}
+      className={cn("grid h-full content-start p-2", getGapClass())}
+      style={getGridStyle()}
     >
       <AnimatePresence>
         {mediaIds.map((id, index) => (
-          <MemoizedLazyMediaItem
+          <LazyMediaItem
             key={id}
             id={id}
             selected={selectedIds.includes(id)}
@@ -68,7 +65,6 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
             index={index}
             showDates={showDates}
             updateMediaInfo={updateMediaInfo}
-            position={position}
           />
         ))}
       </AnimatePresence>
@@ -76,4 +72,4 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   );
 };
 
-export default memo(GalleryGrid);
+export default GalleryGrid;

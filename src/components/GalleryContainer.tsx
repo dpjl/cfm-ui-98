@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchMediaIds } from '@/api/imageApi';
 import GalleryHeader from '@/components/GalleryHeader';
@@ -46,20 +46,15 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const isMobile = useIsMobile();
   
-  // Map position left/right to source/destination for API calls
-  const apiPosition = position === 'left' ? 'source' : 'destination';
-  
-  // Fetch media IDs for the selected directory - optimized with memoized queryKey
-  const queryKey = [`mediaIds-${position}`, directory, filter, apiPosition];
-  
+  // Fetch media IDs for the selected directory
   const { 
     data = [], 
     isLoading,
     isError,
     error
   } = useQuery({
-    queryKey: queryKey,
-    queryFn: () => fetchMediaIds(directory, filter, apiPosition),
+    queryKey: ['mediaIds', directory, position, filter],
+    queryFn: () => fetchMediaIds(directory, filter),
     enabled: !!directory,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -71,8 +66,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     }
   }, [data]);
   
-  // Handle selecting/deselecting an item - memoized callback
-  const handleSelectItem = useCallback((id: string) => {
+  // Handle selecting/deselecting an item
+  const handleSelectItem = (id: string) => {
     setSelectedIds(prev => {
       if (prev.includes(id)) {
         return prev.filter(item => item !== id);
@@ -80,33 +75,28 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
         return [...prev, id];
       }
     });
-  }, [setSelectedIds]);
+  };
   
-  // Handle previewing an item - memoized callback
-  const handlePreviewItem = useCallback((id: string) => {
+  // Handle previewing an item
+  const handlePreviewItem = (id: string) => {
     console.log(`Preview item: ${id}`);
     // Preview functionality would be implemented here
-  }, []);
+  };
   
-  // Handle canceling deletion - memoized callback
-  const handleCancelDelete = useCallback(() => {
+  // Handle canceling deletion
+  const handleCancelDelete = () => {
     setDeleteDialogOpen(false);
-  }, [setDeleteDialogOpen]);
+  };
   
-  // Handle confirming deletion - memoized callback
-  const handleConfirmDelete = useCallback(() => {
-    deleteMutation.mutate({ ids: selectedIds, position: apiPosition });
-  }, [deleteMutation, selectedIds, apiPosition]);
-  
-  // Class for the main container
-  const containerClass = isMobile && viewMode === 'split' 
-    ? 'h-full overflow-hidden' 
-    : 'flex flex-col h-full overflow-hidden';
+  // Handle confirming deletion
+  const handleConfirmDelete = () => {
+    deleteMutation.mutate(selectedIds);
+  };
   
   return (
-    <div className={containerClass}>
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Gallery Header - only shown if hideHeader is false */}
-      {!hideHeader && !isMobile && (
+      {!hideHeader && (
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-2">
           <GalleryHeader
             title={title}
@@ -123,7 +113,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
       )}
       
       {/* Gallery Content */}
-      <div className={isMobile && viewMode === 'split' ? 'h-full' : 'flex-1 overflow-auto'}>
+      <div className="flex-1 overflow-auto">
         <GalleryContent
           mediaIds={mediaIds}
           selectedIds={selectedIds}
@@ -137,7 +127,6 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
           onDeleteSelected={onDeleteSelected}
           title={title}
           filter={filter}
-          position={apiPosition}
         />
       </div>
       
@@ -154,4 +143,4 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   );
 };
 
-export default React.memo(GalleryContainer);
+export default GalleryContainer;

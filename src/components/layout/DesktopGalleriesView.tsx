@@ -5,6 +5,19 @@ import GalleryContainer from '@/components/GalleryContainer';
 import { Separator } from '@/components/ui/separator';
 import { MediaFilter } from '@/components/AppSidebar';
 
+// Define container animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { 
+      when: "beforeChildren",
+      staggerChildren: 0.1,
+      duration: 0.3
+    }
+  }
+};
+
 interface DesktopGalleriesViewProps {
   columnsCount: number;
   selectedDirectoryIdLeft: string;
@@ -43,21 +56,28 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
       <div className="flex h-full">
         {/* Left Gallery */}
         <div className="w-1/2 overflow-hidden">
-          <GalleryContainer 
-            title="Left Gallery"
-            directory={selectedDirectoryIdLeft}
-            position="left"
-            columnsCount={columnsCount}
-            selectedIds={selectedIdsLeft}
-            setSelectedIds={setSelectedIdsLeft}
-            onDeleteSelected={() => handleDeleteSelected('left')}
-            deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
-            setDeleteDialogOpen={setDeleteDialogOpen}
-            deleteMutation={deleteMutation}
-            hideHeader={true}
-            viewMode="split"
-            filter={leftFilter}
-          />
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="h-full"
+          >
+            <GalleryContainer 
+              title="Left Gallery"
+              directory={selectedDirectoryIdLeft}
+              position="left"
+              columnsCount={columnsCount}
+              selectedIds={selectedIdsLeft}
+              setSelectedIds={setSelectedIdsLeft}
+              onDeleteSelected={() => handleDeleteSelected('left')}
+              deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              deleteMutation={deleteMutation}
+              hideHeader={true}
+              viewMode="split"
+              filter={leftFilter}
+            />
+          </motion.div>
         </div>
 
         {/* Gallery Separator */}
@@ -65,21 +85,28 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
 
         {/* Right Gallery */}
         <div className="w-1/2 overflow-hidden">
-          <GalleryContainer 
-            title="Right Gallery"
-            directory={selectedDirectoryIdRight}
-            position="right"
-            columnsCount={columnsCount}
-            selectedIds={selectedIdsRight}
-            setSelectedIds={setSelectedIdsRight}
-            onDeleteSelected={() => handleDeleteSelected('right')}
-            deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
-            setDeleteDialogOpen={setDeleteDialogOpen}
-            deleteMutation={deleteMutation}
-            hideHeader={true}
-            viewMode="split"
-            filter={rightFilter}
-          />
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="h-full"
+          >
+            <GalleryContainer 
+              title="Right Gallery"
+              directory={selectedDirectoryIdRight}
+              position="right"
+              columnsCount={columnsCount}
+              selectedIds={selectedIdsRight}
+              setSelectedIds={setSelectedIdsRight}
+              onDeleteSelected={() => handleDeleteSelected('right')}
+              deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              deleteMutation={deleteMutation}
+              hideHeader={true}
+              viewMode="split"
+              filter={rightFilter}
+            />
+          </motion.div>
         </div>
       </div>
     </div>
