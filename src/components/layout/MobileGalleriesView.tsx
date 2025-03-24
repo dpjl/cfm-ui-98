@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
@@ -44,21 +44,14 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
 }) => {
   const { t } = useLanguage();
   
-  // Calculer le nombre de colonnes en fonction du mode d'affichage
-  // 4 colonnes en mode source ou destination uniquement
-  // 2 colonnes quand les deux sont affichées côte à côte
-  const leftColumnsCount = useMemo(() => 
-    mobileViewMode === 'both' ? 2 : 4
-  , [mobileViewMode]);
-  
-  const rightColumnsCount = useMemo(() => 
-    mobileViewMode === 'both' ? 2 : 4
-  , [mobileViewMode]);
+  // Déterminer le nombre de colonnes en fonction du mode de vue
+  const leftColumnsCount = mobileViewMode === 'both' ? 2 : 4;
+  const rightColumnsCount = mobileViewMode === 'both' ? 2 : 4;
   
   return (
     <div className="flex-1 overflow-hidden h-full">
       <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
-        {/* Container pour les deux galeries avec transitions fluides */}
+        {/* Conteneur des galeries avec positionnement absolu pour les transitions */}
         <div className={cn("mobile-galleries-container", `view-${mobileViewMode}`)}>
           {/* Galerie Source (Gauche) */}
           <div className="gallery-source">

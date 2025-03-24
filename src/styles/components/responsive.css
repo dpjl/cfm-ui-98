@@ -58,64 +58,80 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   
-  /* Mobile galleries container - simplified approach */
+  /* Mobile galleries container - new approach with absolute positioning */
   .mobile-galleries-container {
     position: relative;
     width: 100%;
     height: 100%;
-    display: flex;
     overflow: hidden;
   }
   
-  /* Basic gallery styles */
+  /* Gallery containers with absolute positioning for transitions */
   .gallery-source,
   .gallery-destination {
-    transition: all 0.3s ease-in-out;
-    overflow: auto;
-    height: 100%;
-  }
-  
-  /* View mode styles - simplified implementation */
-  .view-both .gallery-source,
-  .view-both .gallery-destination {
-    width: 50%;
-    flex: 1;
-  }
-  
-  .view-left .gallery-source {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    flex: 1;
+    height: 100%;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    overflow: auto;
+  }
+  
+  /* View mode styles - using transform for better performance */
+  /* Left view - only show source */
+  .view-left .gallery-source {
+    transform: translateX(0);
+    opacity: 1;
+    z-index: 2;
+    width: 100%;
   }
   
   .view-left .gallery-destination {
-    width: 0;
-    flex: 0;
-    overflow: hidden;
+    transform: translateX(100%);
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
   }
   
+  /* Both view - show both side by side */
+  .view-both .gallery-source {
+    transform: translateX(0);
+    width: 50%;
+    opacity: 1;
+    z-index: 2;
+  }
+  
+  .view-both .gallery-destination {
+    transform: translateX(50%);
+    width: 50%;
+    opacity: 1;
+    z-index: 2;
+  }
+  
+  /* Right view - only show destination */
   .view-right .gallery-source {
-    width: 0;
-    flex: 0;
-    overflow: hidden;
+    transform: translateX(-100%);
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
   }
   
   .view-right .gallery-destination {
+    transform: translateX(0);
+    opacity: 1;
+    z-index: 2;
     width: 100%;
-    flex: 1;
   }
 
   /* Add a visual separator between galleries when both are visible */
-  .view-both .gallery-source {
-    border-right: 1px solid var(--border);
-  }
-  
-  /* Optimize image grid for mobile views */
-  .view-both .gallery-grid {
-    padding: 0.5rem !important; /* Use smaller padding when side by side */
-  }
-  
-  .view-left .gallery-grid,
-  .view-right .gallery-grid {
-    padding: 1rem !important; /* Use larger padding when full width */
+  .view-both .gallery-source:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    background-color: var(--border);
   }
 }

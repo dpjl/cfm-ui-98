@@ -49,7 +49,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   
   return (
     <div 
-      className={cn("grid h-full content-start p-2 gallery-grid", gapClass)}
+      className={cn("grid w-full h-full content-start p-2 gallery-grid", gapClass)}
       style={gridStyle}
     >
       <AnimatePresence>
