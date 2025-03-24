@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { RefreshCw, PanelLeftClose, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
@@ -126,13 +127,13 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   // Custom header logo component
   const Logo = () => (
-    <div className="flex items-center px-2 py-1">
+    <div className="flex items-center px-3 py-2">
       <img 
-        src="/lovable-uploads/logo.png" 
+        src="/lovable-uploads/ddf36f1d-ca4f-4437-8e57-df7c6f916ccc.png" 
         alt="Media Analyzer" 
         className={cn(
           "h-auto",
-          isMobile ? "w-28 ml-1" : "w-40 ml-2"
+          isMobile ? "w-32 ml-1" : "w-44 ml-2"
         )} 
       />
     </div>
