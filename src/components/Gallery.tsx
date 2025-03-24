@@ -30,6 +30,7 @@ interface GalleryProps {
   onPreviewMedia?: (id: string) => void;
   viewMode?: 'single' | 'split';
   onDeleteSelected: () => void;
+  position?: 'source' | 'destination';
 }
 
 const Gallery: React.FC<GalleryProps> = ({
@@ -41,7 +42,8 @@ const Gallery: React.FC<GalleryProps> = ({
   columnsCount,
   onPreviewMedia,
   viewMode = 'single',
-  onDeleteSelected
+  onDeleteSelected,
+  position = 'source'
 }) => {
   const [showDates, setShowDates] = useState(false);
   const [mediaInfoMap, setMediaInfoMap] = useState<Map<string, DetailedMediaInfo | null>>(new Map());
@@ -60,17 +62,17 @@ const Gallery: React.FC<GalleryProps> = ({
   };
 
   const handleSelectAll = () => {
-    if (selectedIds.length === mediaIds.length) {
-      // Deselect all media
-      selectedIds.forEach(id => onSelectId(id));
-    } else {
-      // Select all unselected media
-      mediaIds.forEach(id => {
-        if (!selectedIds.includes(id)) {
-          onSelectId(id);
-        }
-      });
-    }
+    // Select all media
+    mediaIds.forEach(id => {
+      if (!selectedIds.includes(id)) {
+        onSelectId(id);
+      }
+    });
+  };
+
+  const handleDeselectAll = () => {
+    // Deselect all media
+    selectedIds.forEach(id => onSelectId(id));
   };
 
   const toggleDates = () => {
@@ -83,11 +85,10 @@ const Gallery: React.FC<GalleryProps> = ({
     // For a single file, trigger direct download
     if (ids.length === 1) {
       const a = document.createElement('a');
-      a.href = getMediaUrl(ids[0]);
+      a.href = getMediaUrl(ids[0], position);
       a.download = `media-${ids[0]}`;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
       return;
     }
     
@@ -142,8 +143,10 @@ const Gallery: React.FC<GalleryProps> = ({
           selectedIds={selectedIds}
           mediaIds={mediaIds}
           onSelectAll={handleSelectAll}
+          onDeselectAll={handleDeselectAll}
           showDates={showDates}
           onToggleDates={toggleDates}
+          viewMode={viewMode}
         />
         
         {selectedIds.length > 0 && (
@@ -169,6 +172,7 @@ const Gallery: React.FC<GalleryProps> = ({
             viewMode={viewMode}
             showDates={showDates}
             updateMediaInfo={updateMediaInfo}
+            position={position}
           />
         </div>
       )}
@@ -179,6 +183,7 @@ const Gallery: React.FC<GalleryProps> = ({
         onClose={handleClosePreview}
         allMediaIds={mediaIds}
         onNavigate={handleNavigatePreview}
+        position={position}
       />
     </div>
   );

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { fetchMediaInfo, DetailedMediaInfo } from '@/api/imageApi';
 
-export const useMediaInfo = (id: string, isIntersecting: boolean) => {
+export const useMediaInfo = (id: string, isIntersecting: boolean, position: 'source' | 'destination' = 'source') => {
   const [mediaInfo, setMediaInfo] = useState<DetailedMediaInfo | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +28,7 @@ export const useMediaInfo = (id: string, isIntersecting: boolean) => {
         return;
       }
       
-      fetchMediaInfo(id)
+      fetchMediaInfo(id, position)
         .then(data => {
           setMediaInfo(data);
           setIsLoading(false);
@@ -44,7 +44,7 @@ export const useMediaInfo = (id: string, isIntersecting: boolean) => {
           setIsLoading(false);
         });
     }
-  }, [id, isIntersecting, mediaInfo, error]);
+  }, [id, isIntersecting, mediaInfo, error, position]);
 
   return {
     mediaInfo,

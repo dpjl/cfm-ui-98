@@ -18,6 +18,7 @@ interface LazyMediaItemProps {
   index: number;
   showDates?: boolean;
   updateMediaInfo?: (id: string, info: any) => void;
+  position: 'source' | 'destination';
 }
 
 const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
@@ -26,11 +27,12 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   onSelect,
   index,
   showDates = false,
-  updateMediaInfo
+  updateMediaInfo,
+  position
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { elementRef, isIntersecting } = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true });
-  const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting);
+  const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting, position);
   
   // Update the parent component with media info when it's loaded
   useEffect(() => {
@@ -42,7 +44,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   // Determine if this is a video based on the alt text if available
   const isVideo = mediaInfo?.alt ? mediaInfo.alt.match(/\.(mp4|webm|ogg|mov)$/i) : false;
   
-  const thumbnailUrl = getThumbnailUrl(id);
+  const thumbnailUrl = getThumbnailUrl(id, position);
   
   const handleDownload = () => {
     // Create a temporary link to trigger the download

@@ -1,3 +1,4 @@
+
 import { ImageItem } from '@/components/Gallery';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
@@ -53,8 +54,8 @@ export async function fetchDirectoryTree(position?: 'left' | 'right'): Promise<D
   }
 }
 
-export async function fetchMediaIds(directory: string, filter: string = 'all'): Promise<string[]> {
-  const url = `${API_BASE_URL}/media?directory=${encodeURIComponent(directory)}${filter !== 'all' ? `&filter=${filter}` : ''}`;
+export async function fetchMediaIds(directory: string, position: 'source' | 'destination', filter: string = 'all'): Promise<string[]> {
+  const url = `${API_BASE_URL}/media?directory=${encodeURIComponent(position)}${filter !== 'all' ? `&filter=${filter}` : ''}`;
   console.log("Fetching media IDs from:", url);
   
   try {
@@ -80,8 +81,8 @@ export async function fetchMediaIds(directory: string, filter: string = 'all'): 
   }
 }
 
-export async function fetchMediaInfo(id: string): Promise<DetailedMediaInfo> {
-  const url = `${API_BASE_URL}/info?id=${encodeURIComponent(id)}`;
+export async function fetchMediaInfo(id: string, position: 'source' | 'destination'): Promise<DetailedMediaInfo> {
+  const url = `${API_BASE_URL}/info?id=${encodeURIComponent(id)}&directory=${encodeURIComponent(position)}`;
   console.log(`Fetching media info for ID ${id} from:`, url);
   
   try {
@@ -115,21 +116,21 @@ export async function fetchMediaInfo(id: string): Promise<DetailedMediaInfo> {
   }
 }
 
-export function getThumbnailUrl(id: string): string {
+export function getThumbnailUrl(id: string, position: 'source' | 'destination'): string {
   // If it looks like a mock ID, return a placeholder image
   if (id.startsWith('mock-media-')) {
     // Use a placeholder service to generate a random colored image
     return `https://via.placeholder.com/300x300/${Math.floor(Math.random()*16777215).toString(16)}/FFFFFF?text=${id}`;
   }
-  return `${API_BASE_URL}/thumbnail?id=${encodeURIComponent(id)}`;
+  return `${API_BASE_URL}/thumbnail?id=${encodeURIComponent(id)}&directory=${encodeURIComponent(position)}`;
 }
 
-export function getMediaUrl(id: string): string {
+export function getMediaUrl(id: string, position: 'source' | 'destination'): string {
   // If it looks like a mock ID, return a placeholder image
   if (id.startsWith('mock-media-')) {
     return `https://via.placeholder.com/800x600/${Math.floor(Math.random()*16777215).toString(16)}/FFFFFF?text=${id}`;
   }
-  return `${API_BASE_URL}/media?id=${encodeURIComponent(id)}`;
+  return `${API_BASE_URL}/media?id=${encodeURIComponent(id)}&directory=${encodeURIComponent(position)}`;
 }
 
 export async function deleteImages(imageIds: string[]): Promise<{ success: boolean, message: string }> {

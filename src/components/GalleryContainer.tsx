@@ -46,6 +46,9 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   const [mediaIds, setMediaIds] = useState<string[]>([]);
   const isMobile = useIsMobile();
   
+  // Map the left/right position to source/destination
+  const apiPosition = position === 'left' ? 'source' : 'destination';
+  
   // Fetch media IDs for the selected directory
   const { 
     data = [], 
@@ -53,8 +56,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     isError,
     error
   } = useQuery({
-    queryKey: ['mediaIds', directory, position, filter],
-    queryFn: () => fetchMediaIds(directory, filter),
+    queryKey: ['mediaIds', directory, apiPosition, filter],
+    queryFn: () => fetchMediaIds(directory, apiPosition, filter),
     enabled: !!directory,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -127,6 +130,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
           onDeleteSelected={onDeleteSelected}
           title={title}
           filter={filter}
+          position={apiPosition}
         />
       </div>
       

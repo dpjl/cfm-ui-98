@@ -1,166 +1,189 @@
 
 import React, { useEffect, useState } from 'react';
-import { X, ArrowLeft, ArrowRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { ImageItem } from './Gallery';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from './ui/button';
-import { useLanguage } from '@/hooks/use-language';
+import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useMediaInfo } from '@/hooks/use-media-info';
 import { getMediaUrl } from '@/api/imageApi';
+import { cn } from '@/lib/utils';
+import { useLanguage } from '@/hooks/use-language';
 
 interface MediaPreviewProps {
   mediaId: string | null;
-  onClose: () => void;
   isOpen: boolean;
+  onClose: () => void;
   allMediaIds: string[];
-  onNavigate?: (direction: 'prev' | 'next') => void;
+  onNavigate: (direction: 'prev' | 'next') => void;
+  position?: 'source' | 'destination';
 }
 
-const MediaPreview: React.FC<MediaPreviewProps> = ({ 
-  mediaId, 
-  onClose, 
-  isOpen, 
-  allMediaIds = [],
-  onNavigate 
+const MediaPreview: React.FC<MediaPreviewProps> = ({
+  mediaId,
+  isOpen,
+  onClose,
+  allMediaIds,
+  onNavigate,
+  position = 'source'
 }) => {
-  const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const { t } = useLanguage();
-
-  // Prevent body scroll when preview is open
+  const [isLoadingImage, setIsLoadingImage] = useState(true);
+  const [mediaUrl, setMediaUrl] = useState<string>('');
+  const { mediaInfo } = useMediaInfo(mediaId || '', isOpen, position);
+  
+  // Update the media URL when the ID changes
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+    if (mediaId) {
+      setIsLoadingImage(true);
+      setMediaUrl(getMediaUrl(mediaId, position));
     }
-    return () => {
-      document.body.style.overflow = '';
+  }, [mediaId, position]);
+  
+  const handlePrev = () => {
+    onNavigate('prev');
+  };
+  
+  const handleNext = () => {
+    onNavigate('next');
+  };
+  
+  const handleImageLoad = () => {
+    setIsLoadingImage(false);
+  };
+  
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isOpen) {
+        if (e.key === 'ArrowLeft') {
+          handlePrev();
+        } else if (e.key === 'ArrowRight') {
+          handleNext();
+        } else if (e.key === 'Escape') {
+          onClose();
+        }
+      }
     };
-  }, [isOpen]);
-
-  // Update current index when media changes
-  useEffect(() => {
-    if (mediaId && allMediaIds.length) {
-      const index = allMediaIds.indexOf(mediaId);
-      setCurrentIndex(index);
-    }
-  }, [mediaId, allMediaIds]);
-
-  const handleNavigate = (direction: 'prev' | 'next') => {
-    if (!allMediaIds.length || currentIndex === -1) return;
     
-    if (onNavigate) {
-      onNavigate(direction);
-    }
-  };
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'ArrowLeft') {
-      handleNavigate('prev');
-    } else if (e.key === 'ArrowRight') {
-      handleNavigate('next');
-    } else if (e.key === 'Escape') {
-      onClose();
-    }
-  };
-
-  // Add keyboard navigation
-  useEffect(() => {
-    if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown);
-    }
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, currentIndex, allMediaIds]);
-
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+  
   if (!mediaId) return null;
-
-  const currentId = currentIndex !== -1 && allMediaIds[currentIndex] ? allMediaIds[currentIndex] : mediaId;
-  const isVideo = currentId.match(/\.(mp4|webm|ogg|mov)$/i);
-  const mediaUrl = getMediaUrl(currentId);
-
+  
+  // Determine if this is a video based on the file extension
+  const isVideo = mediaInfo?.alt ? mediaInfo.alt.match(/\.(mp4|webm|ogg|mov)$/i) : false;
+  
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center"
-          onClick={onClose}
-          style={{ 
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-          }}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full h-full flex items-center justify-center p-4"
-            onClick={(e) => e.stopPropagation()}
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[90vw] h-[90vh] p-0 gap-0 flex flex-col bg-background/50 backdrop-blur-lg">
+        <div className="flex justify-between items-center p-4 border-b">
+          <h3 className="text-lg font-medium">
+            {mediaInfo?.alt || mediaId}
+          </h3>
+          <DialogClose asChild>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogClose>
+        </div>
+        
+        <div className="relative flex-1 overflow-hidden flex items-center justify-center bg-black/50">
+          {isLoadingImage && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+            </div>
+          )}
+          
+          {isVideo ? (
+            <video 
+              src={mediaUrl} 
+              controls 
+              autoPlay 
+              className="max-h-full max-w-full"
+              onLoadedData={handleImageLoad}
+            />
+          ) : (
+            <img 
+              src={mediaUrl} 
+              alt={mediaInfo?.alt || mediaId}
+              className={cn(
+                "max-h-full max-w-full object-contain transition-opacity duration-300",
+                isLoadingImage ? "opacity-0" : "opacity-100"
+              )}
+              onLoad={handleImageLoad}
+            />
+          )}
+          
+          {/* Navigation buttons */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute left-2 bg-black/30 hover:bg-black/60"
+            onClick={handlePrev}
           >
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-              aria-label="Close preview"
-            >
-              <X className="h-6 w-6" />
-            </button>
-
-            {/* Navigation buttons */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNavigate('prev');
-              }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 h-14 w-14 z-30"
-              aria-label="Previous media"
-            >
-              <ArrowLeft className="h-10 w-10" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNavigate('next');
-              }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 h-14 w-14 z-30"
-              aria-label="Next media"
-            >
-              <ArrowRight className="h-10 w-10" />
-            </Button>
-
-            <div className="max-w-full max-h-[90vh] overflow-hidden flex items-center justify-center">
-              {isVideo ? (
-                <video
-                  src={mediaUrl}
-                  controls
-                  autoPlay
-                  className="max-w-full max-h-[85vh] object-contain"
-                />
-              ) : (
-                <img
-                  src={mediaUrl}
-                  alt={currentId}
-                  className="max-w-full max-h-[85vh] object-contain"
-                />
+            <ChevronLeft className="h-8 w-8 text-white" />
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute right-2 bg-black/30 hover:bg-black/60"
+            onClick={handleNext}
+          >
+            <ChevronRight className="h-8 w-8 text-white" />
+          </Button>
+        </div>
+        
+        {/* Media info */}
+        {mediaInfo && (
+          <div className="p-4 border-t overflow-y-auto max-h-48">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              {mediaInfo.createdAt && (
+                <div>
+                  <div className="font-medium">{t('date')}</div>
+                  <div>{new Date(mediaInfo.createdAt).toLocaleString()}</div>
+                </div>
+              )}
+              
+              {mediaInfo.size && (
+                <div>
+                  <div className="font-medium">{t('size')}</div>
+                  <div>{mediaInfo.size}</div>
+                </div>
+              )}
+              
+              {mediaInfo.cameraModel && (
+                <div>
+                  <div className="font-medium">{t('camera')}</div>
+                  <div>{mediaInfo.cameraModel}</div>
+                </div>
+              )}
+              
+              {mediaInfo.path && (
+                <div>
+                  <div className="font-medium">{t('path')}</div>
+                  <div className="truncate">{mediaInfo.path}</div>
+                </div>
+              )}
+              
+              {mediaInfo.hash && (
+                <div className="col-span-2">
+                  <div className="font-medium">{t('hash')}</div>
+                  <div className="font-mono text-xs truncate">{mediaInfo.hash}</div>
+                </div>
+              )}
+              
+              {mediaInfo.duplicatesCount !== undefined && mediaInfo.duplicatesCount > 0 && (
+                <div>
+                  <div className="font-medium">{t('duplicates')}</div>
+                  <div>{mediaInfo.duplicatesCount}</div>
+                </div>
               )}
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
 

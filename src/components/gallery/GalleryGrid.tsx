@@ -1,9 +1,7 @@
 
 import React from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 import LazyMediaItem from '@/components/LazyMediaItem';
-import { useIsMobile } from '@/hooks/use-breakpoint';
 import { DetailedMediaInfo } from '@/api/imageApi';
 
 interface GalleryGridProps {
@@ -13,62 +11,56 @@ interface GalleryGridProps {
   columnsCount: number;
   viewMode?: 'single' | 'split';
   showDates?: boolean;
-  updateMediaInfo?: (id: string, info: DetailedMediaInfo | null) => void;
+  updateMediaInfo?: (id: string, info: DetailedMediaInfo) => void;
+  position: 'source' | 'destination';
 }
 
 const GalleryGrid: React.FC<GalleryGridProps> = ({
   mediaIds,
   selectedIds,
   onSelectId,
-  columnsCount,
+  columnsCount = 5,
   viewMode = 'single',
   showDates = false,
-  updateMediaInfo
+  updateMediaInfo,
+  position = 'source'
 }) => {
-  const isMobile = useIsMobile();
-  
-  // Generate grid template columns style based on column count
-  const getGridStyle = () => {
-    // On mobile, use fixed columns based on viewMode
-    if (isMobile) {
-      return { 
-        gridTemplateColumns: viewMode === 'split' ? 'repeat(2, minmax(0, 1fr))' : 'repeat(4, minmax(0, 1fr))'
-      };
+  // Animation variants for the container
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        when: "beforeChildren",
+        staggerChildren: 0.05,
+        staggerDirection: 1
+      }
     }
-    
-    // On desktop, use the exact number of columns specified
-    return { 
-      gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
-    };
   };
-  
-  // Determine the gap size based on device and view mode
-  const getGapClass = () => {
-    if (isMobile) {
-      return viewMode === 'split' ? 'gap-1' : 'gap-2';
-    }
-    return 'gap-4';
-  };
-  
+
   return (
-    <div 
-      className={cn("grid h-full content-start p-2", getGapClass())}
-      style={getGridStyle()}
+    <motion.div
+      className={`grid gap-2 p-2`}
+      style={{
+        gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
+      }}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
     >
-      <AnimatePresence>
-        {mediaIds.map((id, index) => (
-          <LazyMediaItem
-            key={id}
-            id={id}
-            selected={selectedIds.includes(id)}
-            onSelect={() => onSelectId(id)}
-            index={index}
-            showDates={showDates}
-            updateMediaInfo={updateMediaInfo}
-          />
-        ))}
-      </AnimatePresence>
-    </div>
+      {mediaIds.map((id, index) => (
+        <LazyMediaItem
+          key={id}
+          id={id}
+          selected={selectedIds.includes(id)}
+          onSelect={() => onSelectId(id)}
+          index={index}
+          showDates={showDates}
+          updateMediaInfo={updateMediaInfo}
+          position={position}
+        />
+      ))}
+    </motion.div>
   );
 };
 

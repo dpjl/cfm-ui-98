@@ -10,35 +10,63 @@ interface GallerySelectionBarProps {
   selectedIds: string[];
   mediaIds: string[];
   onSelectAll: () => void;
+  onDeselectAll: () => void;
   showDates: boolean;
   onToggleDates: () => void;
+  viewMode?: 'single' | 'split';
 }
 
 const GallerySelectionBar: React.FC<GallerySelectionBarProps> = ({
   selectedIds,
   mediaIds,
   onSelectAll,
+  onDeselectAll,
   showDates,
   onToggleDates,
+  viewMode = 'single'
 }) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
+  const isCompactMode = isMobile && viewMode === 'split';
   
   return (
     <div className="flex items-center justify-between w-full bg-background/90 backdrop-blur-sm py-1.5 px-3 rounded-md z-10 shadow-sm border border-border/30">
       <div className="flex items-center gap-2">
-        <Button
-          onClick={onSelectAll}
-          variant="outline"
-          size="icon"
-          className="h-7 w-7"
-        >
-          {selectedIds.length === mediaIds.length ? (
-            <Square className="h-3.5 w-3.5" />
-          ) : (
-            <CheckSquare className="h-3.5 w-3.5" />
-          )}
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onSelectAll}
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+              >
+                <CheckSquare className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{t('select_all')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onDeselectAll}
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+              >
+                <Square className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{t('deselect_all')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
         <TooltipProvider>
           <Tooltip>
@@ -64,7 +92,7 @@ const GallerySelectionBar: React.FC<GallerySelectionBarProps> = ({
       </div>
       
       <div className={`text-xs text-muted-foreground`}>
-        {selectedIds.length}/{mediaIds.length} {t('selected')}
+        {selectedIds.length}/{mediaIds.length} {!isCompactMode && t('selected')}
       </div>
     </div>
   );
