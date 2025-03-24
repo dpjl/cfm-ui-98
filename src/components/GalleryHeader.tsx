@@ -47,21 +47,6 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
             {extraControls}
           </div>
         </div>
-        
-        {/* Only show columns slider when not hidden */}
-        {!hideMobileColumns && (
-          <div className="flex items-center gap-1 w-full">
-            <span className="text-xs whitespace-nowrap">{t('columns')} {columnsCount}</span>
-            <Slider
-              className="w-full"
-              value={[columnsCount]}
-              min={2}
-              max={8}
-              step={1}
-              onValueChange={(value) => setColumnsCount(value[0])}
-            />
-          </div>
-        )}
       </div>
     );
   }

@@ -126,11 +126,14 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   // Custom header logo component
   const Logo = () => (
-    <div className="flex items-center">
+    <div className="flex items-center px-2 py-1">
       <img 
         src="/lovable-uploads/logo.png" 
         alt="Media Analyzer" 
-        className="h-10 w-auto" 
+        className={cn(
+          "h-auto",
+          isMobile ? "w-28 ml-1" : "w-40 ml-2"
+        )} 
       />
     </div>
   );
@@ -146,7 +149,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       onDeleteSelected={onDelete}
       isDeletionPending={isDeletionPending}
       extraControls={extraControls}
-      hideMobileColumns={false}
+      hideMobileColumns={true}
       hideDeleteButton={true}
     />
   );

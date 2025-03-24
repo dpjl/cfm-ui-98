@@ -24,15 +24,19 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
-  // Generate explicit grid-cols class based on column count
-  const getGridColsClass = () => {
+  // Generate grid template columns style based on column count
+  const getGridStyle = () => {
     // On mobile, use fixed columns based on viewMode
     if (isMobile) {
-      return viewMode === 'split' ? 'grid-cols-2' : 'grid-cols-4';
+      return { 
+        gridTemplateColumns: viewMode === 'split' ? 'repeat(2, minmax(0, 1fr))' : 'repeat(4, minmax(0, 1fr))'
+      };
     }
     
     // On desktop, use the exact number of columns specified
-    return `grid-cols-${columnsCount}`;
+    return { 
+      gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
+    };
   };
   
   // Determine the gap size based on device and view mode
@@ -44,7 +48,10 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   };
   
   return (
-    <div className={cn("grid h-full content-start p-2", getGridColsClass(), getGapClass())}>
+    <div 
+      className={cn("grid h-full content-start p-2", getGapClass())}
+      style={getGridStyle()}
+    >
       <AnimatePresence>
         {mediaIds.map((id, index) => (
           <LazyMediaItem

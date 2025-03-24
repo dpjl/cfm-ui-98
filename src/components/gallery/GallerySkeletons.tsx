@@ -11,16 +11,24 @@ interface GallerySkeletonsProps {
 const GallerySkeletons: React.FC<GallerySkeletonsProps> = ({ columnsCount }) => {
   const isMobile = useIsMobile();
   
-  // Generate explicit grid-cols class based on column count
-  const getGridColsClass = () => {
+  // Generate grid template columns style based on column count
+  const getGridStyle = () => {
     if (isMobile) {
-      return 'grid-cols-2';
+      return { 
+        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))'
+      };
     }
-    return `grid-cols-${columnsCount}`;
+    
+    return { 
+      gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
+    };
   };
   
   return (
-    <div className={cn("grid gap-4 p-4", getGridColsClass())}>
+    <div 
+      className="grid gap-4 p-4"
+      style={getGridStyle()}
+    >
       {Array.from({ length: 12 }).map((_, index) => (
         <div key={index} className="aspect-square">
           <Skeleton className="h-full w-full rounded-lg" />
