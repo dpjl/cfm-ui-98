@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, ChevronDown, Folder, FolderOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DirectoryNode } from '@/api/imageApi';
+import { DirectoryNode } from '@/types/gallery';
 import { useLanguage } from '@/hooks/use-language';
 
 interface FolderTreeProps {
