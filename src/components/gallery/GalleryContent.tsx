@@ -4,6 +4,7 @@ import Gallery from '@/components/Gallery';
 import GalleryEmptyState from '@/components/gallery/GalleryEmptyState';
 import GallerySkeletons from '@/components/gallery/GallerySkeletons';
 import GalleryError from '@/components/gallery/GalleryError';
+import { MobileViewMode } from '@/types/gallery';
 
 interface GalleryContentProps {
   mediaIds: string[];
@@ -19,6 +20,7 @@ interface GalleryContentProps {
   title: string;
   filter?: string;
   position?: 'source' | 'destination';
+  mobileView?: MobileViewMode;
 }
 
 const GalleryContent: React.FC<GalleryContentProps> = ({
@@ -34,7 +36,8 @@ const GalleryContent: React.FC<GalleryContentProps> = ({
   onDeleteSelected,
   title,
   filter = 'all',
-  position = 'source'
+  position = 'source',
+  mobileView = 'both'
 }) => {
   if (isLoading) {
     return <GallerySkeletons columnsCount={columnsCount} />;
@@ -60,6 +63,7 @@ const GalleryContent: React.FC<GalleryContentProps> = ({
       viewMode={viewMode}
       onDeleteSelected={onDeleteSelected}
       position={position}
+      mobileView={mobileView}
     />
   );
 };

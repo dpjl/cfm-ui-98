@@ -15,6 +15,7 @@ interface GalleryGridProps {
   showDates?: boolean;
   updateMediaInfo?: (id: string, info: DetailedMediaInfo | null) => void;
   position?: 'source' | 'destination';
+  mobileView?: 'left' | 'right' | 'both';
 }
 
 // Memoized version of LazyMediaItem
@@ -28,16 +29,25 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   viewMode = 'single',
   showDates = false,
   updateMediaInfo,
-  position = 'source'
+  position = 'source',
+  mobileView = 'both'
 }) => {
   const isMobile = useIsMobile();
+  
+  // Determine actual columns count based on mobile view
+  const actualColumnsCount = useMemo(() => {
+    if (isMobile) {
+      return mobileView === 'both' ? 2 : 3;
+    }
+    return columnsCount;
+  }, [columnsCount, isMobile, mobileView]);
   
   // Generate grid style based on columns count - memoized
   const gridStyle = useMemo(() => {
     return { 
-      gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
+      gridTemplateColumns: `repeat(${actualColumnsCount}, minmax(0, 1fr))`
     };
-  }, [columnsCount]);
+  }, [actualColumnsCount]);
   
   // Determine gap class based on device and view mode - memoized
   const gapClass = useMemo(() => {

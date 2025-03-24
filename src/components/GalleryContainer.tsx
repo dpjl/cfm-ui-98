@@ -8,6 +8,7 @@ import GalleryContent from '@/components/gallery/GalleryContent';
 import DeleteConfirmationDialog from '@/components/gallery/DeleteConfirmationDialog';
 import { MediaFilter } from '@/components/AppSidebar';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import { MobileViewMode } from '@/types/gallery';
 
 interface GalleryContainerProps {
   title: string;
@@ -24,6 +25,7 @@ interface GalleryContainerProps {
   viewMode?: 'single' | 'split';
   filter?: MediaFilter;
   hideMobileColumns?: boolean;
+  mobileView?: MobileViewMode;
 }
 
 const GalleryContainer: React.FC<GalleryContainerProps> = ({
@@ -40,7 +42,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   hideHeader = false,
   viewMode = 'single',
   filter = 'all',
-  hideMobileColumns = false
+  hideMobileColumns = false,
+  mobileView = 'both'
 }) => {
   const { t } = useLanguage();
   const [mediaIds, setMediaIds] = useState<string[]>([]);
@@ -133,6 +136,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
           title={title}
           filter={filter}
           position={apiPosition}
+          mobileView={mobileView}
         />
       </div>
       

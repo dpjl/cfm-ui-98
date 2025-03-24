@@ -42,7 +42,73 @@
     }
   }
   
-  /* Mobile view mode switcher */
+  /* Mobile View Styles */
+  .mobile-view-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  /* Different view modes */
+  .mobile-view-left {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .mobile-view-left .gallery-source {
+    height: 100%;
+    display: block;
+  }
+  
+  .mobile-view-left .gallery-destination {
+    display: none;
+  }
+  
+  .mobile-view-both {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .mobile-view-both .gallery-source,
+  .mobile-view-both .gallery-destination {
+    height: 50%;
+    overflow: auto;
+    display: block;
+  }
+  
+  .mobile-view-both .gallery-divider {
+    height: 1px;
+    background-color: rgba(var(--border), 0.5);
+    width: 100%;
+  }
+  
+  .mobile-view-right {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .mobile-view-right .gallery-source {
+    display: none;
+  }
+  
+  .mobile-view-right .gallery-destination {
+    height: 100%;
+    display: block;
+  }
+  
+  /* Mobile gallery panels */
+  .mobile-gallery-panel {
+    position: relative;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile view switcher */
   .mobile-view-switcher {
     display: flex;
     align-items: center;
@@ -56,68 +122,5 @@
     border-radius: 9999px;
     padding: 0.25rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-  
-  /* Mobile galleries container */
-  .mobile-galleries-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100vh;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  /* Gallery panels for mobile */
-  .gallery-panel {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    transition: transform 0.3s ease;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  /* Source gallery panel */
-  .gallery-source {
-    z-index: 10;
-  }
-  
-  /* Destination gallery panel */
-  .gallery-destination {
-    z-index: 5;
-  }
-  
-  /* View modes for mobile */
-  /* Source only */
-  .view-left .gallery-source {
-    transform: translateX(0);
-  }
-  
-  .view-left .gallery-destination {
-    transform: translateX(100%);
-  }
-  
-  /* Both galleries */
-  .view-both .gallery-source {
-    transform: translateX(0);
-    height: 50%;
-  }
-  
-  .view-both .gallery-destination {
-    transform: translateX(0);
-    top: 50%;
-    height: 50%;
-  }
-  
-  /* Destination only */
-  .view-right .gallery-source {
-    transform: translateX(-100%);
-  }
-  
-  .view-right .gallery-destination {
-    transform: translateX(0);
   }
 }
