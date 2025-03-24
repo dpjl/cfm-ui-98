@@ -43,18 +43,12 @@ const Gallery: React.FC<GalleryProps> = ({
   viewMode = 'single',
   onDeleteSelected
 }) => {
-  const [mounted, setMounted] = useState(false);
   const [showDates, setShowDates] = useState(false);
   const [mediaInfoMap, setMediaInfoMap] = useState<Map<string, DetailedMediaInfo | null>>(new Map());
   const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  
-  useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
 
   // Collect media info from child components
   const updateMediaInfo = (id: string, info: DetailedMediaInfo | null) => {

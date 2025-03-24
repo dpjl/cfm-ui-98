@@ -64,6 +64,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
             onSelect={() => onSelectId(id)}
             index={index}
             showDates={showDates}
+            updateMediaInfo={updateMediaInfo}
           />
         ))}
       </AnimatePresence>

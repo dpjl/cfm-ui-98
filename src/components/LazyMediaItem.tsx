@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
 import { useMediaInfo } from '@/hooks/use-media-info';
@@ -17,6 +17,7 @@ interface LazyMediaItemProps {
   onSelect: () => void;
   index: number;
   showDates?: boolean;
+  updateMediaInfo?: (id: string, info: any) => void;
 }
 
 const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
@@ -24,11 +25,19 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   selected,
   onSelect,
   index,
-  showDates = false
+  showDates = false,
+  updateMediaInfo
 }) => {
   const [loaded, setLoaded] = useState(false);
   const { elementRef, isIntersecting } = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true });
-  const { mediaInfo } = useMediaInfo(id, isIntersecting);
+  const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting);
+  
+  // Update the parent component with media info when it's loaded
+  useEffect(() => {
+    if (mediaInfo && updateMediaInfo) {
+      updateMediaInfo(id, mediaInfo);
+    }
+  }, [id, mediaInfo, updateMediaInfo]);
   
   // Determine if this is a video based on the alt text if available
   const isVideo = mediaInfo?.alt ? mediaInfo.alt.match(/\.(mp4|webm|ogg|mov)$/i) : false;
