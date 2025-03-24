@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 type LanguageContextType = {
   language: string;
   setLanguage: (language: string) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, any>) => string;
 };
 
 // Translation dictionary
@@ -27,9 +27,12 @@ const translations: Record<string, Record<string, string>> = {
     noDirectories: 'No directories found',
     deleteConfirmation: 'Are you sure you want to delete the selected media?',
     deleteConfirmationDescription: 'This action cannot be undone.',
+    delete_confirmation_title: 'Delete confirmation',
+    delete_confirmation_description: 'Are you sure you want to delete {count} selected items? This action cannot be undone.',
     title: 'CFM',
     loading: 'Loading',
     deleting: 'Deleting',
+    errorLoadingMedia: 'Error loading media',
   },
   fr: {
     selectAll: 'Tout Sélectionner',
@@ -49,9 +52,12 @@ const translations: Record<string, Record<string, string>> = {
     noDirectories: 'Aucun répertoire trouvé',
     deleteConfirmation: 'Êtes-vous sûr de vouloir supprimer les médias sélectionnés ?',
     deleteConfirmationDescription: 'Cette action est irréversible.',
+    delete_confirmation_title: 'Confirmation de suppression',
+    delete_confirmation_description: 'Êtes-vous sûr de vouloir supprimer {count} éléments sélectionnés ? Cette action est irréversible.',
     title: 'CFM',
     loading: 'Chargement',
     deleting: 'Suppression',
+    errorLoadingMedia: 'Erreur de chargement des médias',
   },
 };
 
@@ -82,9 +88,19 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [language]);
 
   // Translation function
-  const t = (key: string): string => {
+  const t = (key: string, params?: Record<string, any>): string => {
     if (!translations[language]) return key;
-    return translations[language][key] || key;
+    
+    let text = translations[language][key] || key;
+    
+    // Replace parameters in the text if they exist
+    if (params) {
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        text = text.replace(`{${paramKey}}`, String(paramValue));
+      });
+    }
+    
+    return text;
   };
 
   const value = {
