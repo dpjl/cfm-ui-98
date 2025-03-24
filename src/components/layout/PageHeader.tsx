@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { RefreshCw, PanelLeftClose, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
@@ -9,6 +8,7 @@ import { useIsMobile } from '@/hooks/use-breakpoint';
 import { MobileViewMode } from '@/types/gallery';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageToggle } from '@/components/LanguageToggle';
+import { cn } from '@/lib/utils';
 
 interface PageHeaderProps {
   columnsCount: number;
