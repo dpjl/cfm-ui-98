@@ -3,7 +3,6 @@ import React from 'react';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import MobileGalleriesView from './MobileGalleriesView';
 import DesktopGalleriesView from './DesktopGalleriesView';
-import { MobileViewMode } from '@/types/gallery';
 import { MediaFilter } from '@/components/AppSidebar';
 
 interface GalleriesContainerProps {
@@ -19,8 +18,6 @@ interface GalleriesContainerProps {
   activeSide: 'left' | 'right';
   deleteMutation: any;
   handleDeleteSelected: (side: 'left' | 'right') => void;
-  mobileViewMode?: MobileViewMode;
-  setMobileViewMode?: React.Dispatch<React.SetStateAction<MobileViewMode>>;
   leftFilter?: MediaFilter;
   rightFilter?: MediaFilter;
 }
@@ -38,8 +35,6 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
   activeSide,
   deleteMutation,
   handleDeleteSelected,
-  mobileViewMode = 'both',
-  setMobileViewMode,
   leftFilter = 'all',
   rightFilter = 'all'
 }) => {
@@ -49,8 +44,6 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
   if (isMobile) {
     return (
       <MobileGalleriesView
-        mobileViewMode={mobileViewMode}
-        setMobileViewMode={setMobileViewMode!}
         selectedDirectoryIdLeft={selectedDirectoryIdLeft}
         selectedDirectoryIdRight={selectedDirectoryIdRight}
         selectedIdsLeft={selectedIdsLeft}

@@ -10,7 +10,6 @@ import { useIsMobile } from '@/hooks/use-breakpoint';
 import { getMediaUrl, DetailedMediaInfo } from '@/api/imageApi';
 import { useToast } from '@/components/ui/use-toast';
 import MediaPreview from './MediaPreview';
-import { MobileViewMode } from '@/types/gallery';
 
 interface GalleryProps {
   title: string;
@@ -23,7 +22,6 @@ interface GalleryProps {
   viewMode?: 'single' | 'split';
   onDeleteSelected: () => void;
   position?: 'source' | 'destination';
-  mobileView?: MobileViewMode;
 }
 
 const Gallery: React.FC<GalleryProps> = ({
@@ -36,8 +34,7 @@ const Gallery: React.FC<GalleryProps> = ({
   onPreviewMedia,
   viewMode = 'single',
   onDeleteSelected,
-  position = 'source',
-  mobileView = 'both'
+  position = 'source'
 }) => {
   const [showDates, setShowDates] = useState(false);
   const [mediaInfoMap, setMediaInfoMap] = useState<Map<string, DetailedMediaInfo | null>>(new Map());
@@ -178,7 +175,6 @@ const Gallery: React.FC<GalleryProps> = ({
             showDates={showDates}
             updateMediaInfo={updateMediaInfo}
             position={position}
-            mobileView={mobileView}
           />
         </div>
       )}

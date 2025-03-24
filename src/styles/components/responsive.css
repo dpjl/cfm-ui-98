@@ -42,85 +42,27 @@
     }
   }
   
-  /* Mobile View Styles */
-  .mobile-view-container {
+  /* Mobile Galleries Container - Simplified side-by-side layout */
+  .mobile-galleries-container {
+    display: flex;
+    flex-direction: row;
     height: 100%;
     width: 100%;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
-  }
-  
-  /* Different view modes */
-  .mobile-view-left {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  
-  .mobile-view-left .gallery-source {
-    height: 100%;
-    display: block;
-  }
-  
-  .mobile-view-left .gallery-destination {
-    display: none;
-  }
-  
-  .mobile-view-both {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  
-  .mobile-view-both .gallery-source,
-  .mobile-view-both .gallery-destination {
-    height: 50%;
-    overflow: auto;
-    display: block;
-  }
-  
-  .mobile-view-both .gallery-divider {
-    height: 1px;
-    background-color: rgba(var(--border), 0.5);
-    width: 100%;
-  }
-  
-  .mobile-view-right {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  
-  .mobile-view-right .gallery-source {
-    display: none;
-  }
-  
-  .mobile-view-right .gallery-destination {
-    height: 100%;
-    display: block;
   }
   
   /* Mobile gallery panels */
   .mobile-gallery-panel {
-    position: relative;
-    overflow: auto;
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    padding: 0.25rem;
   }
   
-  /* Mobile view switcher */
-  .mobile-view-switcher {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    z-index: 50;
-    background: rgba(var(--background), 0.7);
-    backdrop-filter: blur(8px);
-    border-radius: 9999px;
-    padding: 0.25rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  /* Ensure the gallery grid takes full height and scrolls properly */
+  .mobile-gallery-panel .gallery-grid {
+    height: auto;
+    min-height: 100%;
   }
 }

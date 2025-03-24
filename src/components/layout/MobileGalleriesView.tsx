@@ -1,15 +1,10 @@
 
 import React from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
-import { MobileViewMode } from '@/types/gallery';
-import MobileViewSwitcher from './MobileViewSwitcher';
 import { MediaFilter } from '@/components/AppSidebar';
-import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/use-language';
 
 interface MobileGalleriesViewProps {
-  mobileViewMode: MobileViewMode;
-  setMobileViewMode: React.Dispatch<React.SetStateAction<MobileViewMode>>;
   selectedDirectoryIdLeft: string;
   selectedDirectoryIdRight: string;
   selectedIdsLeft: string[];
@@ -26,8 +21,6 @@ interface MobileGalleriesViewProps {
 }
 
 const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
-  mobileViewMode,
-  setMobileViewMode,
   selectedDirectoryIdLeft,
   selectedDirectoryIdRight,
   selectedIdsLeft,
@@ -47,15 +40,15 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   return (
     <div className="flex-1 overflow-hidden h-full">
       <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
-        {/* Main container with classname based on view mode */}
-        <div className={cn("mobile-view-container", `mobile-view-${mobileViewMode}`)}>
+        {/* Fixed side-by-side galleries for mobile */}
+        <div className="mobile-galleries-container">
           {/* Source Gallery */}
-          <div className="mobile-gallery-panel gallery-source">
+          <div className="mobile-gallery-panel">
             <GalleryContainer 
               title={t('source_gallery')}
               directory={selectedDirectoryIdLeft}
               position="left"
-              columnsCount={mobileViewMode === 'both' ? 2 : 3}
+              columnsCount={2} // Always 2 columns on mobile
               selectedIds={selectedIdsLeft}
               setSelectedIds={setSelectedIdsLeft}
               onDeleteSelected={() => handleDeleteSelected('left')}
@@ -65,23 +58,16 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               hideHeader={true}
               viewMode="single"
               filter={leftFilter}
-              hideMobileColumns={true}
-              mobileView={mobileViewMode}
             />
           </div>
           
-          {/* Divider only shown in 'both' mode */}
-          {mobileViewMode === 'both' && (
-            <div className="gallery-divider"></div>
-          )}
-          
           {/* Destination Gallery */}
-          <div className="mobile-gallery-panel gallery-destination">
+          <div className="mobile-gallery-panel">
             <GalleryContainer 
               title={t('destination_gallery')}
               directory={selectedDirectoryIdRight}
               position="right"
-              columnsCount={mobileViewMode === 'both' ? 2 : 3}
+              columnsCount={2} // Always 2 columns on mobile
               selectedIds={selectedIdsRight}
               setSelectedIds={setSelectedIdsRight}
               onDeleteSelected={() => handleDeleteSelected('right')}
@@ -91,18 +77,10 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               hideHeader={true}
               viewMode="single"
               filter={rightFilter}
-              hideMobileColumns={true}
-              mobileView={mobileViewMode}
             />
           </div>
         </div>
       </div>
-      
-      {/* View mode switcher */}
-      <MobileViewSwitcher 
-        mobileViewMode={mobileViewMode}
-        setMobileViewMode={setMobileViewMode}
-      />
     </div>
   );
 };
