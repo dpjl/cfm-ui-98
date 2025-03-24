@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, ArrowLeft, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ImageItem } from './Gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { useLanguage } from '@/hooks/use-language';

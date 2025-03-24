@@ -24,6 +24,7 @@ interface MediaInfoPanelProps {
   onDeleteSelected: () => void;
   onDownloadSelected: (ids: string[]) => void;
   mediaInfoMap?: Map<string, DetailedMediaInfo | null>;
+  position?: 'source' | 'destination';
 }
 
 const MediaInfoPanel: React.FC<MediaInfoPanelProps> = ({
@@ -31,7 +32,8 @@ const MediaInfoPanel: React.FC<MediaInfoPanelProps> = ({
   onOpenPreview,
   onDeleteSelected,
   onDownloadSelected,
-  mediaInfoMap = new Map()
+  mediaInfoMap = new Map(),
+  position
 }) => {
   const isMobile = useIsMobile();
   
