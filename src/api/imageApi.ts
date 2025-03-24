@@ -53,8 +53,8 @@ export async function fetchDirectoryTree(position?: 'left' | 'right'): Promise<D
   }
 }
 
-export async function fetchMediaIds(directory: string): Promise<string[]> {
-  const url = `${API_BASE_URL}/media?directory=${encodeURIComponent(directory)}`;
+export async function fetchMediaIds(directory: string, filter: string = 'all'): Promise<string[]> {
+  const url = `${API_BASE_URL}/media?directory=${encodeURIComponent(directory)}${filter !== 'all' ? `&filter=${filter}` : ''}`;
   console.log("Fetching media IDs from:", url);
   
   try {
