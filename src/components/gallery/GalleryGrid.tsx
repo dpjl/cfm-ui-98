@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import LazyMediaItem from '@/components/LazyMediaItem';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import { DetailedMediaInfo } from '@/api/imageApi';
 
 interface GalleryGridProps {
   mediaIds: string[];
@@ -12,6 +13,7 @@ interface GalleryGridProps {
   columnsCount: number;
   viewMode?: 'single' | 'split';
   showDates?: boolean;
+  updateMediaInfo?: (id: string, info: DetailedMediaInfo | null) => void;
 }
 
 const GalleryGrid: React.FC<GalleryGridProps> = ({
@@ -20,7 +22,8 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   onSelectId,
   columnsCount,
   viewMode = 'single',
-  showDates = false
+  showDates = false,
+  updateMediaInfo
 }) => {
   const isMobile = useIsMobile();
   

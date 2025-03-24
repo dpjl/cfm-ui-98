@@ -58,8 +58,8 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = ({
             loop
             playsInline
           />
-          {/* Video icon overlay */}
-          <div className="absolute top-2 left-2 z-10 bg-black/70 p-1 rounded-md text-white">
+          {/* Video icon overlay - moved to top-right */}
+          <div className="absolute top-2 right-2 z-10 bg-black/70 p-1 rounded-md text-white">
             <Video className="h-4 w-4" />
           </div>
         </>

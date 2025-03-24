@@ -1,7 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
-import { DetailedMediaInfo, fetchMediaInfo } from '@/api/imageApi';
-import { useToast } from '@/components/ui/use-toast';
+import React from 'react';
+import { DetailedMediaInfo } from '@/api/imageApi';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { motion } from 'framer-motion';
@@ -24,43 +23,20 @@ interface MediaInfoPanelProps {
   onOpenPreview: (id: string) => void;
   onDeleteSelected: () => void;
   onDownloadSelected: (ids: string[]) => void;
+  mediaInfoMap?: Map<string, DetailedMediaInfo | null>;
 }
 
 const MediaInfoPanel: React.FC<MediaInfoPanelProps> = ({
   selectedIds,
   onOpenPreview,
   onDeleteSelected,
-  onDownloadSelected
+  onDownloadSelected,
+  mediaInfoMap = new Map()
 }) => {
-  const [detailedInfo, setDetailedInfo] = useState<DetailedMediaInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const isMobile = useIsMobile();
-
-  // Fetch detailed info when a single media is selected
-  useEffect(() => {
-    if (selectedIds.length === 1) {
-      setIsLoading(true);
-      fetchMediaInfo(selectedIds[0], true)
-        .then(info => {
-          setDetailedInfo(info);
-          setIsLoading(false);
-        })
-        .catch(error => {
-          console.error("Error fetching detailed info:", error);
-          toast({
-            title: "Error",
-            description: "Could not load detailed information",
-            variant: "destructive"
-          });
-          setDetailedInfo(null);
-          setIsLoading(false);
-        });
-    } else {
-      // Clear detailed info when multiple or no items are selected
-      setDetailedInfo(null);
-    }
-  }, [selectedIds, toast]);
+  
+  // Get detailed info for the selected item (if only one is selected)
+  const detailedInfo = selectedIds.length === 1 ? mediaInfoMap.get(selectedIds[0]) : null;
 
   if (selectedIds.length === 0) {
     return null;
@@ -117,11 +93,11 @@ const MediaInfoPanel: React.FC<MediaInfoPanelProps> = ({
       {/* Detailed info section - only visible when a single item is selected */}
       {selectedIds.length === 1 && (
         <div className="text-xs space-y-1.5">
-          {isLoading ? (
-            <div className="flex justify-center py-2">
-              <div className="animate-pulse h-4 w-full bg-muted rounded"></div>
+          {!detailedInfo ? (
+            <div className="text-center py-2 text-muted-foreground">
+              No detailed information available
             </div>
-          ) : detailedInfo ? (
+          ) : (
             <div className={`grid ${isMobile ? "grid-cols-1 gap-y-2" : "grid-cols-2 gap-x-2 gap-y-1"}`}>
               {detailedInfo.name && (
                 <div className="flex items-center gap-2">
@@ -178,10 +154,6 @@ const MediaInfoPanel: React.FC<MediaInfoPanelProps> = ({
                   <span>{detailedInfo.duplicatesCount}</span>
                 </div>
               )}
-            </div>
-          ) : (
-            <div className="text-center py-2 text-muted-foreground">
-              No detailed information available
             </div>
           )}
         </div>

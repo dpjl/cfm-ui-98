@@ -45,16 +45,13 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
     document.body.removeChild(a);
   };
   
-  // Animation variants
+  // Animation variants - simplified for better performance
   const itemVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
+    hidden: { opacity: 0 },
     visible: { 
-      opacity: 1, 
-      scale: 1,
+      opacity: 1,
       transition: {
-        delay: 0.05 * (index % 10), // Limit the delay to avoid too long animations
-        duration: 0.3,
-        ease: [0.22, 1, 0.36, 1]
+        duration: 0.2
       }
     }
   };
@@ -65,7 +62,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
       variants={itemVariants}
       initial="hidden"
       animate={isIntersecting ? "visible" : "hidden"}
-      layout
+      layout="position"
     >
       {isIntersecting && (
         <MediaContextMenu onDownload={handleDownload} isVideo={Boolean(isVideo)}>

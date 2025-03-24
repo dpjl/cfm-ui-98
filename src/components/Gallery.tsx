@@ -7,8 +7,9 @@ import GallerySkeletons from './gallery/GallerySkeletons';
 import GallerySelectionBar from './gallery/GallerySelectionBar';
 import MediaInfoPanel from './media/MediaInfoPanel';
 import { useIsMobile } from '@/hooks/use-breakpoint';
-import { getMediaUrl } from '@/api/imageApi';
+import { getMediaUrl, DetailedMediaInfo } from '@/api/imageApi';
 import { useToast } from '@/components/ui/use-toast';
+import MediaPreview from './MediaPreview';
 
 export interface ImageItem {
   id: string;
@@ -44,6 +45,8 @@ const Gallery: React.FC<GalleryProps> = ({
 }) => {
   const [mounted, setMounted] = useState(false);
   const [showDates, setShowDates] = useState(false);
+  const [mediaInfoMap, setMediaInfoMap] = useState<Map<string, DetailedMediaInfo | null>>(new Map());
+  const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -52,6 +55,15 @@ const Gallery: React.FC<GalleryProps> = ({
     setMounted(true);
     return () => setMounted(false);
   }, []);
+
+  // Collect media info from child components
+  const updateMediaInfo = (id: string, info: DetailedMediaInfo | null) => {
+    setMediaInfoMap(prev => {
+      const newMap = new Map(prev);
+      newMap.set(id, info);
+      return newMap;
+    });
+  };
 
   const handleSelectAll = () => {
     if (selectedIds.length === mediaIds.length) {
@@ -85,11 +97,38 @@ const Gallery: React.FC<GalleryProps> = ({
       return;
     }
     
-    // For multiple files, show a notification (actual batch download would require server-side implementation)
+    // For multiple files, show a notification
     toast({
       title: "Multiple files download",
       description: `Downloading ${ids.length} files is not supported yet. Please select one file at a time.`,
     });
+  };
+  
+  const handleOpenPreview = (id: string) => {
+    setPreviewMediaId(id);
+    if (onPreviewMedia) {
+      onPreviewMedia(id);
+    }
+  };
+  
+  const handleClosePreview = () => {
+    setPreviewMediaId(null);
+  };
+  
+  const handleNavigatePreview = (direction: 'prev' | 'next') => {
+    if (!previewMediaId || mediaIds.length === 0) return;
+    
+    const currentIndex = mediaIds.indexOf(previewMediaId);
+    if (currentIndex === -1) return;
+    
+    let newIndex;
+    if (direction === 'prev') {
+      newIndex = (currentIndex - 1 + mediaIds.length) % mediaIds.length;
+    } else {
+      newIndex = (currentIndex + 1) % mediaIds.length;
+    }
+    
+    setPreviewMediaId(mediaIds[newIndex]);
   };
   
   if (isLoading) {
@@ -116,9 +155,10 @@ const Gallery: React.FC<GalleryProps> = ({
         {selectedIds.length > 0 && (
           <MediaInfoPanel 
             selectedIds={selectedIds}
-            onOpenPreview={(id) => onPreviewMedia ? onPreviewMedia(id) : null}
+            onOpenPreview={handleOpenPreview}
             onDeleteSelected={onDeleteSelected}
             onDownloadSelected={handleDownloadSelected}
+            mediaInfoMap={mediaInfoMap}
           />
         )}
       </div>
@@ -134,9 +174,18 @@ const Gallery: React.FC<GalleryProps> = ({
             columnsCount={columnsCount}
             viewMode={viewMode}
             showDates={showDates}
+            updateMediaInfo={updateMediaInfo}
           />
         </div>
       )}
+      
+      <MediaPreview 
+        mediaId={previewMediaId}
+        isOpen={previewMediaId !== null}
+        onClose={handleClosePreview}
+        allMediaIds={mediaIds}
+        onNavigate={handleNavigatePreview}
+      />
     </div>
   );
 };

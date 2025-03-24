@@ -80,8 +80,8 @@ export async function fetchMediaIds(directory: string, filter: string = 'all'): 
   }
 }
 
-export async function fetchMediaInfo(id: string, detailed: boolean = false): Promise<DetailedMediaInfo> {
-  const url = `${API_BASE_URL}/info?id=${encodeURIComponent(id)}${detailed ? '&detailed=true' : ''}`;
+export async function fetchMediaInfo(id: string): Promise<DetailedMediaInfo> {
+  const url = `${API_BASE_URL}/info?id=${encodeURIComponent(id)}`;
   console.log(`Fetching media info for ID ${id} from:`, url);
   
   try {
@@ -93,7 +93,7 @@ export async function fetchMediaInfo(id: string, detailed: boolean = false): Pro
     }
     
     const data = await response.json();
-    console.log(`Media info for ID ${id}${detailed ? ' (detailed)' : ''}:`, data);
+    console.log(`Media info for ID ${id}:`, data);
     return data;
   } catch (error) {
     console.error(`Error fetching media info for ID ${id}:`, error);
@@ -102,17 +102,13 @@ export async function fetchMediaInfo(id: string, detailed: boolean = false): Pro
     const mockInfo: DetailedMediaInfo = { 
       alt: `Mock Media ${id}`, 
       createdAt: new Date().toISOString(),
+      name: `file_${id}.jpg`,
+      path: `/media/photos/${id}`,
+      size: `${Math.floor(Math.random() * 10000) + 500}KB`,
+      cameraModel: ["iPhone 13 Pro", "Canon EOS 5D", "Sony Alpha A7III", "Nikon Z6"][Math.floor(Math.random() * 4)],
+      hash: `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
+      duplicatesCount: Math.floor(Math.random() * 3)
     };
-    
-    // Add detailed mock data if detailed parameter is true
-    if (detailed) {
-      mockInfo.name = `file_${id}.jpg`;
-      mockInfo.path = `/media/photos/${mockInfo.name}`;
-      mockInfo.size = `${Math.floor(Math.random() * 10000) + 500}KB`;
-      mockInfo.cameraModel = ["iPhone 13 Pro", "Canon EOS 5D", "Sony Alpha A7III", "Nikon Z6"][Math.floor(Math.random() * 4)];
-      mockInfo.hash = `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
-      mockInfo.duplicatesCount = Math.floor(Math.random() * 3);
-    }
     
     console.log(`Using mock media info for ${id}:`, mockInfo);
     return mockInfo;
