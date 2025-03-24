@@ -37,16 +37,56 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
 }) => {
   return (
     <div className="flex-1 overflow-hidden h-full">
-      {/* Side-by-side galleries in 'both' mode */}
-      {mobileViewMode === 'both' && (
-        <div className="h-full grid grid-cols-2 gap-0 border-r border-border/10">
-          {/* Left Gallery */}
-          <div className="h-full overflow-hidden border-r border-border/10">
+      <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border border-border/20">
+        {/* Side-by-side galleries in 'both' mode */}
+        {mobileViewMode === 'both' && (
+          <div className="h-full grid grid-cols-2 gap-0">
+            {/* Left Gallery */}
+            <div className="h-full overflow-hidden border-r border-border/20">
+              <GalleryContainer 
+                title="Left Gallery"
+                directory={selectedDirectoryIdLeft}
+                position="left"
+                columnsCount={2}
+                selectedIds={selectedIdsLeft}
+                setSelectedIds={setSelectedIdsLeft}
+                onDeleteSelected={() => handleDeleteSelected('left')}
+                deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
+                setDeleteDialogOpen={setDeleteDialogOpen}
+                deleteMutation={deleteMutation}
+                hideHeader={true}
+                viewMode="split"
+              />
+            </div>
+            
+            {/* Right Gallery */}
+            <div className="h-full overflow-hidden">
+              <GalleryContainer 
+                title="Right Gallery"
+                directory={selectedDirectoryIdRight}
+                position="right"
+                columnsCount={2}
+                selectedIds={selectedIdsRight}
+                setSelectedIds={setSelectedIdsRight}
+                onDeleteSelected={() => handleDeleteSelected('right')}
+                deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
+                setDeleteDialogOpen={setDeleteDialogOpen}
+                deleteMutation={deleteMutation}
+                hideHeader={true}
+                viewMode="split"
+              />
+            </div>
+          </div>
+        )}
+        
+        {/* Full width single gallery view - Left */}
+        {mobileViewMode === 'left' && (
+          <div className="h-full overflow-hidden">
             <GalleryContainer 
               title="Left Gallery"
               directory={selectedDirectoryIdLeft}
               position="left"
-              columnsCount={2}
+              columnsCount={4}
               selectedIds={selectedIdsLeft}
               setSelectedIds={setSelectedIdsLeft}
               onDeleteSelected={() => handleDeleteSelected('left')}
@@ -54,17 +94,19 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               setDeleteDialogOpen={setDeleteDialogOpen}
               deleteMutation={deleteMutation}
               hideHeader={true}
-              viewMode="split"
+              viewMode="single"
             />
           </div>
-          
-          {/* Right Gallery */}
+        )}
+        
+        {/* Full width single gallery view - Right */}
+        {mobileViewMode === 'right' && (
           <div className="h-full overflow-hidden">
             <GalleryContainer 
               title="Right Gallery"
               directory={selectedDirectoryIdRight}
               position="right"
-              columnsCount={2}
+              columnsCount={4}
               selectedIds={selectedIdsRight}
               setSelectedIds={setSelectedIdsRight}
               onDeleteSelected={() => handleDeleteSelected('right')}
@@ -72,51 +114,11 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               setDeleteDialogOpen={setDeleteDialogOpen}
               deleteMutation={deleteMutation}
               hideHeader={true}
-              viewMode="split"
+              viewMode="single"
             />
           </div>
-        </div>
-      )}
-      
-      {/* Full width single gallery view - Left */}
-      {mobileViewMode === 'left' && (
-        <div className="h-full overflow-hidden px-0.5">
-          <GalleryContainer 
-            title="Left Gallery"
-            directory={selectedDirectoryIdLeft}
-            position="left"
-            columnsCount={4}
-            selectedIds={selectedIdsLeft}
-            setSelectedIds={setSelectedIdsLeft}
-            onDeleteSelected={() => handleDeleteSelected('left')}
-            deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
-            setDeleteDialogOpen={setDeleteDialogOpen}
-            deleteMutation={deleteMutation}
-            hideHeader={true}
-            viewMode="single"
-          />
-        </div>
-      )}
-      
-      {/* Full width single gallery view - Right */}
-      {mobileViewMode === 'right' && (
-        <div className="h-full overflow-hidden px-0.5">
-          <GalleryContainer 
-            title="Right Gallery"
-            directory={selectedDirectoryIdRight}
-            position="right"
-            columnsCount={4}
-            selectedIds={selectedIdsRight}
-            setSelectedIds={setSelectedIdsRight}
-            onDeleteSelected={() => handleDeleteSelected('right')}
-            deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
-            setDeleteDialogOpen={setDeleteDialogOpen}
-            deleteMutation={deleteMutation}
-            hideHeader={true}
-            viewMode="single"
-          />
-        </div>
-      )}
+        )}
+      </div>
       
       {/* Mode switcher floating button */}
       <MobileViewSwitcher 

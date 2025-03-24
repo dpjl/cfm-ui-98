@@ -5,7 +5,6 @@ import GalleryGrid from './gallery/GalleryGrid';
 import GalleryEmptyState from './gallery/GalleryEmptyState';
 import GallerySkeletons from './gallery/GallerySkeletons';
 import GallerySelectionBar from './gallery/GallerySelectionBar';
-import GalleryCountInfo from './gallery/GalleryCountInfo';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 
 export interface ImageItem {
@@ -43,15 +42,10 @@ const Gallery: React.FC<GalleryProps> = ({
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   
-  // We'll update these counts when we have metadata
-  const [countInfo, setCountInfo] = useState({ photoCount: 0, videoCount: 0 });
-  
   useEffect(() => {
     setMounted(true);
-    // Default count - we'll assume all are photos initially
-    setCountInfo({ photoCount: mediaIds.length, videoCount: 0 });
     return () => setMounted(false);
-  }, [mediaIds.length]);
+  }, []);
 
   const handleSelectAll = () => {
     if (selectedIds.length === mediaIds.length) {
@@ -74,10 +68,6 @@ const Gallery: React.FC<GalleryProps> = ({
   if (isLoading) {
     return (
       <div className="flex flex-col h-full">
-        <GalleryCountInfo 
-          photoCount={0} 
-          videoCount={0} 
-        />
         <div className="mt-2">
           <GallerySkeletons columnsClassName={columnsClassName} />
         </div>
@@ -86,24 +76,21 @@ const Gallery: React.FC<GalleryProps> = ({
   }
   
   return (
-    <div className="flex flex-col h-full space-y-1">
-      <GalleryCountInfo 
-        photoCount={countInfo.photoCount} 
-        videoCount={countInfo.videoCount} 
-      />
-      
-      <GallerySelectionBar 
-        selectedIds={selectedIds}
-        mediaIds={mediaIds}
-        onSelectAll={handleSelectAll}
-        showDates={showDates}
-        onToggleDates={toggleDates}
-      />
+    <div className="flex flex-col h-full relative">
+      <div className="sticky top-0 z-10 pb-1">
+        <GallerySelectionBar 
+          selectedIds={selectedIds}
+          mediaIds={mediaIds}
+          onSelectAll={handleSelectAll}
+          showDates={showDates}
+          onToggleDates={toggleDates}
+        />
+      </div>
       
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />
       ) : (
-        <div className={isMobile ? "mt-0.5" : "mt-1"}>
+        <div className="flex-1 overflow-auto">
           <GalleryGrid
             mediaIds={mediaIds}
             selectedIds={selectedIds}

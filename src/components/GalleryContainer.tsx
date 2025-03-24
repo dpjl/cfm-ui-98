@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Gallery from '@/components/Gallery';
@@ -112,14 +113,11 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     }
   };
   
-  const containerPadding = isMobile ? "p-0.5" : "p-1";
-  const panelPadding = isMobile ? "p-0.5" : "p-1";
-  
   return (
-    <div className={`h-full flex flex-col ${containerPadding}`}>
+    <div className="h-full flex flex-col overflow-auto">
       <motion.div 
         variants={itemVariants}
-        className={`glass-panel ${panelPadding} flex-1 overflow-auto flex flex-col`}
+        className="flex-1 overflow-auto"
         style={{ height: "100%" }}
       >
         <Gallery

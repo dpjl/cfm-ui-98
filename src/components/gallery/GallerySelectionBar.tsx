@@ -25,7 +25,7 @@ const GallerySelectionBar: React.FC<GallerySelectionBarProps> = ({
   const isMobile = useIsMobile();
   
   return (
-    <div className="flex items-center justify-between w-full">
+    <div className="flex items-center justify-between w-full bg-background/80 backdrop-blur-sm py-1 px-2 rounded-md z-10">
       <div className="flex items-center gap-2">
         <Button
           onClick={onSelectAll}
@@ -64,7 +64,7 @@ const GallerySelectionBar: React.FC<GallerySelectionBarProps> = ({
       </div>
       
       <div className={`text-xs text-muted-foreground`}>
-        {selectedIds.length} {t('selected')}
+        {selectedIds.length}/{mediaIds.length} {t('selected')}
       </div>
     </div>
   );

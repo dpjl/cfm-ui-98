@@ -46,10 +46,10 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
   deleteMutation
 }) => {
   return (
-    <div className="flex-1 overflow-hidden">
+    <div className="flex-1 overflow-hidden bg-background/50 backdrop-blur-sm rounded-lg border border-border/20">
       <div className="flex h-full">
         {/* Left Gallery */}
-        <div className="w-1/2 overflow-auto border-r border-border/10">
+        <div className="w-1/2 overflow-hidden border-r border-border/20">
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -74,7 +74,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
         </div>
 
         {/* Right Gallery */}
-        <div className="w-1/2 overflow-auto">
+        <div className="w-1/2 overflow-hidden">
           <motion.div
             variants={containerVariants}
             initial="hidden"
