@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
@@ -30,9 +29,7 @@ const Index = () => {
   const queryClient = useQueryClient();
   
   const deleteMutation = useMutation({
-    mutationFn: ({ ids, position }: { ids: string[], position: 'source' | 'destination' }) => {
-      return deleteImages(ids, position);
-    },
+    mutationFn: deleteImages,
     onSuccess: () => {
       const activeSelectedIds = activeSide === 'left' ? selectedIdsLeft : selectedIdsRight;
       toast({

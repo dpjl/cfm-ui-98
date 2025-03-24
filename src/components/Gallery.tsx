@@ -21,7 +21,6 @@ interface GalleryProps {
   onPreviewMedia?: (id: string) => void;
   viewMode?: 'single' | 'split';
   onDeleteSelected: () => void;
-  position?: 'source' | 'destination';
 }
 
 const Gallery: React.FC<GalleryProps> = ({
@@ -33,8 +32,7 @@ const Gallery: React.FC<GalleryProps> = ({
   columnsCount,
   onPreviewMedia,
   viewMode = 'single',
-  onDeleteSelected,
-  position = 'source'
+  onDeleteSelected
 }) => {
   const [showDates, setShowDates] = useState(false);
   const [mediaInfoMap, setMediaInfoMap] = useState<Map<string, DetailedMediaInfo | null>>(new Map());
@@ -52,22 +50,20 @@ const Gallery: React.FC<GalleryProps> = ({
     });
   }, []);
 
-  // Select/deselect all handlers
+  // Memoized selection handler
   const handleSelectAll = useCallback(() => {
-    // Select all unselected media
-    mediaIds.forEach(id => {
-      if (!selectedIds.includes(id)) {
-        onSelectId(id);
-      }
-    });
-  }, [mediaIds, selectedIds, onSelectId]);
-
-  const handleDeselectAll = useCallback(() => {
-    // Deselect all selected media
-    if (selectedIds.length > 0) {
+    if (selectedIds.length === mediaIds.length) {
+      // Deselect all media
       selectedIds.forEach(id => onSelectId(id));
+    } else {
+      // Select all unselected media
+      mediaIds.forEach(id => {
+        if (!selectedIds.includes(id)) {
+          onSelectId(id);
+        }
+      });
     }
-  }, [selectedIds, onSelectId]);
+  }, [selectedIds, mediaIds, onSelectId]);
 
   // Toggle dates visibility
   const toggleDates = useCallback(() => {
@@ -81,7 +77,7 @@ const Gallery: React.FC<GalleryProps> = ({
     // For a single file, trigger direct download
     if (ids.length === 1) {
       const a = document.createElement('a');
-      a.href = getMediaUrl(ids[0], position);
+      a.href = getMediaUrl(ids[0]);
       a.download = `media-${ids[0]}`;
       document.body.appendChild(a);
       a.click();
@@ -94,7 +90,7 @@ const Gallery: React.FC<GalleryProps> = ({
       title: "Multiple files download",
       description: `Downloading ${ids.length} files is not supported yet. Please select one file at a time.`,
     });
-  }, [toast, position]);
+  }, [toast]);
   
   // Preview media handlers
   const handleOpenPreview = useCallback((id: string) => {
@@ -145,7 +141,6 @@ const Gallery: React.FC<GalleryProps> = ({
           selectedIds={selectedIds}
           mediaIds={mediaIds}
           onSelectAll={handleSelectAll}
-          onDeselectAll={handleDeselectAll}
           showDates={showDates}
           onToggleDates={toggleDates}
         />
@@ -157,7 +152,6 @@ const Gallery: React.FC<GalleryProps> = ({
             onDeleteSelected={onDeleteSelected}
             onDownloadSelected={handleDownloadSelected}
             mediaInfoMap={mediaInfoMap}
-            position={position}
           />
         )}
       </div>
@@ -174,7 +168,6 @@ const Gallery: React.FC<GalleryProps> = ({
             viewMode={viewMode}
             showDates={showDates}
             updateMediaInfo={updateMediaInfo}
-            position={position}
           />
         </div>
       )}
@@ -185,7 +178,6 @@ const Gallery: React.FC<GalleryProps> = ({
         onClose={handleClosePreview}
         allMediaIds={mediaIds}
         onNavigate={handleNavigatePreview}
-        position={position}
       />
     </div>
   );

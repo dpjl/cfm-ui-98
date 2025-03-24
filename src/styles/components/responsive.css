@@ -66,75 +66,61 @@
     overflow: hidden;
   }
   
-  /* Mobile gallery states - Both galleries are always present but may be visually hidden */
+  /* Mobile gallery states */
   .gallery-source,
   .gallery-destination {
     position: absolute;
     top: 0;
+    left: 0;
+    width: 100%;
     height: 100%;
-    transition: all 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, width 0.3s ease-in-out;
+    will-change: transform, opacity, width;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    will-change: transform, opacity, width;
-    overflow: hidden;
   }
   
-  /* Both view mode - display both galleries side by side */
+  /* Both view mode */
   .view-both .gallery-source {
-    left: 0;
-    width: 50%;
     transform: translateX(0);
-    opacity: 1;
-    z-index: 10;
+    width: 50%;
   }
   
   .view-both .gallery-destination {
-    left: 50%;
+    transform: translateX(50%);
     width: 50%;
+  }
+  
+  /* Left (source) view mode */
+  .view-left .gallery-source {
     transform: translateX(0);
+    width: 100%;
     opacity: 1;
     z-index: 10;
   }
   
-  /* Left (source) view mode - full width for source gallery, hide destination */
-  .view-left .gallery-source {
-    left: 0;
-    width: 100%;
-    transform: translateX(0);
-    opacity: 1;
-    z-index: 20;
-  }
-  
   .view-left .gallery-destination {
-    left: 100%;
-    width: 50%;
-    transform: translateX(0);
+    transform: translateX(100%);
     opacity: 0;
     z-index: 1;
-    pointer-events: none;
   }
   
-  /* Right (destination) view mode - hide source, full width for destination */
+  /* Right (destination) view mode */
   .view-right .gallery-source {
-    left: -50%;
-    width: 50%;
-    transform: translateX(0);
+    transform: translateX(-100%);
     opacity: 0;
     z-index: 1;
-    pointer-events: none;
   }
   
   .view-right .gallery-destination {
-    left: 0;
-    width: 100%;
     transform: translateX(0);
+    width: 100%;
     opacity: 1;
-    z-index: 20;
+    z-index: 10;
   }
-
-  /* Add a visual separator between galleries when both are visible */
-  .view-both::after {
-    content: '';
+  
+  /* Gallery separator */
+  .gallery-separator {
     position: absolute;
     top: 0;
     left: 50%;
@@ -142,26 +128,12 @@
     width: 1px;
     background-color: var(--border);
     opacity: 0.6;
+    transition: opacity 0.3s ease-in-out;
     z-index: 20;
-    pointer-events: none;
   }
   
-  /* Optimize image grid for mobile views */
-  .view-both .gallery-source .grid,
-  .view-both .gallery-destination .grid {
-    padding: 0.5rem !important; /* Use smaller padding when side by side */
-  }
-  
-  .view-left .gallery-source .grid,
-  .view-right .gallery-destination .grid {
-    padding: 1rem !important; /* Use larger padding when full width */
-  }
-  
-  /* Improved performance for mobile transitions */
-  @media (prefers-reduced-motion: no-preference) {
-    .gallery-source,
-    .gallery-destination {
-      transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, width 0.3s ease-in-out, left 0.3s ease-in-out;
-    }
+  .view-left .gallery-separator,
+  .view-right .gallery-separator {
+    opacity: 0;
   }
 }
