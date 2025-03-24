@@ -127,7 +127,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   // Custom header logo component
   const Logo = () => (
     <div className="flex items-center">
-      <img src="/logo.svg" alt="Media Analyzer" className="h-8 w-8" />
+      <img 
+        src="/lovable-uploads/904fbe5d-5e73-4caf-b03a-0ae3730f7822.png" 
+        alt="Media Analyzer" 
+        className="h-10 w-auto" 
+      />
     </div>
   );
 

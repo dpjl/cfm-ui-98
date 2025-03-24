@@ -34,7 +34,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
         return "grid-cols-3 gap-2"; // Single view - 3 columns with larger gap
       }
     } else {
-      // Desktop - use provided column classes with improved gap
+      // Desktop - use provided column classes exactly as provided
       return `${columnsClassName} gap-4`;
     }
   };

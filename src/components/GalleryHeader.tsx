@@ -1,6 +1,5 @@
 
 import React, { ReactNode } from 'react';
-import { FolderSearch } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/use-language';
 import { useIsMobile } from '@/hooks/use-breakpoint';
@@ -41,10 +40,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
       <div className="flex flex-col w-full gap-2 mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <FolderSearch className="h-5 w-5 text-primary mr-2" />
-            <h1 className="text-xl font-bold tracking-tight truncate">
-              {title}
-            </h1>
+            {title}
           </div>
           
           <div className="flex items-center gap-1">
@@ -73,10 +69,7 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
   return (
     <div className="flex justify-between items-center mb-6 w-full">
       <div className="flex items-center">
-        <FolderSearch className="h-9 w-9 text-primary mr-3" />
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          {title}
-        </h1>
+        {title}
       </div>
 
       <div className="flex items-center gap-4">

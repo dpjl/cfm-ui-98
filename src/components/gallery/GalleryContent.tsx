@@ -36,10 +36,7 @@ const GalleryContent: React.FC<GalleryContentProps> = ({
 }) => {
   // Generate the proper class for the number of columns
   const getColumnsClassName = () => {
-    if (viewMode === 'split') {
-      // When in split mode, reduce the number of columns
-      return `grid-cols-${Math.max(2, Math.min(columnsCount - 1, 4))}`;
-    }
+    // Exact column mapping to respect the selected number of columns
     return `grid-cols-${columnsCount}`;
   };
 
