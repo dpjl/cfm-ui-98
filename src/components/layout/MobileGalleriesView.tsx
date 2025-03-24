@@ -3,6 +3,7 @@ import React from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
+import { Separator } from '@/components/ui/separator';
 
 interface MobileGalleriesViewProps {
   mobileViewMode: MobileViewMode;
@@ -37,12 +38,12 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
 }) => {
   return (
     <div className="flex-1 overflow-hidden h-full">
-      <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border border-border/20">
+      <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
         {/* Side-by-side galleries in 'both' mode */}
         {mobileViewMode === 'both' && (
           <div className="h-full grid grid-cols-2 gap-0">
             {/* Left Gallery */}
-            <div className="h-full overflow-hidden border-r border-border/20">
+            <div className="h-full overflow-hidden">
               <GalleryContainer 
                 title="Left Gallery"
                 directory={selectedDirectoryIdLeft}
@@ -58,6 +59,9 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 viewMode="split"
               />
             </div>
+            
+            {/* Gallery Separator - only visible in 'both' mode */}
+            <Separator orientation="vertical" className="bg-border/60 -ml-px" />
             
             {/* Right Gallery */}
             <div className="h-full overflow-hidden">

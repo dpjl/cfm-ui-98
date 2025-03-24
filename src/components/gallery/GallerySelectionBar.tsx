@@ -25,7 +25,7 @@ const GallerySelectionBar: React.FC<GallerySelectionBarProps> = ({
   const isMobile = useIsMobile();
   
   return (
-    <div className="flex items-center justify-between w-full bg-background/80 backdrop-blur-sm py-1 px-2 rounded-md z-10">
+    <div className="flex items-center justify-between w-full bg-background/90 backdrop-blur-sm py-1.5 px-3 rounded-md z-10 shadow-sm border border-border/30">
       <div className="flex items-center gap-2">
         <Button
           onClick={onSelectAll}

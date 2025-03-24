@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import GalleryContainer from '@/components/GalleryContainer';
+import { Separator } from '@/components/ui/separator';
 
 // Define container animation variants
 const containerVariants = {
@@ -46,10 +47,10 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
   deleteMutation
 }) => {
   return (
-    <div className="flex-1 overflow-hidden bg-background/50 backdrop-blur-sm rounded-lg border border-border/20">
+    <div className="flex-1 overflow-hidden bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
       <div className="flex h-full">
         {/* Left Gallery */}
-        <div className="w-1/2 overflow-hidden border-r border-border/20">
+        <div className="w-1/2 overflow-hidden">
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -72,6 +73,9 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
             />
           </motion.div>
         </div>
+
+        {/* Gallery Separator */}
+        <Separator orientation="vertical" className="bg-border/60" />
 
         {/* Right Gallery */}
         <div className="w-1/2 overflow-hidden">

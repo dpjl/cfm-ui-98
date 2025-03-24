@@ -77,7 +77,7 @@ const Gallery: React.FC<GalleryProps> = ({
   
   return (
     <div className="flex flex-col h-full relative">
-      <div className="sticky top-0 z-10 pb-1">
+      <div className="sticky top-0 z-10 p-2">
         <GallerySelectionBar 
           selectedIds={selectedIds}
           mediaIds={mediaIds}
