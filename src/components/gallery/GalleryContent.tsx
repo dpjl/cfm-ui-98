@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import Gallery from '@/components/Gallery';
 import GalleryEmptyState from '@/components/gallery/GalleryEmptyState';
 import GallerySkeletons from '@/components/gallery/GallerySkeletons';
@@ -21,7 +21,8 @@ interface GalleryContentProps {
   position?: 'source' | 'destination';
 }
 
-const GalleryContent: React.FC<GalleryContentProps> = ({
+// Using memo to prevent unnecessary re-renders
+const GalleryContent: React.FC<GalleryContentProps> = memo(({
   mediaIds,
   selectedIds,
   onSelectId,
@@ -62,6 +63,9 @@ const GalleryContent: React.FC<GalleryContentProps> = ({
       position={position}
     />
   );
-};
+});
+
+// Set component display name for debugging
+GalleryContent.displayName = 'GalleryContent';
 
 export default GalleryContent;

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchMediaInfo, DetailedMediaInfo } from '@/api/imageApi';
 import { useMediaCache } from './use-media-cache';
 
@@ -9,18 +9,11 @@ export const useMediaInfo = (id: string, isIntersecting: boolean, position: 'sou
   const [isLoading, setIsLoading] = useState(false);
   const { getCachedMediaInfo, setCachedMediaInfo } = useMediaCache();
 
-  useEffect(() => {
-    if (isIntersecting && !mediaInfo && !error) {
-      // Check cache first
-      const cachedInfo = getCachedMediaInfo(id, position);
-      if (cachedInfo) {
-        console.log(`Using cached media info for ${id} (${position})`);
-        setMediaInfo(cachedInfo);
-        return;
-      }
-      
-      setIsLoading(true);
-      
+  // Memoize the fetch function to avoid unnecessary re-renders
+  const fetchInfo = useCallback(async () => {
+    setIsLoading(true);
+    
+    try {
       // If it's a mock ID, create mock data instead of fetching
       if (id.startsWith('mock-media-')) {
         const mockInfo: DetailedMediaInfo = {
@@ -36,32 +29,41 @@ export const useMediaInfo = (id: string, isIntersecting: boolean, position: 'sou
         setMediaInfo(mockInfo);
         // Cache the mock info
         setCachedMediaInfo(id, position, mockInfo);
-        setIsLoading(false);
+      } else {
+        const data = await fetchMediaInfo(id, position);
+        setMediaInfo(data);
+        // Cache the fetched info
+        setCachedMediaInfo(id, position, data);
+      }
+    } catch (err) {
+      console.error(`Error fetching info for media ${id}:`, err);
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+      // Set a fallback media info with the ID
+      const fallbackInfo = { 
+        alt: `Media ${id}`, 
+        createdAt: null
+      } as DetailedMediaInfo;
+      setMediaInfo(fallbackInfo);
+      // Cache even the fallback info to prevent retries
+      setCachedMediaInfo(id, position, fallbackInfo);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id, position, setCachedMediaInfo]);
+
+  useEffect(() => {
+    if (isIntersecting && !mediaInfo && !error) {
+      // Check cache first
+      const cachedInfo = getCachedMediaInfo(id, position);
+      if (cachedInfo) {
+        setMediaInfo(cachedInfo);
         return;
       }
       
-      fetchMediaInfo(id, position)
-        .then(data => {
-          setMediaInfo(data);
-          // Cache the fetched info
-          setCachedMediaInfo(id, position, data);
-          setIsLoading(false);
-        })
-        .catch(err => {
-          console.error(`Error fetching info for media ${id}:`, err);
-          setError(err);
-          // Set a fallback media info with the ID
-          const fallbackInfo = { 
-            alt: `Media ${id}`, 
-            createdAt: null
-          };
-          setMediaInfo(fallbackInfo);
-          // Cache even the fallback info to prevent retries
-          setCachedMediaInfo(id, position, fallbackInfo);
-          setIsLoading(false);
-        });
+      // If not in cache, fetch the info
+      fetchInfo();
     }
-  }, [id, isIntersecting, mediaInfo, error, position, getCachedMediaInfo, setCachedMediaInfo]);
+  }, [id, isIntersecting, mediaInfo, error, position, getCachedMediaInfo, fetchInfo]);
 
   return {
     mediaInfo,

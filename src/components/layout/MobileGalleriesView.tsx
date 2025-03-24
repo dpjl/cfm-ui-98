@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
@@ -41,32 +41,51 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   leftFilter = 'all',
   rightFilter = 'all'
 }) => {
+  // Memoize column counts to prevent recalculations
+  const leftColumnCount = useMemo(() => 
+    mobileViewMode === 'left' ? 4 : 2, 
+    [mobileViewMode]
+  );
+  
+  const rightColumnCount = useMemo(() => 
+    mobileViewMode === 'right' ? 4 : 2, 
+    [mobileViewMode]
+  );
+  
   return (
     <div className="flex-1 overflow-hidden h-full relative">
-      <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
+      <div className="h-full bg-background rounded-lg border-2 border-border/40 shadow-sm">
         <div className="h-full flex flex-row relative">
-          {/* Left Gallery - always in the DOM, positioned absolutely when not in view */}
-          <div className={`h-full transition-all duration-300 ${
-            mobileViewMode === 'both' ? 'w-1/2 relative' : 
-            mobileViewMode === 'left' ? 'w-full relative z-10' : 
-            'w-full absolute inset-0 opacity-0 pointer-events-none z-0'
-          }`}>
-            <GalleryContainer 
-              title="Left Gallery"
-              directory={selectedDirectoryIdLeft}
-              position="left"
-              columnsCount={mobileViewMode === 'left' ? 4 : 2} // 4 columns when in full width, 2 when split
-              selectedIds={selectedIdsLeft}
-              setSelectedIds={setSelectedIdsLeft}
-              onDeleteSelected={() => handleDeleteSelected('left')}
-              deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
-              setDeleteDialogOpen={setDeleteDialogOpen}
-              deleteMutation={deleteMutation}
-              hideHeader={true}
-              viewMode={mobileViewMode === 'left' ? 'single' : 'split'}
-              filter={leftFilter}
-              hideMobileColumns={true}
-            />
+          {/* Left Gallery */}
+          <div 
+            className={`h-full ${
+              mobileViewMode === 'both' ? 'w-1/2 relative' : 
+              mobileViewMode === 'left' ? 'w-full relative z-10' : 
+              'w-0 absolute opacity-0 pointer-events-none'
+            }`}
+            style={{
+              transition: 'width 200ms ease-out',
+              background: 'var(--background)'
+            }}
+          >
+            {(mobileViewMode === 'both' || mobileViewMode === 'left') && (
+              <GalleryContainer 
+                title="Left Gallery"
+                directory={selectedDirectoryIdLeft}
+                position="left"
+                columnsCount={leftColumnCount}
+                selectedIds={selectedIdsLeft}
+                setSelectedIds={setSelectedIdsLeft}
+                onDeleteSelected={() => handleDeleteSelected('left')}
+                deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
+                setDeleteDialogOpen={setDeleteDialogOpen}
+                deleteMutation={deleteMutation}
+                hideHeader={true}
+                viewMode={mobileViewMode === 'left' ? 'single' : 'split'}
+                filter={leftFilter}
+                hideMobileColumns={true}
+              />
+            )}
           </div>
           
           {/* Gallery Separator - only visible in 'both' mode */}
@@ -74,28 +93,36 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
             <Separator orientation="vertical" className="bg-border/60" />
           )}
           
-          {/* Right Gallery - always in the DOM, positioned absolutely when not in view */}
-          <div className={`h-full transition-all duration-300 ${
-            mobileViewMode === 'both' ? 'w-1/2 relative' : 
-            mobileViewMode === 'right' ? 'w-full relative z-10' : 
-            'w-full absolute inset-0 opacity-0 pointer-events-none z-0'
-          }`}>
-            <GalleryContainer 
-              title="Right Gallery"
-              directory={selectedDirectoryIdRight}
-              position="right"
-              columnsCount={mobileViewMode === 'right' ? 4 : 2} // 4 columns when in full width, 2 when split
-              selectedIds={selectedIdsRight}
-              setSelectedIds={setSelectedIdsRight}
-              onDeleteSelected={() => handleDeleteSelected('right')}
-              deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
-              setDeleteDialogOpen={setDeleteDialogOpen}
-              deleteMutation={deleteMutation}
-              hideHeader={true}
-              viewMode={mobileViewMode === 'right' ? 'single' : 'split'}
-              filter={rightFilter}
-              hideMobileColumns={true}
-            />
+          {/* Right Gallery */}
+          <div 
+            className={`h-full ${
+              mobileViewMode === 'both' ? 'w-1/2 relative' : 
+              mobileViewMode === 'right' ? 'w-full relative z-10' : 
+              'w-0 absolute opacity-0 pointer-events-none'
+            }`}
+            style={{
+              transition: 'width 200ms ease-out',
+              background: 'var(--background)'
+            }}
+          >
+            {(mobileViewMode === 'both' || mobileViewMode === 'right') && (
+              <GalleryContainer 
+                title="Right Gallery"
+                directory={selectedDirectoryIdRight}
+                position="right"
+                columnsCount={rightColumnCount}
+                selectedIds={selectedIdsRight}
+                setSelectedIds={setSelectedIdsRight}
+                onDeleteSelected={() => handleDeleteSelected('right')}
+                deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
+                setDeleteDialogOpen={setDeleteDialogOpen}
+                deleteMutation={deleteMutation}
+                hideHeader={true}
+                viewMode={mobileViewMode === 'right' ? 'single' : 'split'}
+                filter={rightFilter}
+                hideMobileColumns={true}
+              />
+            )}
           </div>
         </div>
       </div>

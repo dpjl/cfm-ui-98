@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { cn } from '@/lib/utils';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
 import { useMediaInfo } from '@/hooks/use-media-info';
@@ -22,7 +22,8 @@ interface LazyMediaItemProps {
   position: 'source' | 'destination';
 }
 
-const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
+// Using memo to prevent unnecessary re-renders
+const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   id,
   selected,
   onSelect,
@@ -43,7 +44,6 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
       // First check if we have it in the cache
       const cachedUrl = getCachedThumbnailUrl(id, position);
       if (cachedUrl) {
-        console.log(`Using cached thumbnail for ${id} (${position})`);
         setThumbnailUrl(cachedUrl);
         return;
       }
@@ -62,8 +62,8 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
     }
   }, [id, mediaInfo, updateMediaInfo]);
   
-  // Determine if this is a video based on the alt text if available
-  const isVideo = mediaInfo?.alt ? mediaInfo.alt.match(/\.(mp4|webm|ogg|mov)$/i) : false;
+  // Determine if this is a video based on the file extension if available
+  const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
   
   const handleDownload = () => {
     // Create a temporary link to trigger the download
@@ -77,7 +77,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
     document.body.removeChild(a);
   };
   
-  // Animation variants - simplified for better performance
+  // Simplified animation variants for better performance
   const itemVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -88,15 +88,20 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
     }
   };
   
+  // Only render the full content when the item is intersecting
+  if (!isIntersecting) {
+    return <div ref={elementRef} className="aspect-square bg-muted rounded-lg"></div>;
+  }
+  
   return (
     <motion.div
-      ref={elementRef as React.RefObject<HTMLDivElement>}
+      ref={elementRef}
       variants={itemVariants}
       initial="hidden"
-      animate={isIntersecting ? "visible" : "hidden"}
+      animate="visible"
       layout="position"
     >
-      {isIntersecting && thumbnailUrl && (
+      {thumbnailUrl && (
         <MediaContextMenu onDownload={handleDownload} isVideo={Boolean(isVideo)}>
           <MediaTooltip content={mediaInfo?.alt || id}>
             <div 
@@ -104,7 +109,6 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
                 "image-card group relative", 
                 "aspect-square", 
                 selected && "selected",
-                !loaded && "animate-pulse bg-muted"
               )}
               onClick={onSelect}
             >
@@ -132,11 +136,11 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
           </MediaTooltip>
         </MediaContextMenu>
       )}
-      {!isIntersecting && (
-        <div className="aspect-square bg-muted animate-pulse rounded-lg"></div>
-      )}
     </motion.div>
   );
-};
+});
+
+// Set component display name for debugging
+LazyMediaItem.displayName = 'LazyMediaItem';
 
 export default LazyMediaItem;
