@@ -33,7 +33,10 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   position
 }) => {
   const [loaded, setLoaded] = useState(false);
-  const { elementRef, isIntersecting } = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true });
+  const { elementRef, isIntersecting } = useIntersectionObserver<HTMLDivElement>({ 
+    threshold: 0.1, 
+    freezeOnceVisible: true 
+  });
   const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting, position);
   const { getCachedThumbnailUrl, setCachedThumbnailUrl } = useMediaCache();
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);

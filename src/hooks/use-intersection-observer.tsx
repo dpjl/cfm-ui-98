@@ -8,7 +8,7 @@ interface UseIntersectionObserverProps {
   freezeOnceVisible?: boolean;
 }
 
-export function useIntersectionObserver({
+export function useIntersectionObserver<T extends HTMLElement = HTMLDivElement>({
   root = null,
   rootMargin = '0px',
   threshold = 0,
@@ -16,7 +16,7 @@ export function useIntersectionObserver({
 }: UseIntersectionObserverProps = {}) {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [hasBeenVisible, setHasBeenVisible] = useState(false);
-  const elementRef = useRef<Element | null>(null);
+  const elementRef = useRef<T | null>(null);
   
   useEffect(() => {
     const element = elementRef.current;
@@ -41,7 +41,7 @@ export function useIntersectionObserver({
     return () => {
       if (element) observer.unobserve(element);
     };
-  }, [root, rootMargin, threshold, freezeOnceVisible, elementRef.current]);
+  }, [root, rootMargin, threshold, freezeOnceVisible]);
   
   const shouldRender = freezeOnceVisible ? isIntersecting || hasBeenVisible : isIntersecting;
   
