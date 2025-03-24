@@ -17,7 +17,7 @@ interface GalleryGridProps {
   position?: 'source' | 'destination';
 }
 
-// Version mémorisée de LazyMediaItem
+// Memoized version of LazyMediaItem
 const MemoizedLazyMediaItem = memo(LazyMediaItem);
 
 const GalleryGrid: React.FC<GalleryGridProps> = ({
@@ -32,24 +32,24 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
-  // Générer le style des colonnes en fonction du nombre de colonnes - mémorisé
+  // Generate grid style based on columns count - memoized
   const gridStyle = useMemo(() => {
     return { 
       gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
     };
   }, [columnsCount]);
   
-  // Déterminer la taille des écarts en fonction de l'appareil et du mode d'affichage - mémorisé
+  // Determine gap class based on device and view mode - memoized
   const gapClass = useMemo(() => {
     if (isMobile) {
-      return columnsCount <= 2 ? 'gap-1' : 'gap-1';
+      return 'gap-1';
     }
     return 'gap-4';
-  }, [isMobile, columnsCount]);
+  }, [isMobile]);
   
   return (
     <div 
-      className={cn("grid w-full h-full content-start p-1 gallery-grid", gapClass)}
+      className={cn("grid w-full content-start p-1 gallery-grid overflow-y-auto", gapClass)}
       style={gridStyle}
     >
       <AnimatePresence>

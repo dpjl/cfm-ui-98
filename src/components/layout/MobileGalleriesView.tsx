@@ -43,19 +43,18 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   rightFilter = 'all'
 }) => {
   const { t } = useLanguage();
-  
-  // Déterminer le nombre de colonnes en fonction du mode de vue
-  // En mode 'both', on a besoin de montrer plus d'images par ligne pour compenser la hauteur réduite
-  const leftColumnsCount = mobileViewMode === 'both' ? 3 : 3;
-  const rightColumnsCount = mobileViewMode === 'both' ? 3 : 3;
+
+  // Adjust columns based on view mode
+  const leftColumnsCount = mobileViewMode === 'both' ? 2 : 4;
+  const rightColumnsCount = mobileViewMode === 'both' ? 2 : 4;
   
   return (
     <div className="flex-1 overflow-hidden h-full">
       <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
-        {/* Conteneur des galeries avec nouvelle approche de visibilité */}
+        {/* Container with absolute positioning for galleries */}
         <div className={cn("mobile-galleries-container", `view-${mobileViewMode}`)}>
-          {/* Galerie Source (Gauche) */}
-          <div className="gallery-source">
+          {/* Source Gallery */}
+          <div className="gallery-panel gallery-source">
             <GalleryContainer 
               title={t('source_gallery')}
               directory={selectedDirectoryIdLeft}
@@ -74,8 +73,8 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
             />
           </div>
           
-          {/* Galerie Destination (Droite) */}
-          <div className="gallery-destination">
+          {/* Destination Gallery */}
+          <div className="gallery-panel gallery-destination">
             <GalleryContainer 
               title={t('destination_gallery')}
               directory={selectedDirectoryIdRight}
@@ -96,7 +95,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
         </div>
       </div>
       
-      {/* Bouton flottant pour changer de mode */}
+      {/* View mode switcher */}
       <MobileViewSwitcher 
         mobileViewMode={mobileViewMode}
         setMobileViewMode={setMobileViewMode}

@@ -58,67 +58,66 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   
-  /* Mobile galleries container - nouvelle approche avec visibilité contrôlée */
+  /* Mobile galleries container */
   .mobile-galleries-container {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    position: relative;
     overflow: hidden;
   }
   
-  /* Galeries avec visibilité contrôlée */
-  .gallery-source,
-  .gallery-destination {
+  /* Gallery panels for mobile */
+  .gallery-panel {
     width: 100%;
     height: 100%;
-    flex-shrink: 0;
-    transition: height 0.3s ease, max-height 0.3s ease, opacity 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: transform 0.3s ease;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
-  /* Styles pour la vue gauche (source uniquement) */
+  /* Source gallery panel */
+  .gallery-source {
+    z-index: 10;
+  }
+  
+  /* Destination gallery panel */
+  .gallery-destination {
+    z-index: 5;
+  }
+  
+  /* View modes for mobile */
+  /* Source only */
   .view-left .gallery-source {
-    height: 100%;
-    max-height: 100%;
-    opacity: 1;
-    visibility: visible;
+    transform: translateX(0);
   }
   
   .view-left .gallery-destination {
-    height: 0;
-    max-height: 0;
-    opacity: 0;
-    visibility: hidden;
-    overflow: hidden;
+    transform: translateX(100%);
   }
   
-  /* Styles pour la vue des deux galeries */
-  .view-both .gallery-source,
-  .view-both .gallery-destination {
+  /* Both galleries */
+  .view-both .gallery-source {
+    transform: translateX(0);
     height: 50%;
-    max-height: 50%;
-    opacity: 1;
-    visibility: visible;
   }
   
-  /* Styles pour la vue droite (destination uniquement) */
+  .view-both .gallery-destination {
+    transform: translateX(0);
+    top: 50%;
+    height: 50%;
+  }
+  
+  /* Destination only */
   .view-right .gallery-source {
-    height: 0;
-    max-height: 0;
-    opacity: 0;
-    visibility: hidden;
-    overflow: hidden;
+    transform: translateX(-100%);
   }
   
   .view-right .gallery-destination {
-    height: 100%;
-    max-height: 100%;
-    opacity: 1;
-    visibility: visible;
-  }
-  
-  /* Add a visual separator between galleries when both are visible */
-  .view-both .gallery-source {
-    border-bottom: 1px solid var(--border);
+    transform: translateX(0);
   }
 }

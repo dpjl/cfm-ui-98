@@ -45,7 +45,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
-  // Mobile view - using our refactored component
+  // Mobile view
   if (isMobile) {
     return (
       <MobileGalleriesView
@@ -68,7 +68,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
     );
   }
 
-  // Desktop view with split screen
+  // Desktop view
   return (
     <DesktopGalleriesView
       columnsCount={columnsCount}
