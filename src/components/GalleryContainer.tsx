@@ -7,6 +7,7 @@ import { useLanguage } from '@/hooks/use-language';
 import GalleryContent from '@/components/gallery/GalleryContent';
 import DeleteConfirmationDialog from '@/components/gallery/DeleteConfirmationDialog';
 import { MediaFilter } from '@/components/AppSidebar';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 
 interface GalleryContainerProps {
   title: string;
@@ -22,6 +23,7 @@ interface GalleryContainerProps {
   hideHeader?: boolean;
   viewMode?: 'single' | 'split';
   filter?: MediaFilter;
+  hideMobileColumns?: boolean;
 }
 
 const GalleryContainer: React.FC<GalleryContainerProps> = ({
@@ -37,10 +39,12 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   deleteMutation,
   hideHeader = false,
   viewMode = 'single',
-  filter = 'all'
+  filter = 'all',
+  hideMobileColumns = false
 }) => {
   const { t } = useLanguage();
   const [mediaIds, setMediaIds] = useState<string[]>([]);
+  const isMobile = useIsMobile();
   
   // Fetch media IDs for the selected directory
   const { 
@@ -103,6 +107,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
             onRefresh={() => {}} // Dummy function as refresh is handled at a higher level
             onDeleteSelected={onDeleteSelected}
             isDeletionPending={deleteMutation.isPending}
+            hideMobileColumns={hideMobileColumns}
           />
         </div>
       )}

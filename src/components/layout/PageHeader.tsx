@@ -128,7 +128,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   const Logo = () => (
     <div className="flex items-center">
       <img 
-        src="/lovable-uploads/904fbe5d-5e73-4caf-b03a-0ae3730f7822.png" 
+        src="/lovable-uploads/logo.png" 
         alt="Media Analyzer" 
         className="h-10 w-auto" 
       />

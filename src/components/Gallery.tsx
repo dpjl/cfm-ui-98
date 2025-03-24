@@ -25,7 +25,7 @@ interface GalleryProps {
   selectedIds: string[];
   onSelectId: (id: string) => void;
   isLoading?: boolean;
-  columnsClassName?: string;
+  columnsCount: number;
   onPreviewMedia?: (id: string) => void;
   viewMode?: 'single' | 'split';
   onDeleteSelected: () => void;
@@ -37,7 +37,7 @@ const Gallery: React.FC<GalleryProps> = ({
   selectedIds,
   onSelectId,
   isLoading = false,
-  columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5",
+  columnsCount,
   onPreviewMedia,
   viewMode = 'single',
   onDeleteSelected
@@ -96,7 +96,7 @@ const Gallery: React.FC<GalleryProps> = ({
     return (
       <div className="flex flex-col h-full">
         <div className="mt-2">
-          <GallerySkeletons columnsClassName={columnsClassName} />
+          <GallerySkeletons columnsCount={columnsCount} />
         </div>
       </div>
     );
@@ -131,7 +131,7 @@ const Gallery: React.FC<GalleryProps> = ({
             mediaIds={mediaIds}
             selectedIds={selectedIds}
             onSelectId={onSelectId}
-            columnsClassName={columnsClassName}
+            columnsCount={columnsCount}
             viewMode={viewMode}
             showDates={showDates}
           />

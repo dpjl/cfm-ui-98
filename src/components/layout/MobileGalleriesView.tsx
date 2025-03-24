@@ -41,6 +41,13 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   leftFilter = 'all',
   rightFilter = 'all'
 }) => {
+  // Correct columns count for mobile:
+  // - 2 columns when in 'both' mode (split view)
+  // - 4 columns when in single gallery mode ('left' or 'right')
+  const getColumnsCount = (viewMode: MobileViewMode) => {
+    return viewMode === 'both' ? 2 : 4;
+  };
+
   return (
     <div className="flex-1 overflow-hidden h-full">
       <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
@@ -53,7 +60,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 title="Left Gallery"
                 directory={selectedDirectoryIdLeft}
                 position="left"
-                columnsCount={2}
+                columnsCount={2} // Fixed at 2 for mobile split view
                 selectedIds={selectedIdsLeft}
                 setSelectedIds={setSelectedIdsLeft}
                 onDeleteSelected={() => handleDeleteSelected('left')}
@@ -63,6 +70,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 hideHeader={true}
                 viewMode="split"
                 filter={leftFilter}
+                hideMobileColumns={true}
               />
             </div>
             
@@ -75,7 +83,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 title="Right Gallery"
                 directory={selectedDirectoryIdRight}
                 position="right"
-                columnsCount={2}
+                columnsCount={2} // Fixed at 2 for mobile split view
                 selectedIds={selectedIdsRight}
                 setSelectedIds={setSelectedIdsRight}
                 onDeleteSelected={() => handleDeleteSelected('right')}
@@ -85,6 +93,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 hideHeader={true}
                 viewMode="split"
                 filter={rightFilter}
+                hideMobileColumns={true}
               />
             </div>
           </div>
@@ -97,7 +106,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               title="Left Gallery"
               directory={selectedDirectoryIdLeft}
               position="left"
-              columnsCount={4}
+              columnsCount={4} // Fixed at 4 for mobile single view
               selectedIds={selectedIdsLeft}
               setSelectedIds={setSelectedIdsLeft}
               onDeleteSelected={() => handleDeleteSelected('left')}
@@ -107,6 +116,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               hideHeader={true}
               viewMode="single"
               filter={leftFilter}
+              hideMobileColumns={true}
             />
           </div>
         )}
@@ -118,7 +128,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               title="Right Gallery"
               directory={selectedDirectoryIdRight}
               position="right"
-              columnsCount={4}
+              columnsCount={4} // Fixed at 4 for mobile single view
               selectedIds={selectedIdsRight}
               setSelectedIds={setSelectedIdsRight}
               onDeleteSelected={() => handleDeleteSelected('right')}
@@ -128,6 +138,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               hideHeader={true}
               viewMode="single"
               filter={rightFilter}
+              hideMobileColumns={true}
             />
           </div>
         )}

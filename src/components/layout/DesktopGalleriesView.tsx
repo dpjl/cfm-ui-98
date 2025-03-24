@@ -51,10 +51,6 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
   leftFilter = 'all',
   rightFilter = 'all'
 }) => {
-  // Calculate adjusted column count for split view 
-  // (ensuring we don't use fewer than 2 columns per side)
-  const splitColumnsCount = Math.max(2, Math.floor(columnsCount / 2));
-
   return (
     <div className="flex-1 overflow-hidden bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
       <div className="flex h-full">
@@ -70,7 +66,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
               title="Left Gallery"
               directory={selectedDirectoryIdLeft}
               position="left"
-              columnsCount={splitColumnsCount}
+              columnsCount={columnsCount}
               selectedIds={selectedIdsLeft}
               setSelectedIds={setSelectedIdsLeft}
               onDeleteSelected={() => handleDeleteSelected('left')}
@@ -99,7 +95,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
               title="Right Gallery"
               directory={selectedDirectoryIdRight}
               position="right"
-              columnsCount={splitColumnsCount}
+              columnsCount={columnsCount}
               selectedIds={selectedIdsRight}
               setSelectedIds={setSelectedIdsRight}
               onDeleteSelected={() => handleDeleteSelected('right')}

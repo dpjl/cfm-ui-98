@@ -34,14 +34,8 @@ const GalleryContent: React.FC<GalleryContentProps> = ({
   title,
   filter = 'all'
 }) => {
-  // Generate the proper class for the number of columns
-  const getColumnsClassName = () => {
-    // Exact column mapping to respect the selected number of columns
-    return `grid-cols-${columnsCount}`;
-  };
-
   if (isLoading) {
-    return <GallerySkeletons columnsClassName={getColumnsClassName()} />;
+    return <GallerySkeletons columnsCount={columnsCount} />;
   }
 
   if (isError) {
@@ -59,7 +53,7 @@ const GalleryContent: React.FC<GalleryContentProps> = ({
       selectedIds={selectedIds}
       onSelectId={onSelectId}
       isLoading={isLoading}
-      columnsClassName={getColumnsClassName()}
+      columnsCount={columnsCount}
       onPreviewMedia={onPreviewItem}
       viewMode={viewMode}
       onDeleteSelected={onDeleteSelected}

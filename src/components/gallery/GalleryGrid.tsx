@@ -9,7 +9,7 @@ interface GalleryGridProps {
   mediaIds: string[];
   selectedIds: string[];
   onSelectId: (id: string) => void;
-  columnsClassName?: string;
+  columnsCount: number;
   viewMode?: 'single' | 'split';
   showDates?: boolean;
 }
@@ -18,29 +18,33 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   mediaIds,
   selectedIds,
   onSelectId,
-  columnsClassName = "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6",
+  columnsCount,
   viewMode = 'single',
   showDates = false
 }) => {
   const isMobile = useIsMobile();
   
-  // Optimize grid layout based on device and view mode
-  const getGridClasses = () => {
+  // Generate explicit grid-cols class based on column count
+  const getGridColsClass = () => {
+    // On mobile, use fixed columns based on viewMode
     if (isMobile) {
-      // Mobile-specific grid classes with appropriate gaps
-      if (viewMode === 'split') {
-        return "grid-cols-2 gap-1"; // Split view - 2 columns per side with better spacing
-      } else {
-        return "grid-cols-3 gap-2"; // Single view - 3 columns with larger gap
-      }
-    } else {
-      // Desktop - use provided column classes exactly as provided
-      return `${columnsClassName} gap-4`;
+      return viewMode === 'split' ? 'grid-cols-2' : 'grid-cols-4';
     }
+    
+    // On desktop, use the exact number of columns specified
+    return `grid-cols-${columnsCount}`;
+  };
+  
+  // Determine the gap size based on device and view mode
+  const getGapClass = () => {
+    if (isMobile) {
+      return viewMode === 'split' ? 'gap-1' : 'gap-2';
+    }
+    return 'gap-4';
   };
   
   return (
-    <div className={cn("grid h-full content-start p-2", getGridClasses())}>
+    <div className={cn("grid h-full content-start p-2", getGridColsClass(), getGapClass())}>
       <AnimatePresence>
         {mediaIds.map((id, index) => (
           <LazyMediaItem
