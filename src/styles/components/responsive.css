@@ -40,6 +40,15 @@
     .date-display-small .date-icon {
       @apply h-1.5 w-1.5;
     }
+    
+    /* Fix for mobile dual gallery layout */
+    .mobile-gallery-dual {
+      @apply flex flex-row !important;
+    }
+    
+    .mobile-gallery-dual > div {
+      @apply w-1/2 !important;
+    }
   }
   
   /* Mobile view mode switcher */

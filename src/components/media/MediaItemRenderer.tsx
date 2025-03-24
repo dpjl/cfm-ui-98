@@ -39,7 +39,7 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = ({
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
       className={cn(
-        "w-full h-full rounded-md overflow-hidden",
+        "w-full h-full rounded-md overflow-hidden border border-border/20 shadow-sm",
         !loaded && "animate-pulse bg-muted"
       )}
     >
