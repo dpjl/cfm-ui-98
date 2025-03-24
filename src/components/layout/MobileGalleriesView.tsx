@@ -4,6 +4,7 @@ import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
 import { Separator } from '@/components/ui/separator';
+import { MediaFilter } from '@/components/AppSidebar';
 
 interface MobileGalleriesViewProps {
   mobileViewMode: MobileViewMode;
@@ -19,6 +20,8 @@ interface MobileGalleriesViewProps {
   activeSide: 'left' | 'right';
   setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   deleteMutation: any;
+  leftFilter?: MediaFilter;
+  rightFilter?: MediaFilter;
 }
 
 const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
@@ -34,7 +37,9 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   deleteDialogOpen,
   activeSide,
   setDeleteDialogOpen,
-  deleteMutation
+  deleteMutation,
+  leftFilter = 'all',
+  rightFilter = 'all'
 }) => {
   return (
     <div className="flex-1 overflow-hidden h-full">
@@ -57,6 +62,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 deleteMutation={deleteMutation}
                 hideHeader={true}
                 viewMode="split"
+                filter={leftFilter}
               />
             </div>
             
@@ -78,6 +84,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 deleteMutation={deleteMutation}
                 hideHeader={true}
                 viewMode="split"
+                filter={rightFilter}
               />
             </div>
           </div>
@@ -99,6 +106,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               deleteMutation={deleteMutation}
               hideHeader={true}
               viewMode="single"
+              filter={leftFilter}
             />
           </div>
         )}
@@ -119,6 +127,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               deleteMutation={deleteMutation}
               hideHeader={true}
               viewMode="single"
+              filter={rightFilter}
             />
           </div>
         )}

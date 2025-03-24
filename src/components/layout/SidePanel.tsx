@@ -115,11 +115,13 @@ const SidePanel: React.FC<SidePanelProps> = ({
             "w-72 p-0 border-0 shadow-lg bg-card/95 backdrop-blur-sm",
             position === 'left' ? "border-r" : "border-l"
           )}
+          // Disable default close button by overriding closeButton prop
+          closeButton={false}
         >
           <div className="h-full flex flex-col p-0 overflow-hidden">
             <div className="flex items-center justify-between p-3 border-b">
               <h3 className="text-sm font-medium">{title}</h3>
-              {/* Only use one icon for closing */}
+              {/* Add our custom close button */}
               <Button 
                 variant="ghost" 
                 size="icon" 

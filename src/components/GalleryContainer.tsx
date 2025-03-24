@@ -7,6 +7,7 @@ import { useQuery, UseMutationResult } from '@tanstack/react-query';
 import MediaPreview from '@/components/MediaPreview';
 import { fetchMediaIds } from '@/api/imageApi';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import { MediaFilter } from '@/components/AppSidebar';
 
 const itemVariants = {
   hidden: { y: 20, opacity: 0 },
@@ -33,6 +34,7 @@ interface GalleryContainerProps {
   deleteMutation: UseMutationResult<any, Error, string[], unknown>;
   hideHeader?: boolean;
   viewMode?: 'single' | 'split';
+  filter?: MediaFilter;
 }
 
 const GalleryContainer: React.FC<GalleryContainerProps> = ({ 
@@ -47,7 +49,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   setDeleteDialogOpen,
   deleteMutation,
   hideHeader = false,
-  viewMode = 'single'
+  viewMode = 'single',
+  filter = 'all'
 }) => {
   const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -58,8 +61,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     isLoading,
     refetch
   } = useQuery({
-    queryKey: ['mediaIds', directory, position],
-    queryFn: () => fetchMediaIds(directory),
+    queryKey: ['mediaIds', directory, position, filter],
+    queryFn: () => fetchMediaIds(directory, filter),
   });
   
   const handleSelectId = (id: string) => {

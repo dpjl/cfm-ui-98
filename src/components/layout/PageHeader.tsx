@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { RefreshCw, Trash2, PanelLeftClose, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd } from 'lucide-react';
+import { RefreshCw, PanelLeftClose, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -39,8 +39,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 }) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
-  const selectedCount = selectedIdsLeft.length + selectedIdsRight.length;
-  const hasSelections = selectedCount > 0;
 
   // Prepare extra buttons for the header
   const extraControls = (
@@ -96,28 +94,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-
-      {/* Delete button - only shown when selections exist */}
-      {hasSelections && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="destructive"
-                size="icon"
-                onClick={onDelete}
-                disabled={isDeletionPending}
-                className="h-9 w-9"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{`${t('delete')} (${selectedCount})`}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
 
       {/* Close sidebars button - only shown when at least one sidebar is open */}
       {isSidebarOpen && onCloseSidebars && (

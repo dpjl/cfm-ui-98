@@ -1,10 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
-import { DetailedMediaInfo, fetchMediaInfo, getMediaUrl } from '@/api/imageApi';
+import { DetailedMediaInfo, fetchMediaInfo } from '@/api/imageApi';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { motion } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 import { 
   Calendar, 
   Camera, 
@@ -34,6 +35,7 @@ const MediaInfoPanel: React.FC<MediaInfoPanelProps> = ({
   const [detailedInfo, setDetailedInfo] = useState<DetailedMediaInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   // Fetch detailed info when a single media is selected
   useEffect(() => {
@@ -73,12 +75,14 @@ const MediaInfoPanel: React.FC<MediaInfoPanelProps> = ({
     >
       {/* Header with action buttons */}
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-sm font-medium">
-          {selectedIds.length === 1 
-            ? "Media Information" 
-            : `${selectedIds.length} items selected`}
-        </h3>
-        <div className="flex space-x-1">
+        {!isMobile && (
+          <h3 className="text-sm font-medium">
+            {selectedIds.length === 1 
+              ? "Media Information" 
+              : `${selectedIds.length} items selected`}
+          </h3>
+        )}
+        <div className={`flex space-x-1 ${isMobile ? "w-full justify-center" : ""}`}>
           <Button 
             variant="ghost" 
             size="sm" 
@@ -118,79 +122,63 @@ const MediaInfoPanel: React.FC<MediaInfoPanelProps> = ({
               <div className="animate-pulse h-4 w-full bg-muted rounded"></div>
             </div>
           ) : detailedInfo ? (
-            <>
-              <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                {detailedInfo.name && (
-                  <div className="flex items-center gap-1">
-                    <FileText className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Name:</span>
-                  </div>
-                )}
-                {detailedInfo.name && (
-                  <div className="truncate">{detailedInfo.name}</div>
-                )}
+            <div className={`grid ${isMobile ? "grid-cols-1 gap-y-2" : "grid-cols-2 gap-x-2 gap-y-1"}`}>
+              {detailedInfo.name && (
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  {!isMobile && <span className="text-muted-foreground">Name:</span>}
+                  <span className="truncate">{detailedInfo.name}</span>
+                </div>
+              )}
 
-                {detailedInfo.createdAt && (
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Date:</span>
-                  </div>
-                )}
-                {detailedInfo.createdAt && (
-                  <div>{new Date(detailedInfo.createdAt).toLocaleString()}</div>
-                )}
+              {detailedInfo.createdAt && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  {!isMobile && <span className="text-muted-foreground">Date:</span>}
+                  <span>{new Date(detailedInfo.createdAt).toLocaleString()}</span>
+                </div>
+              )}
 
-                {detailedInfo.path && (
-                  <div className="flex items-center gap-1">
-                    <FolderOpen className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Path:</span>
-                  </div>
-                )}
-                {detailedInfo.path && (
-                  <div className="truncate">{detailedInfo.path}</div>
-                )}
+              {detailedInfo.path && (
+                <div className="flex items-center gap-2">
+                  <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                  {!isMobile && <span className="text-muted-foreground">Path:</span>}
+                  <span className="truncate">{detailedInfo.path}</span>
+                </div>
+              )}
 
-                {detailedInfo.size && (
-                  <div className="flex items-center gap-1">
-                    <HardDrive className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Size:</span>
-                  </div>
-                )}
-                {detailedInfo.size && (
-                  <div>{detailedInfo.size}</div>
-                )}
+              {detailedInfo.size && (
+                <div className="flex items-center gap-2">
+                  <HardDrive className="h-4 w-4 text-muted-foreground" />
+                  {!isMobile && <span className="text-muted-foreground">Size:</span>}
+                  <span>{detailedInfo.size}</span>
+                </div>
+              )}
 
-                {detailedInfo.cameraModel && (
-                  <div className="flex items-center gap-1">
-                    <Camera className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Camera:</span>
-                  </div>
-                )}
-                {detailedInfo.cameraModel && (
-                  <div className="truncate">{detailedInfo.cameraModel}</div>
-                )}
+              {detailedInfo.cameraModel && (
+                <div className="flex items-center gap-2">
+                  <Camera className="h-4 w-4 text-muted-foreground" />
+                  {!isMobile && <span className="text-muted-foreground">Camera:</span>}
+                  <span className="truncate">{detailedInfo.cameraModel}</span>
+                </div>
+              )}
 
-                {detailedInfo.hash && (
-                  <div className="flex items-center gap-1">
-                    <Hash className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Hash:</span>
-                  </div>
-                )}
-                {detailedInfo.hash && (
-                  <div className="truncate">{detailedInfo.hash}</div>
-                )}
+              {detailedInfo.hash && (
+                <div className="flex items-center gap-2">
+                  <Hash className="h-4 w-4 text-muted-foreground" />
+                  {!isMobile && <span className="text-muted-foreground">Hash:</span>}
+                  <span className="truncate">{detailedInfo.hash}</span>
+                </div>
+              )}
 
-                {detailedInfo.duplicatesCount !== undefined && (
-                  <div className="flex items-center gap-1">
-                    <Copy className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Duplicates:</span>
-                  </div>
-                )}
-                {detailedInfo.duplicatesCount !== undefined && (
-                  <div>{detailedInfo.duplicatesCount}</div>
-                )}
-              </div>
-            </>
+              {detailedInfo.duplicatesCount !== undefined && (
+                <div className="flex items-center gap-2">
+                  <Copy className="h-4 w-4 text-muted-foreground" />
+                  {!isMobile && <span className="text-muted-foreground">Duplicates:</span>}
+                  <span>{detailedInfo.duplicatesCount}</span>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="text-center py-2 text-muted-foreground">
               No detailed information available

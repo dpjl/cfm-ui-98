@@ -29,18 +29,18 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
     if (isMobile) {
       // Mobile-specific grid classes with appropriate gaps
       if (viewMode === 'split') {
-        return "grid-cols-2 gap-1.5"; // Split view - 2 columns per side with small gap
+        return "grid-cols-2 gap-2"; // Split view - 2 columns per side with better spacing
       } else {
-        return "grid-cols-3 gap-2"; // Single view - 3 columns with larger gap
+        return "grid-cols-3 gap-2.5"; // Single view - 3 columns with larger gap
       }
     } else {
-      // Desktop - use provided column classes with appropriate gap
-      return `${columnsClassName} gap-3`;
+      // Desktop - use provided column classes with improved gap
+      return `${columnsClassName} gap-4`;
     }
   };
   
   return (
-    <div className={cn("grid h-full content-start p-1.5", getGridClasses())}>
+    <div className={cn("grid h-full content-start p-2", getGridClasses())}>
       <AnimatePresence>
         {mediaIds.map((id, index) => (
           <LazyMediaItem

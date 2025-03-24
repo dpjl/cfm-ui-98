@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteImages } from '@/api/imageApi';
-import AppSidebar from '@/components/AppSidebar';
+import AppSidebar, { MediaFilter } from '@/components/AppSidebar';
 import SidePanel from '@/components/layout/SidePanel';
 import GalleriesContainer from '@/components/layout/GalleriesContainer';
 import PageHeader from '@/components/layout/PageHeader';
@@ -23,6 +24,8 @@ const Index = () => {
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [mobileViewMode, setMobileViewMode] = useState<MobileViewMode>('both');
+  const [leftFilter, setLeftFilter] = useState<MediaFilter>('all');
+  const [rightFilter, setRightFilter] = useState<MediaFilter>('all');
   
   const queryClient = useQueryClient();
   
@@ -98,6 +101,8 @@ const Index = () => {
               selectedDirectoryId={selectedDirectoryIdLeft}
               onSelectDirectory={setSelectedDirectoryIdLeft}
               position="left"
+              selectedFilter={leftFilter}
+              onFilterChange={setLeftFilter}
             />
           </SidePanel>
 
@@ -131,6 +136,8 @@ const Index = () => {
               handleDeleteSelected={handleDeleteSelected}
               mobileViewMode={mobileViewMode}
               setMobileViewMode={setMobileViewMode}
+              leftFilter={leftFilter}
+              rightFilter={rightFilter}
             />
           </div>
 
@@ -144,6 +151,8 @@ const Index = () => {
               selectedDirectoryId={selectedDirectoryIdRight}
               onSelectDirectory={setSelectedDirectoryIdRight}
               position="right"
+              selectedFilter={rightFilter}
+              onFilterChange={setRightFilter}
             />
           </SidePanel>
         </div>

@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import GalleryContainer from '@/components/GalleryContainer';
 import { Separator } from '@/components/ui/separator';
+import { MediaFilter } from '@/components/AppSidebar';
 
 // Define container animation variants
 const containerVariants = {
@@ -30,6 +31,8 @@ interface DesktopGalleriesViewProps {
   activeSide: 'left' | 'right';
   setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   deleteMutation: any;
+  leftFilter?: MediaFilter;
+  rightFilter?: MediaFilter;
 }
 
 const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
@@ -44,7 +47,9 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
   deleteDialogOpen,
   activeSide,
   setDeleteDialogOpen,
-  deleteMutation
+  deleteMutation,
+  leftFilter = 'all',
+  rightFilter = 'all'
 }) => {
   return (
     <div className="flex-1 overflow-hidden bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
@@ -70,6 +75,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
               deleteMutation={deleteMutation}
               hideHeader={true}
               viewMode="split"
+              filter={leftFilter}
             />
           </motion.div>
         </div>
@@ -98,6 +104,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
               deleteMutation={deleteMutation}
               hideHeader={true}
               viewMode="split"
+              filter={rightFilter}
             />
           </motion.div>
         </div>
