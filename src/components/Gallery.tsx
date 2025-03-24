@@ -78,7 +78,7 @@ const Gallery: React.FC<GalleryProps> = ({
           photoCount={0} 
           videoCount={0} 
         />
-        <div className="mt-4">
+        <div className="mt-2">
           <GallerySkeletons columnsClassName={columnsClassName} />
         </div>
       </div>
@@ -86,7 +86,7 @@ const Gallery: React.FC<GalleryProps> = ({
   }
   
   return (
-    <div className="flex flex-col h-full space-y-2">
+    <div className="flex flex-col h-full space-y-1">
       <GalleryCountInfo 
         photoCount={countInfo.photoCount} 
         videoCount={countInfo.videoCount} 
@@ -103,7 +103,7 @@ const Gallery: React.FC<GalleryProps> = ({
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />
       ) : (
-        <div className={isMobile ? "mt-1" : "mt-2"}>
+        <div className={isMobile ? "mt-0.5" : "mt-1"}>
           <GalleryGrid
             mediaIds={mediaIds}
             selectedIds={selectedIds}

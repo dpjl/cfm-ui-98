@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import GalleryContainer from '@/components/GalleryContainer';
@@ -48,7 +49,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
     <div className="flex-1 overflow-hidden">
       <div className="flex h-full">
         {/* Left Gallery */}
-        <div className="w-1/2 overflow-auto border-r border-border/20">
+        <div className="w-1/2 overflow-auto border-r border-border/10">
           <motion.div
             variants={containerVariants}
             initial="hidden"

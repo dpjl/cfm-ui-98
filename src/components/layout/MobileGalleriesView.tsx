@@ -39,9 +39,9 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
     <div className="flex-1 overflow-hidden h-full">
       {/* Side-by-side galleries in 'both' mode */}
       {mobileViewMode === 'both' && (
-        <div className="h-full grid grid-cols-2 gap-0.5 border-r border-border/20">
+        <div className="h-full grid grid-cols-2 gap-0 border-r border-border/10">
           {/* Left Gallery */}
-          <div className="h-full overflow-hidden">
+          <div className="h-full overflow-hidden border-r border-border/10">
             <GalleryContainer 
               title="Left Gallery"
               directory={selectedDirectoryIdLeft}
@@ -80,7 +80,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
       
       {/* Full width single gallery view - Left */}
       {mobileViewMode === 'left' && (
-        <div className="h-full overflow-hidden px-1">
+        <div className="h-full overflow-hidden px-0.5">
           <GalleryContainer 
             title="Left Gallery"
             directory={selectedDirectoryIdLeft}
@@ -100,7 +100,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
       
       {/* Full width single gallery view - Right */}
       {mobileViewMode === 'right' && (
-        <div className="h-full overflow-hidden px-1">
+        <div className="h-full overflow-hidden px-0.5">
           <GalleryContainer 
             title="Right Gallery"
             directory={selectedDirectoryIdRight}
