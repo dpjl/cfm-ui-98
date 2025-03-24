@@ -66,4 +66,19 @@
     padding: 0.25rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
+  
+  /* Gallery container transitions for mobile views */
+  .gallery-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .gallery-container > div {
+    transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
 }

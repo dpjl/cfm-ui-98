@@ -5,6 +5,7 @@ import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
 import { Separator } from '@/components/ui/separator';
 import { MediaFilter } from '@/components/AppSidebar';
+import { cn } from '@/lib/utils';
 
 interface MobileGalleriesViewProps {
   mobileViewMode: MobileViewMode;
@@ -41,19 +42,18 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   leftFilter = 'all',
   rightFilter = 'all'
 }) => {
-  // Correct columns count for mobile:
-  // - 2 columns when in 'both' mode (split view)
-  // - 4 columns when in single gallery mode ('left' or 'right')
-  const getColumnsCount = (viewMode: MobileViewMode) => {
-    return viewMode === 'both' ? 2 : 4;
-  };
-
   return (
     <div className="flex-1 overflow-hidden h-full">
       <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
-        {/* Side-by-side galleries in 'both' mode */}
-        {mobileViewMode === 'both' && (
-          <div className="h-full flex flex-row">
+        {/* Both galleries are always rendered but visibility is toggled */}
+        <div className="gallery-container h-full relative">
+          {/* Split View - Both Galleries Side by Side */}
+          <div 
+            className={cn(
+              "h-full flex flex-row absolute inset-0 transition-opacity duration-200",
+              mobileViewMode === 'both' ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            )}
+          >
             {/* Left Gallery */}
             <div className="h-full w-1/2 overflow-hidden">
               <GalleryContainer 
@@ -74,7 +74,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               />
             </div>
             
-            {/* Gallery Separator - only visible in 'both' mode */}
+            {/* Gallery Separator */}
             <Separator orientation="vertical" className="bg-border/60" />
             
             {/* Right Gallery */}
@@ -97,16 +97,19 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               />
             </div>
           </div>
-        )}
-        
-        {/* Full width single gallery view - Left */}
-        {mobileViewMode === 'left' && (
-          <div className="h-full overflow-hidden">
+          
+          {/* Left Gallery Full View */}
+          <div 
+            className={cn(
+              "h-full absolute inset-0 transition-opacity duration-200",
+              mobileViewMode === 'left' ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            )}
+          >
             <GalleryContainer 
               title="Left Gallery"
               directory={selectedDirectoryIdLeft}
               position="left"
-              columnsCount={4} // Fixed at 4 for mobile single view
+              columnsCount={4} // 4 columns for single view
               selectedIds={selectedIdsLeft}
               setSelectedIds={setSelectedIdsLeft}
               onDeleteSelected={() => handleDeleteSelected('left')}
@@ -119,16 +122,19 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               hideMobileColumns={true}
             />
           </div>
-        )}
-        
-        {/* Full width single gallery view - Right */}
-        {mobileViewMode === 'right' && (
-          <div className="h-full overflow-hidden">
+          
+          {/* Right Gallery Full View */}
+          <div 
+            className={cn(
+              "h-full absolute inset-0 transition-opacity duration-200",
+              mobileViewMode === 'right' ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            )}
+          >
             <GalleryContainer 
               title="Right Gallery"
               directory={selectedDirectoryIdRight}
               position="right"
-              columnsCount={4} // Fixed at 4 for mobile single view
+              columnsCount={4} // 4 columns for single view
               selectedIds={selectedIdsRight}
               setSelectedIds={setSelectedIdsRight}
               onDeleteSelected={() => handleDeleteSelected('right')}
@@ -141,7 +147,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
               hideMobileColumns={true}
             />
           </div>
-        )}
+        </div>
       </div>
       
       {/* Mode switcher floating button */}
