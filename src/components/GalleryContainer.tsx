@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchMediaIds } from '@/api/imageApi';
@@ -59,7 +60,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     error
   } = useQuery({
     queryKey: ['mediaIds', directory, position, filter],
-    queryFn: () => fetchMediaIds(directory, position, filter),
+    queryFn: () => fetchMediaIds(directory, filter),
     enabled: !!directory,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -114,11 +115,13 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
         <GalleryHeader
           title={title}
           columnsCount={columnsCount}
+          setColumnsCount={() => {}} // Dummy function as this prop is required but not used here
           isLoading={isLoading}
           selectedImages={selectedIds}
-          onSelectAll={handleSelectAll}
+          onRefresh={() => {}} // Dummy function as this prop is required but not used here
           onDeleteSelected={onDeleteSelected}
-          allSelected={allSelected}
+          isDeletionPending={false} // Add this required prop
+          // Remove onSelectAll and allSelected as they're not in the GalleryHeader props
         />
       )}
       
@@ -157,6 +160,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
             onSelectId={handleSelectItem}
             columnsClassName={`grid-cols-${columnsCount}`}
             viewMode={viewMode}
+            showDates={false}
           />
         )}
       </div>

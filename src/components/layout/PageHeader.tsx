@@ -133,7 +133,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   return (
     <GalleryHeader
-      title={<Logo />}
+      title={<Logo />} // This is causing the type error - needs to be fixed
       columnsCount={columnsCount}
       setColumnsCount={setColumnsCount}
       isLoading={false}

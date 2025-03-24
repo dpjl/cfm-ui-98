@@ -1,12 +1,12 @@
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { FolderSearch } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/use-language';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 
 interface GalleryHeaderProps {
-  title: string;
+  title: ReactNode;
   columnsCount: number;
   setColumnsCount: (value: number) => void;
   isLoading: boolean;
@@ -16,6 +16,7 @@ interface GalleryHeaderProps {
   isDeletionPending: boolean;
   extraControls?: React.ReactNode;
   hideMobileColumns?: boolean;
+  hideDeleteButton?: boolean;
 }
 
 const GalleryHeader: React.FC<GalleryHeaderProps> = ({
@@ -28,7 +29,8 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
   onDeleteSelected,
   isDeletionPending,
   extraControls,
-  hideMobileColumns = true
+  hideMobileColumns = true,
+  hideDeleteButton = false
 }) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
