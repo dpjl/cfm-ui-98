@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
@@ -45,13 +45,14 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   const { t } = useLanguage();
   
   // Déterminer le nombre de colonnes en fonction du mode de vue
-  const leftColumnsCount = mobileViewMode === 'both' ? 2 : 4;
-  const rightColumnsCount = mobileViewMode === 'both' ? 2 : 4;
+  // En mode 'both', on a besoin de montrer plus d'images par ligne pour compenser la hauteur réduite
+  const leftColumnsCount = mobileViewMode === 'both' ? 3 : 3;
+  const rightColumnsCount = mobileViewMode === 'both' ? 3 : 3;
   
   return (
     <div className="flex-1 overflow-hidden h-full">
       <div className="h-full bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm">
-        {/* Conteneur des galeries avec positionnement absolu pour les transitions */}
+        {/* Conteneur des galeries avec nouvelle approche de visibilité */}
         <div className={cn("mobile-galleries-container", `view-${mobileViewMode}`)}>
           {/* Galerie Source (Gauche) */}
           <div className="gallery-source">

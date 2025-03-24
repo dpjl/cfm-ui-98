@@ -42,14 +42,14 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   // Déterminer la taille des écarts en fonction de l'appareil et du mode d'affichage - mémorisé
   const gapClass = useMemo(() => {
     if (isMobile) {
-      return columnsCount <= 2 ? 'gap-1' : 'gap-2';
+      return columnsCount <= 2 ? 'gap-1' : 'gap-1';
     }
     return 'gap-4';
   }, [isMobile, columnsCount]);
   
   return (
     <div 
-      className={cn("grid w-full h-full content-start p-2 gallery-grid", gapClass)}
+      className={cn("grid w-full h-full content-start p-1 gallery-grid", gapClass)}
       style={gridStyle}
     >
       <AnimatePresence>
