@@ -1,15 +1,8 @@
-
 import { DirectoryNode } from '@/types/gallery';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 console.log("API Base URL:", API_BASE_URL);
-
-export interface DirectoryNode {
-  id: string;
-  name: string;
-  children?: DirectoryNode[];
-}
 
 export interface DetailedMediaInfo {
   alt: string;
