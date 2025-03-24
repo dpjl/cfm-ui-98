@@ -2,21 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchMediaIds } from '@/api/imageApi';
-import Gallery from '@/components/Gallery';
-import GalleryGrid from '@/components/gallery/GalleryGrid';
 import GalleryHeader from '@/components/GalleryHeader';
 import { useLanguage } from '@/hooks/use-language';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
+import GalleryContent from '@/components/gallery/GalleryContent';
+import DeleteConfirmationDialog from '@/components/gallery/DeleteConfirmationDialog';
 import { MediaFilter } from '@/components/AppSidebar';
 
 interface GalleryContainerProps {
@@ -84,15 +73,6 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     });
   };
   
-  // Handle selecting all items
-  const handleSelectAll = () => {
-    if (selectedIds.length === mediaIds.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds([...mediaIds]);
-    }
-  };
-  
   // Handle previewing an item
   const handlePreviewItem = (id: string) => {
     console.log(`Preview item: ${id}`);
@@ -107,18 +87,6 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   // Handle confirming deletion
   const handleConfirmDelete = () => {
     deleteMutation.mutate(selectedIds);
-  };
-  
-  // Determine if all items are selected
-  const allSelected = mediaIds.length > 0 && selectedIds.length === mediaIds.length;
-  
-  // Generate the proper class for the number of columns
-  const getColumnsClassName = () => {
-    if (viewMode === 'split') {
-      // When in split mode, reduce the number of columns
-      return `grid-cols-${Math.max(2, Math.min(columnsCount - 1, 4))}`;
-    }
-    return `grid-cols-${columnsCount}`;
   };
   
   return (
@@ -141,72 +109,31 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
       
       {/* Gallery Content */}
       <div className="flex-1 overflow-auto">
-        {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
-            {Array.from({ length: 20 }).map((_, index) => (
-              <Skeleton key={index} className="aspect-square rounded-md" />
-            ))}
-          </div>
-        ) : isError ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center p-4">
-              <p className="text-destructive font-medium mb-2">Error loading media</p>
-              <p className="text-sm text-muted-foreground">
-                {error instanceof Error ? error.message : 'An unknown error occurred'}
-              </p>
-            </div>
-          </div>
-        ) : mediaIds.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center p-4">
-              <p className="font-medium mb-2">No media found</p>
-              <p className="text-sm text-muted-foreground">
-                {filter !== 'all' 
-                  ? 'Try changing the filter or selecting a different folder'
-                  : 'Select a different folder or upload some media'}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <Gallery
-            title={title}
-            mediaIds={mediaIds}
-            selectedIds={selectedIds}
-            onSelectId={handleSelectItem}
-            isLoading={isLoading}
-            columnsClassName={getColumnsClassName()}
-            onPreviewMedia={handlePreviewItem}
-            viewMode={viewMode}
-            onDeleteSelected={onDeleteSelected}
-          />
-        )}
+        <GalleryContent
+          mediaIds={mediaIds}
+          selectedIds={selectedIds}
+          onSelectId={handleSelectItem}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          columnsCount={columnsCount}
+          viewMode={viewMode}
+          onPreviewItem={handlePreviewItem}
+          onDeleteSelected={onDeleteSelected}
+          title={title}
+          filter={filter}
+        />
       </div>
       
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {t('delete_confirmation_title')}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('delete_confirmation_description', { count: selectedIds.length })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelDelete} disabled={deleteMutation.isPending}>
-              {t('cancel')}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleConfirmDelete}
-              disabled={deleteMutation.isPending}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deleteMutation.isPending ? t('deleting') : t('delete')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        selectedIds={selectedIds}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isPending={deleteMutation.isPending}
+      />
     </div>
   );
 };
