@@ -9,13 +9,12 @@ import MediaItemRenderer from './media/MediaItemRenderer';
 import DateDisplay from './media/DateDisplay';
 import SelectionCheckbox from './media/SelectionCheckbox';
 import MediaWrapper from './media/MediaContextMenu';
-import MediaTooltip from './media/MediaTooltip';
 import { useMediaCache } from '@/hooks/use-media-cache';
 
 interface LazyMediaItemProps {
   id: string;
   selected: boolean;
-  onSelect: () => void;
+  onSelect: (id: string, extendSelection: boolean) => void;
   index: number;
   showDates?: boolean;
   updateMediaInfo?: (id: string, info: any) => void;
@@ -66,16 +65,14 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   // Determine if this is a video based on the file extension if available
   const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
   
-  // Direct handler for selecting the item
+  // Improved handler for selecting the item with shift key support
   const handleItemClick = (e: React.MouseEvent) => {
-    // Simple and direct selection
-    if (e.target !== e.currentTarget) {
-      // Make sure we're not clicking on a child element that has its own click handler
-      if (!(e.target as HTMLElement).closest('.image-checkbox')) {
-        onSelect();
-      }
-    } else {
-      onSelect();
+    // Pass the shift key state to the parent component
+    const extendSelection = e.shiftKey;
+    
+    // If we're clicking on the checkbox, let its handler manage the event
+    if (!(e.target as HTMLElement).closest('.image-checkbox')) {
+      onSelect(id, extendSelection);
     }
   };
   
@@ -105,37 +102,35 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
     >
       {thumbnailUrl && (
         <MediaWrapper>
-          <MediaTooltip content={mediaInfo?.alt || id}>
-            <div 
-              className={cn(
-                "image-card group relative", 
-                "aspect-square cursor-pointer", 
-                selected && "selected",
-              )}
-              onClick={handleItemClick}
-            >
-              <MediaItemRenderer
-                src={thumbnailUrl}
-                alt={mediaInfo?.alt || id}
-                isVideo={Boolean(isVideo)}
-                onLoad={() => setLoaded(true)}
-                loaded={loaded}
-                showDate={showDates}
-              />
+          <div 
+            className={cn(
+              "image-card group relative", 
+              "aspect-square cursor-pointer", 
+              selected && "selected",
+            )}
+            onClick={handleItemClick}
+          >
+            <MediaItemRenderer
+              src={thumbnailUrl}
+              alt={mediaInfo?.alt || id}
+              isVideo={Boolean(isVideo)}
+              onLoad={() => setLoaded(true)}
+              loaded={loaded}
+              showDate={showDates}
+            />
 
-              <DateDisplay dateString={mediaInfo?.createdAt} showDate={showDates} />
+            <DateDisplay dateString={mediaInfo?.createdAt} showDate={showDates} />
 
-              <div className="image-overlay" />
-              <SelectionCheckbox
-                selected={selected}
-                onSelect={(e) => {
-                  e.stopPropagation();
-                  onSelect();
-                }}
-                loaded={loaded}
-              />
-            </div>
-          </MediaTooltip>
+            <div className="image-overlay" />
+            <SelectionCheckbox
+              selected={selected}
+              onSelect={(e) => {
+                e.stopPropagation();
+                onSelect(id, e.shiftKey);
+              }}
+              loaded={loaded}
+            />
+          </div>
         </MediaWrapper>
       )}
     </motion.div>

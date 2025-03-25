@@ -7,7 +7,7 @@ import { DetailedMediaInfo } from '@/api/imageApi';
 interface GalleryGridProps {
   mediaIds: string[];
   selectedIds: string[];
-  onSelectId: (id: string) => void;
+  onSelectId: (id: string, extendSelection: boolean) => void;
   columnsCount: number;
   viewMode?: 'single' | 'split';
   showDates?: boolean;
@@ -37,11 +37,6 @@ const GalleryGrid = memo(({
     }
   };
 
-  // Handle selection directly at this level
-  const handleSelectItem = (id: string) => {
-    onSelectId(id);
-  };
-
   return (
     <motion.div
       className={`grid gap-2 p-2`}
@@ -57,7 +52,7 @@ const GalleryGrid = memo(({
           key={id}
           id={id}
           selected={selectedIds.includes(id)}
-          onSelect={() => handleSelectItem(id)}
+          onSelect={onSelectId}
           index={index}
           showDates={showDates}
           updateMediaInfo={updateMediaInfo}

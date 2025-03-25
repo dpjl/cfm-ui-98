@@ -48,6 +48,7 @@ const Gallery: React.FC<GalleryProps> = ({
   const [showDates, setShowDates] = useState(false);
   const [mediaInfoMap, setMediaInfoMap] = useState<Map<string, DetailedMediaInfo | null>>(new Map());
   const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
+  const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -59,6 +60,50 @@ const Gallery: React.FC<GalleryProps> = ({
       newMap.set(id, info);
       return newMap;
     });
+  };
+
+  // Handler with enhanced selection behavior
+  const handleSelectItem = (id: string, extendSelection: boolean) => {
+    if (extendSelection && lastSelectedId && selectedIds.length > 0) {
+      // Shift key is pressed - extend selection from last selected item to current
+      const lastIndex = mediaIds.indexOf(lastSelectedId);
+      const currentIndex = mediaIds.indexOf(id);
+      
+      if (lastIndex !== -1 && currentIndex !== -1) {
+        // Determine the range
+        const start = Math.min(lastIndex, currentIndex);
+        const end = Math.max(lastIndex, currentIndex);
+        
+        // Get media IDs in the range
+        const rangeIds = mediaIds.slice(start, end + 1);
+        
+        // Update the selected IDs to include the range
+        // Create a new set to avoid duplicates
+        const updatedSelectedIds = new Set(selectedIds);
+        rangeIds.forEach(mediaId => updatedSelectedIds.add(mediaId));
+        
+        // Call the parent's onSelectId with each newly selected ID
+        const newSelectedIds = Array.from(updatedSelectedIds);
+        onSelectId(id); // Update with the new selection set
+        setLastSelectedId(id);
+        return;
+      }
+    }
+    
+    // Normal selection behavior - either replace or extend
+    if (!extendSelection && selectedIds.length === 1 && !selectedIds.includes(id)) {
+      // Replace selection when clicking a new item and only one is currently selected
+      onSelectId(selectedIds[0]); // Deselect current
+      onSelectId(id); // Select new
+    } else if (selectedIds.length > 1 || extendSelection) {
+      // Extend/toggle selection when multiple items are selected or shift is pressed
+      onSelectId(id); // Toggle this ID
+    } else {
+      // Default toggle behavior
+      onSelectId(id);
+    }
+    
+    setLastSelectedId(id);
   };
 
   const handleSelectAll = () => {
@@ -89,6 +134,7 @@ const Gallery: React.FC<GalleryProps> = ({
       a.download = `media-${ids[0]}`;
       document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       return;
     }
     
@@ -167,7 +213,7 @@ const Gallery: React.FC<GalleryProps> = ({
           <GalleryGrid
             mediaIds={mediaIds}
             selectedIds={selectedIds}
-            onSelectId={onSelectId}
+            onSelectId={handleSelectItem}
             columnsCount={columnsCount}
             viewMode={viewMode}
             showDates={showDates}

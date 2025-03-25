@@ -5,7 +5,8 @@ interface MediaWrapperProps {
   children: React.ReactNode;
 }
 
-// Simplified wrapper component that just passes children through
+// Simple wrapper component that just passes children through
+// No more context menu functionality
 const MediaWrapper: React.FC<MediaWrapperProps> = ({ children }) => {
   return <>{children}</>;
 };
