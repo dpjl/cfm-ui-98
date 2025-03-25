@@ -95,6 +95,12 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   const handleConfirmDelete = () => {
     deleteMutation.mutate(selectedIds);
   };
+
+  // Create extra controls for the header
+  const extraControls = React.useMemo(() => {
+    // You would implement any extra controls here if needed
+    return null;
+  }, []);
   
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -105,11 +111,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
             title={title}
             columnsCount={columnsCount}
             setColumnsCount={() => {}} // Dummy function as this is controlled at a higher level
-            isLoading={isLoading}
-            selectedImages={selectedIds}
-            onRefresh={() => {}} // Dummy function as refresh is handled at a higher level
-            onDeleteSelected={onDeleteSelected}
-            isDeletionPending={deleteMutation.isPending}
+            extraControls={extraControls}
             hideMobileColumns={hideMobileColumns}
           />
         </div>
