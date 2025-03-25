@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, memo } from 'react';
+import React, { useRef, memo } from 'react';
 import { cn } from '@/lib/utils';
 import { Video } from 'lucide-react';
 
@@ -9,7 +9,6 @@ interface MediaItemRendererProps {
   isVideo: boolean;
   onLoad: () => void;
   loaded: boolean;
-  showDate?: boolean;
 }
 
 // Using memo to prevent unnecessary re-renders
@@ -18,8 +17,7 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
   alt,
   isVideo,
   onLoad,
-  loaded,
-  showDate = false
+  loaded
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   
@@ -40,7 +38,7 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
       className={cn(
-        "w-full h-full rounded-md overflow-hidden border border-border/20 shadow-sm",
+        "w-full h-full rounded-md overflow-hidden",
         !loaded && "animate-pulse bg-muted"
       )}
     >
@@ -51,7 +49,7 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
             src={src}
             title={alt}
             className={cn(
-              "w-full h-full object-cover",
+              "w-full h-full object-cover pointer-events-none", // Désactiver les événements sur la vidéo elle-même
               loaded ? "opacity-100" : "opacity-0"
             )}
             onLoadedData={onLoad}
@@ -61,7 +59,7 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
             style={{ transition: 'opacity 300ms ease' }}
           />
           {/* Video icon overlay */}
-          <div className="absolute top-2 right-2 z-10 bg-black/70 p-1 rounded-md text-white">
+          <div className="absolute top-2 right-2 z-10 bg-black/70 p-1 rounded-md text-white pointer-events-none">
             <Video className="h-4 w-4" />
           </div>
         </>
@@ -70,7 +68,7 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
           src={src}
           alt={alt}
           className={cn(
-            "w-full h-full object-cover",
+            "w-full h-full object-cover pointer-events-none", // Désactiver les événements sur l'image elle-même
             loaded ? "opacity-100" : "opacity-0"
           )}
           onLoad={onLoad}

@@ -4,6 +4,8 @@
     @apply relative overflow-hidden rounded-lg transition-all duration-300 ease-out cursor-pointer shadow-subtle hover:shadow-elevation;
     backface-visibility: hidden;
     transform: translateZ(0); /* Force GPU acceleration */
+    user-select: none; /* Prevent text selection from interfering with clicks */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
   }
   
   .image-card.selected {
@@ -31,21 +33,18 @@
   }
   
   .image-card .image-checkbox {
-    @apply absolute top-3 right-3 z-10 transition-all duration-200 ease-out;
+    @apply absolute z-10 transition-all duration-200 ease-out;
   }
   
   /* Mobile responsive adjustments */
   @media (max-width: 640px) {
     .image-card {
       @apply rounded-md shadow-sm;
+      touch-action: manipulation; /* Optimize for touch interactions */
     }
     
     .image-card.selected {
       @apply ring-1 ring-offset-1;
-    }
-    
-    .image-card .image-checkbox {
-      @apply top-2 right-2;
     }
   }
 }

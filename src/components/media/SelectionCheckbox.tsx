@@ -23,7 +23,10 @@ const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
         "image-checkbox absolute z-20",
         isMobile ? "top-1 left-1" : "top-2 left-2"
       )}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation(); // S'assurer que le clic ne se propage pas
+        onSelect(e);
+      }}
     >
       <Checkbox 
         checked={selected}
@@ -34,7 +37,9 @@ const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
           "transition-all duration-200 ease-out",
           !loaded && "opacity-0"
         )}
-        onClick={onSelect}
+        onTouchEnd={(e) => {
+          e.stopPropagation(); // Arrêter la propagation sur les appareils tactiles
+        }}
       />
     </div>
   );

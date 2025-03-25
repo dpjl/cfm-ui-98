@@ -8,7 +8,6 @@ import { motion } from 'framer-motion';
 import MediaItemRenderer from './media/MediaItemRenderer';
 import DateDisplay from './media/DateDisplay';
 import SelectionCheckbox from './media/SelectionCheckbox';
-import MediaWrapper from './media/MediaContextMenu';
 import { useMediaCache } from '@/hooks/use-media-cache';
 
 interface LazyMediaItemProps {
@@ -65,15 +64,11 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   // Determine if this is a video based on the file extension if available
   const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
   
-  // Improved handler for selecting the item with shift key support
+  // Simplified handler for selecting the item with shift key support
   const handleItemClick = (e: React.MouseEvent) => {
-    // Pass the shift key state to the parent component
-    const extendSelection = e.shiftKey;
-    
-    // If we're clicking on the checkbox, let its handler manage the event
-    if (!(e.target as HTMLElement).closest('.image-checkbox')) {
-      onSelect(id, extendSelection);
-    }
+    e.stopPropagation(); // Empêcher la propagation du clic
+    e.preventDefault(); // Empêcher les comportements par défaut
+    onSelect(id, e.shiftKey);
   };
   
   // Simplified animation variants for better performance
@@ -101,37 +96,34 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
       layout="position"
     >
       {thumbnailUrl && (
-        <MediaWrapper>
-          <div 
-            className={cn(
-              "image-card group relative", 
-              "aspect-square cursor-pointer", 
-              selected && "selected",
-            )}
-            onClick={handleItemClick}
-          >
-            <MediaItemRenderer
-              src={thumbnailUrl}
-              alt={mediaInfo?.alt || id}
-              isVideo={Boolean(isVideo)}
-              onLoad={() => setLoaded(true)}
-              loaded={loaded}
-              showDate={showDates}
-            />
+        <div 
+          className={cn(
+            "image-card group relative", 
+            "aspect-square cursor-pointer", 
+            selected && "selected",
+          )}
+          onClick={handleItemClick} // Gérer le clic sur toute la zone de la carte
+        >
+          <MediaItemRenderer
+            src={thumbnailUrl}
+            alt={mediaInfo?.alt || id}
+            isVideo={Boolean(isVideo)}
+            onLoad={() => setLoaded(true)}
+            loaded={loaded}
+          />
 
-            <DateDisplay dateString={mediaInfo?.createdAt} showDate={showDates} />
+          <DateDisplay dateString={mediaInfo?.createdAt} showDate={showDates} />
 
-            <div className="image-overlay" />
-            <SelectionCheckbox
-              selected={selected}
-              onSelect={(e) => {
-                e.stopPropagation();
-                onSelect(id, e.shiftKey);
-              }}
-              loaded={loaded}
-            />
-          </div>
-        </MediaWrapper>
+          <div className="image-overlay pointer-events-none" />
+          <SelectionCheckbox
+            selected={selected}
+            onSelect={(e) => {
+              e.stopPropagation();
+              onSelect(id, e.shiftKey);
+            }}
+            loaded={loaded}
+          />
+        </div>
       )}
     </motion.div>
   );

@@ -62,52 +62,55 @@ const Gallery: React.FC<GalleryProps> = ({
     });
   };
 
-  // Handler with enhanced selection behavior
+  // Nouveau comportement de sélection amélioré et simplifié
   const handleSelectItem = (id: string, extendSelection: boolean) => {
-    if (extendSelection && lastSelectedId && selectedIds.length > 0) {
-      // Shift key is pressed - extend selection from last selected item to current
+    console.log(`Selecting item: ${id}, extend: ${extendSelection}`);
+    
+    // Si on utilise Shift, on étend la sélection
+    if (extendSelection && lastSelectedId) {
+      // Recherche des index
       const lastIndex = mediaIds.indexOf(lastSelectedId);
       const currentIndex = mediaIds.indexOf(id);
       
       if (lastIndex !== -1 && currentIndex !== -1) {
-        // Determine the range
+        // Définir la plage de sélection
         const start = Math.min(lastIndex, currentIndex);
         const end = Math.max(lastIndex, currentIndex);
         
-        // Get media IDs in the range
-        const rangeIds = mediaIds.slice(start, end + 1);
+        // Sélectionner tous les éléments dans la plage
+        const idsToSelect = mediaIds.slice(start, end + 1);
         
-        // Update the selected IDs to include the range
-        // Create a new set to avoid duplicates
-        const updatedSelectedIds = new Set(selectedIds);
-        rangeIds.forEach(mediaId => updatedSelectedIds.add(mediaId));
+        // Créer un nouvel ensemble de sélection en conservant les éléments déjà sélectionnés
+        const newSelection = new Set([...selectedIds]);
         
-        // Call the parent's onSelectId with each newly selected ID
-        const newSelectedIds = Array.from(updatedSelectedIds);
-        onSelectId(id); // Update with the new selection set
-        setLastSelectedId(id);
-        return;
+        // Ajouter tous les éléments de la plage
+        idsToSelect.forEach(mediaId => {
+          if (!newSelection.has(mediaId)) {
+            newSelection.add(mediaId);
+            onSelectId(mediaId); // Informer le parent de chaque nouvel élément sélectionné
+          }
+        });
       }
+    } 
+    // Si un seul élément est déjà sélectionné et qu'on clique sur un autre (sans Shift)
+    else if (selectedIds.length === 1 && !selectedIds.includes(id) && !extendSelection) {
+      // Désélectionner l'élément actuel
+      onSelectId(selectedIds[0]);
+      // Sélectionner le nouvel élément
+      onSelectId(id);
     }
-    
-    // Normal selection behavior - either replace or extend
-    if (!extendSelection && selectedIds.length === 1 && !selectedIds.includes(id)) {
-      // Replace selection when clicking a new item and only one is currently selected
-      onSelectId(selectedIds[0]); // Deselect current
-      onSelectId(id); // Select new
-    } else if (selectedIds.length > 1 || extendSelection) {
-      // Extend/toggle selection when multiple items are selected or shift is pressed
-      onSelectId(id); // Toggle this ID
-    } else {
-      // Default toggle behavior
+    // Si plusieurs éléments sont déjà sélectionnés, ou si on clique sur un élément déjà sélectionné
+    else {
+      // Basculer la sélection de cet élément
       onSelectId(id);
     }
     
+    // Garder une trace du dernier élément sélectionné pour la fonctionnalité Shift
     setLastSelectedId(id);
   };
 
   const handleSelectAll = () => {
-    // Select all media
+    // Sélectionner tous les médias
     mediaIds.forEach(id => {
       if (!selectedIds.includes(id)) {
         onSelectId(id);
@@ -116,7 +119,7 @@ const Gallery: React.FC<GalleryProps> = ({
   };
 
   const handleDeselectAll = () => {
-    // Deselect all media
+    // Désélectionner tous les médias
     selectedIds.forEach(id => onSelectId(id));
   };
 
@@ -127,7 +130,7 @@ const Gallery: React.FC<GalleryProps> = ({
   const handleDownloadSelected = (ids: string[]) => {
     if (ids.length === 0) return;
     
-    // For a single file, trigger direct download
+    // Pour un seul fichier, déclencher le téléchargement direct
     if (ids.length === 1) {
       const a = document.createElement('a');
       a.href = getMediaUrl(ids[0], position);
@@ -138,7 +141,7 @@ const Gallery: React.FC<GalleryProps> = ({
       return;
     }
     
-    // For multiple files, show a notification
+    // Pour plusieurs fichiers, afficher une notification
     toast({
       title: "Multiple files download",
       description: `Downloading ${ids.length} files is not supported yet. Please select one file at a time.`,
