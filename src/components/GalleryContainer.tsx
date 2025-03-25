@@ -69,7 +69,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     }
   }, [data]);
   
-  // Handle selecting/deselecting an item
+  // Handle selecting/deselecting an item - simplified direct approach
   const handleSelectItem = (id: string) => {
     setSelectedIds(prev => {
       if (prev.includes(id)) {

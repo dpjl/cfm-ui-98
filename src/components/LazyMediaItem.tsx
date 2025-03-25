@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, memo, useCallback } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { cn } from '@/lib/utils';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
 import { useMediaInfo } from '@/hooks/use-media-info';
@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import MediaItemRenderer from './media/MediaItemRenderer';
 import DateDisplay from './media/DateDisplay';
 import SelectionCheckbox from './media/SelectionCheckbox';
-import MediaContextMenu from './media/MediaContextMenu';
+import MediaWrapper from './media/MediaContextMenu';
 import MediaTooltip from './media/MediaTooltip';
 import { useMediaCache } from '@/hooks/use-media-cache';
 
@@ -41,17 +41,15 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   const { getCachedThumbnailUrl, setCachedThumbnailUrl } = useMediaCache();
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   
-  // Load thumbnail URL, using cache if available - memoized to prevent re-renders
+  // Load thumbnail URL, using cache if available
   useEffect(() => {
     if (isIntersecting) {
-      // First check if we have it in the cache
       const cachedUrl = getCachedThumbnailUrl(id, position);
       if (cachedUrl) {
         setThumbnailUrl(cachedUrl);
         return;
       }
       
-      // If not in cache, get the URL and cache it
       const url = getThumbnailUrl(id, position);
       setThumbnailUrl(url);
       setCachedThumbnailUrl(id, position, url);
@@ -68,18 +66,18 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   // Determine if this is a video based on the file extension if available
   const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
   
-  // Memoize the download handler to prevent re-renders
-  const handleDownload = useCallback(() => {
-    // Create a temporary link to trigger the download
-    if (!thumbnailUrl) return;
-    
-    const a = document.createElement('a');
-    a.href = thumbnailUrl;
-    a.download = mediaInfo?.alt || id;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }, [thumbnailUrl, mediaInfo?.alt, id]);
+  // Direct handler for selecting the item
+  const handleItemClick = (e: React.MouseEvent) => {
+    // Simple and direct selection
+    if (e.target !== e.currentTarget) {
+      // Make sure we're not clicking on a child element that has its own click handler
+      if (!(e.target as HTMLElement).closest('.image-checkbox')) {
+        onSelect();
+      }
+    } else {
+      onSelect();
+    }
+  };
   
   // Simplified animation variants for better performance
   const itemVariants = {
@@ -106,15 +104,15 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
       layout="position"
     >
       {thumbnailUrl && (
-        <MediaContextMenu onDownload={handleDownload} isVideo={Boolean(isVideo)}>
+        <MediaWrapper>
           <MediaTooltip content={mediaInfo?.alt || id}>
             <div 
               className={cn(
                 "image-card group relative", 
-                "aspect-square", 
+                "aspect-square cursor-pointer", 
                 selected && "selected",
               )}
-              onClick={onSelect}
+              onClick={handleItemClick}
             >
               <MediaItemRenderer
                 src={thumbnailUrl}
@@ -138,7 +136,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
               />
             </div>
           </MediaTooltip>
-        </MediaContextMenu>
+        </MediaWrapper>
       )}
     </motion.div>
   );

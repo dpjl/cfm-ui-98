@@ -8,15 +8,7 @@ import {
   TooltipTrigger,
   TooltipProvider
 } from '@/components/ui/tooltip';
-import {
-  ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
-} from '@/components/ui/context-menu';
-import { Download, Video, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { Video } from 'lucide-react';
 import DateDisplay from './media/DateDisplay';
 
 interface ImageCardProps {
@@ -54,18 +46,8 @@ const ImageCard: React.FC<ImageCardProps> = ({
     }
   }, [onInView]);
   
-  // Determine based on alt (file name) instead of src
+  // Determine if it's a video based on file extension
   const isVideo = type === "video" || alt.match(/\.(mp4|webm|ogg|mov)$/i);
-  
-  const handleDownload = () => {
-    // Create a temporary link to trigger download
-    const a = document.createElement('a');
-    a.href = src;
-    a.download = alt;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
   
   const handleMouseOver = () => {
     if (isVideo && videoRef.current) {
@@ -79,93 +61,91 @@ const ImageCard: React.FC<ImageCardProps> = ({
     }
   };
   
+  // Direct handler for clicking on the card
+  const handleCardClick = (e: React.MouseEvent) => {
+    // If we're not clicking on the checkbox, trigger the preview
+    if (!(e.target as HTMLElement).closest('.image-checkbox')) {
+      onPreview();
+    }
+  }
+  
   return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-        <TooltipProvider delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div 
-                className={cn(
-                  "image-card group relative", 
-                  "aspect-square", // Always use square aspect
-                  selected && "selected",
-                  !loaded && "animate-pulse bg-muted"
-                )}
-                onClick={onPreview}
-                onMouseOver={handleMouseOver}
-                onMouseOut={handleMouseOut}
-              >
-                {isVideo ? (
-                  <>
-                    <video 
-                      ref={videoRef}
-                      src={src}
-                      title={alt}
-                      className={cn(
-                        "w-full h-full object-cover transition-all duration-500",
-                        loaded ? "opacity-100" : "opacity-0"
-                      )}
-                      onLoadedData={() => setLoaded(true)}
-                      muted
-                      loop
-                      playsInline
-                    />
-                    {/* Video icon overlay */}
-                    <div className="absolute top-2 left-2 z-10 bg-black/70 p-1 rounded-md text-white">
-                      <Video className="h-4 w-4" />
-                    </div>
-                  </>
-                ) : (
-                  <img
-                    src={src}
-                    alt={alt}
-                    className={cn(
-                      "w-full h-full object-cover transition-all duration-500",
-                      loaded ? "opacity-100" : "opacity-0"
-                    )}
-                    onLoad={() => setLoaded(true)}
-                  />
-                )}
-
-                {/* Use the improved DateDisplay component */}
-                <DateDisplay dateString={createdAt} showDate={showDates} />
-
-                <div className="image-overlay" />
-                <div className="image-checkbox" onClick={(e) => e.stopPropagation()}>
-                  <Checkbox 
-                    checked={selected}
-                    className={cn(
-                      "h-5 w-5 border-2",
-                      selected ? "border-primary bg-primary" : "border-white bg-white/20",
-                      "transition-all duration-200 ease-out",
-                      !loaded && "opacity-0"
-                    )}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelect();
-                    }}
-                  />
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div 
+            className={cn(
+              "image-card group relative", 
+              "aspect-square", // Always use square aspect
+              selected && "selected",
+              !loaded && "animate-pulse bg-muted"
+            )}
+            onClick={handleCardClick}
+            onMouseOver={handleMouseOver}
+            onMouseOut={handleMouseOut}
+          >
+            {isVideo ? (
+              <>
+                <video 
+                  ref={videoRef}
+                  src={src}
+                  title={alt}
+                  className={cn(
+                    "w-full h-full object-cover transition-all duration-500",
+                    loaded ? "opacity-100" : "opacity-0"
+                  )}
+                  onLoadedData={() => setLoaded(true)}
+                  muted
+                  loop
+                  playsInline
+                />
+                {/* Video icon overlay */}
+                <div className="absolute top-2 left-2 z-10 bg-black/70 p-1 rounded-md text-white">
+                  <Video className="h-4 w-4" />
                 </div>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent 
-              side="top" 
-              align="center" 
-              className="bg-black/80 text-white border-none text-xs p-2 max-w-[300px] break-words"
-            >
-              {alt}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </ContextMenuTrigger>
-      <ContextMenuContent className="w-48">
-        <ContextMenuItem onClick={handleDownload} className="cursor-pointer flex items-center gap-2">
-          <Download className="h-4 w-4" />
-          <span>Télécharger {isVideo ? 'la vidéo' : 'la photo'}</span>
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
+              </>
+            ) : (
+              <img
+                src={src}
+                alt={alt}
+                className={cn(
+                  "w-full h-full object-cover transition-all duration-500",
+                  loaded ? "opacity-100" : "opacity-0"
+                )}
+                onLoad={() => setLoaded(true)}
+              />
+            )}
+
+            {/* Use the DateDisplay component */}
+            <DateDisplay dateString={createdAt} showDate={showDates} />
+
+            <div className="image-overlay" />
+            <div className="image-checkbox" onClick={(e) => e.stopPropagation()}>
+              <Checkbox 
+                checked={selected}
+                className={cn(
+                  "h-5 w-5 border-2",
+                  selected ? "border-primary bg-primary" : "border-white bg-white/20",
+                  "transition-all duration-200 ease-out",
+                  !loaded && "opacity-0"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect();
+                }}
+              />
+            </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent 
+          side="top" 
+          align="center" 
+          className="bg-black/80 text-white border-none text-xs p-2 max-w-[300px] break-words"
+        >
+          {alt}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

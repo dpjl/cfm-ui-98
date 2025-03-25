@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import LazyMediaItem from '@/components/LazyMediaItem';
 import { DetailedMediaInfo } from '@/api/imageApi';
@@ -15,7 +15,8 @@ interface GalleryGridProps {
   position: 'source' | 'destination';
 }
 
-const GalleryGrid: React.FC<GalleryGridProps> = ({
+// Using memo to prevent unnecessary re-renders
+const GalleryGrid = memo(({
   mediaIds,
   selectedIds,
   onSelectId,
@@ -24,18 +25,21 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
   showDates = false,
   updateMediaInfo,
   position = 'source'
-}) => {
-  // Animation variants for the container
+}: GalleryGridProps) => {
+  // Simplified container variants for better performance
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.05,
-        staggerDirection: 1
+        staggerChildren: 0.03,
       }
     }
+  };
+
+  // Handle selection directly at this level
+  const handleSelectItem = (id: string) => {
+    onSelectId(id);
   };
 
   return (
@@ -53,7 +57,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
           key={id}
           id={id}
           selected={selectedIds.includes(id)}
-          onSelect={() => onSelectId(id)}
+          onSelect={() => handleSelectItem(id)}
           index={index}
           showDates={showDates}
           updateMediaInfo={updateMediaInfo}
@@ -62,6 +66,9 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({
       ))}
     </motion.div>
   );
-};
+});
+
+// Set display name for debugging
+GalleryGrid.displayName = 'GalleryGrid';
 
 export default GalleryGrid;

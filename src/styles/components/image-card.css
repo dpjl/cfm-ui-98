@@ -3,22 +3,27 @@
   .image-card {
     @apply relative overflow-hidden rounded-lg transition-all duration-300 ease-out cursor-pointer shadow-subtle hover:shadow-elevation;
     backface-visibility: hidden;
+    transform: translateZ(0); /* Force GPU acceleration */
   }
   
   .image-card.selected {
     @apply ring-2 ring-primary ring-offset-2;
   }
   
-  .image-card img {
+  .image-card img,
+  .image-card video {
     @apply w-full h-full object-cover transition-all duration-300 ease-out;
+    pointer-events: none; /* Prevent image/video from capturing clicks */
   }
   
-  .image-card:hover img {
+  .image-card:hover img,
+  .image-card:hover video {
     @apply scale-105;
   }
   
   .image-card .image-overlay {
     @apply absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 transition-opacity duration-300;
+    pointer-events: none; /* Prevent overlay from capturing clicks */
   }
   
   .image-card:hover .image-overlay {
@@ -37,6 +42,10 @@
     
     .image-card.selected {
       @apply ring-1 ring-offset-1;
+    }
+    
+    .image-card .image-checkbox {
+      @apply top-2 right-2;
     }
   }
 }
