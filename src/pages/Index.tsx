@@ -109,10 +109,7 @@ const Index = () => {
             <PageHeader 
               columnsCount={columnsCount}
               setColumnsCount={setColumnsCount}
-              selectedIdsLeft={selectedIdsLeft}
-              selectedIdsRight={selectedIdsRight}
               onRefresh={handleRefresh}
-              onDelete={handleDelete}
               isDeletionPending={deleteMutation.isPending}
               isSidebarOpen={isSidebarOpen}
               onCloseSidebars={closeBothSidebars}

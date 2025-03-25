@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { RefreshCw, Trash2, PanelLeftClose } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,7 @@ interface PageHeaderProps {
   onCloseSidebars?: () => void;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({
+const PageHeader = memo(({
   columnsCount,
   setColumnsCount,
   selectedIdsLeft,
@@ -29,7 +29,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   isDeletionPending,
   isSidebarOpen = false,
   onCloseSidebars
-}) => {
+}: PageHeaderProps) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   const selectedCount = selectedIdsLeft.length + selectedIdsRight.length;
@@ -107,18 +107,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   );
 
   return (
-    <GalleryHeader
-      title={t('media_gallery')}
-      columnsCount={columnsCount}
-      setColumnsCount={setColumnsCount}
-      isLoading={false}
-      selectedImages={[...selectedIdsLeft, ...selectedIdsRight]}
-      onRefresh={onRefresh}
-      onDeleteSelected={onDelete}
-      isDeletionPending={isDeletionPending}
-      extraControls={extraControls}
-    />
+    <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
+      <GalleryHeader
+        title={t('media_gallery')}
+        columnsCount={columnsCount}
+        setColumnsCount={setColumnsCount}
+        extraControls={extraControls}
+      />
+    </div>
   );
-};
+});
+
+PageHeader.displayName = 'PageHeader';
 
 export default PageHeader;

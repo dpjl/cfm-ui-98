@@ -1,5 +1,5 @@
 
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { RefreshCw, PanelLeftClose, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
@@ -11,39 +11,51 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { cn } from '@/lib/utils';
 
+// Séparation du Logo en son propre composant mémoïsé
+const Logo = memo(({ isMobile }: { isMobile: boolean }) => (
+  <div className="flex items-center px-1 py-0.5">
+    <img 
+      src="/lovable-uploads/ddf36f1d-ca4f-4437-8e57-df7c6f916ccc.png" 
+      alt="Media Analyzer" 
+      className={cn(
+        "h-auto",
+        isMobile ? "w-20 ml-1" : "w-32 ml-1"
+      )} 
+    />
+  </div>
+));
+
+Logo.displayName = 'Logo';
+
 interface PageHeaderProps {
   columnsCount: number;
   setColumnsCount: React.Dispatch<React.SetStateAction<number>>;
-  selectedIdsLeft: string[];
-  selectedIdsRight: string[];
   onRefresh: () => void;
-  onDelete: () => void;
-  isDeletionPending: boolean;
   isSidebarOpen?: boolean;
   onCloseSidebars?: () => void;
   mobileViewMode?: MobileViewMode;
   setMobileViewMode?: React.Dispatch<React.SetStateAction<MobileViewMode>>;
+  isDeletionPending?: boolean;
 }
 
-// Use memo to prevent unnecessary re-renders of the header
-const PageHeader: React.FC<PageHeaderProps> = memo(({
-  columnsCount,
-  setColumnsCount,
-  selectedIdsLeft,
-  selectedIdsRight,
-  onRefresh,
-  onDelete,
-  isDeletionPending,
-  isSidebarOpen = false,
-  onCloseSidebars,
-  mobileViewMode = 'both',
-  setMobileViewMode
-}) => {
+// Composant principal du header complètement mémoïsé
+const PageHeader = memo((props: PageHeaderProps) => {
+  const { 
+    columnsCount, 
+    setColumnsCount, 
+    onRefresh, 
+    isSidebarOpen = false, 
+    onCloseSidebars, 
+    mobileViewMode = 'both', 
+    setMobileViewMode,
+    isDeletionPending = false
+  } = props;
+
   const { t } = useLanguage();
   const isMobile = useIsMobile();
 
-  // Prepare extra buttons for the header
-  const extraControls = (
+  // Mémoïsation des contrôles supplémentaires pour éviter les re-renders
+  const extraControls = useMemo(() => (
     <div className="flex items-center gap-2">
       {/* Mobile view mode switcher */}
       {isMobile && setMobileViewMode && (
@@ -124,44 +136,24 @@ const PageHeader: React.FC<PageHeaderProps> = memo(({
       {/* Theme toggle */}
       <ThemeToggle />
     </div>
-  );
+  ), [t, isMobile, mobileViewMode, isDeletionPending, isSidebarOpen, onRefresh, onCloseSidebars, setMobileViewMode]);
 
-  // Custom header logo component - Memoized to prevent re-render
-  const Logo = memo(() => (
-    <div className="flex items-center px-1 py-0.5">
-      <img 
-        src="/lovable-uploads/ddf36f1d-ca4f-4437-8e57-df7c6f916ccc.png" 
-        alt="Media Analyzer" 
-        className={cn(
-          "h-auto",
-          isMobile ? "w-20 ml-1" : "w-32 ml-1"
-        )} 
-      />
-    </div>
-  ));
-  
-  Logo.displayName = 'Logo';
+  // Titre mémoïsé avec le logo
+  const headerTitle = useMemo(() => <Logo isMobile={isMobile} />, [isMobile]);
 
   return (
-    <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
       <GalleryHeader
-        title={<Logo />}
+        title={headerTitle}
         columnsCount={columnsCount}
         setColumnsCount={setColumnsCount}
-        isLoading={false}
-        selectedImages={[]}  // Don't pass selected images to header to prevent re-renders
-        onRefresh={onRefresh}
-        onDeleteSelected={onDelete}
-        isDeletionPending={isDeletionPending}
         extraControls={extraControls}
         hideMobileColumns={true}
-        hideDeleteButton={true}
       />
-    </div>
+    </header>
   );
 });
 
-// Set display name for debugging
 PageHeader.displayName = 'PageHeader';
 
 export default PageHeader;

@@ -8,30 +8,18 @@ interface GalleryHeaderProps {
   title: ReactNode;
   columnsCount: number;
   setColumnsCount: (value: number) => void;
-  isLoading: boolean;
-  selectedImages: string[];
-  onRefresh: () => void;
-  onDeleteSelected: () => void;
-  isDeletionPending: boolean;
   extraControls?: React.ReactNode;
   hideMobileColumns?: boolean;
-  hideDeleteButton?: boolean;
 }
 
 // Using memo to prevent unnecessary re-renders
-const GalleryHeader: React.FC<GalleryHeaderProps> = memo(({
-  title,
-  columnsCount,
-  setColumnsCount,
-  isLoading,
-  selectedImages,
-  onRefresh,
-  onDeleteSelected,
-  isDeletionPending,
+const GalleryHeader = memo(({ 
+  title, 
+  columnsCount, 
+  setColumnsCount, 
   extraControls,
-  hideMobileColumns = false,
-  hideDeleteButton = false
-}) => {
+  hideMobileColumns = false
+}: GalleryHeaderProps) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   
@@ -60,17 +48,19 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = memo(({
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm whitespace-nowrap">{t('columns')} {columnsCount}</span>
-          <Slider
-            className="w-24 md:w-32"
-            value={[columnsCount]}
-            min={2}
-            max={8}
-            step={1}
-            onValueChange={(value) => setColumnsCount(value[0])}
-          />
-        </div>
+        {!hideMobileColumns && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm whitespace-nowrap">{t('columns')} {columnsCount}</span>
+            <Slider
+              className="w-24 md:w-32"
+              value={[columnsCount]}
+              min={2}
+              max={8}
+              step={1}
+              onValueChange={(value) => setColumnsCount(value[0])}
+            />
+          </div>
+        )}
         
         {extraControls}
       </div>
