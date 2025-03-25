@@ -1,5 +1,5 @@
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, memo } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { useLanguage } from '@/hooks/use-language';
 import { useIsMobile } from '@/hooks/use-breakpoint';
@@ -18,7 +18,8 @@ interface GalleryHeaderProps {
   hideDeleteButton?: boolean;
 }
 
-const GalleryHeader: React.FC<GalleryHeaderProps> = ({
+// Using memo to prevent unnecessary re-renders
+const GalleryHeader: React.FC<GalleryHeaderProps> = memo(({
   title,
   columnsCount,
   setColumnsCount,
@@ -75,6 +76,9 @@ const GalleryHeader: React.FC<GalleryHeaderProps> = ({
       </div>
     </div>
   );
-};
+});
+
+// Set display name for debugging
+GalleryHeader.displayName = 'GalleryHeader';
 
 export default GalleryHeader;

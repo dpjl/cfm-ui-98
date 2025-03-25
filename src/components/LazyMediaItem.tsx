@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
 import { useMediaInfo } from '@/hooks/use-media-info';
@@ -41,7 +41,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   const { getCachedThumbnailUrl, setCachedThumbnailUrl } = useMediaCache();
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   
-  // Load thumbnail URL, using cache if available
+  // Load thumbnail URL, using cache if available - memoized to prevent re-renders
   useEffect(() => {
     if (isIntersecting) {
       // First check if we have it in the cache
@@ -68,7 +68,8 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   // Determine if this is a video based on the file extension if available
   const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
   
-  const handleDownload = () => {
+  // Memoize the download handler to prevent re-renders
+  const handleDownload = useCallback(() => {
     // Create a temporary link to trigger the download
     if (!thumbnailUrl) return;
     
@@ -78,7 +79,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-  };
+  }, [thumbnailUrl, mediaInfo?.alt, id]);
   
   // Simplified animation variants for better performance
   const itemVariants = {

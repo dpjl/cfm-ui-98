@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { RefreshCw, PanelLeftClose, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,8 @@ interface PageHeaderProps {
   setMobileViewMode?: React.Dispatch<React.SetStateAction<MobileViewMode>>;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({
+// Use memo to prevent unnecessary re-renders of the header
+const PageHeader: React.FC<PageHeaderProps> = memo(({
   columnsCount,
   setColumnsCount,
   selectedIdsLeft,
@@ -125,8 +126,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
     </div>
   );
 
-  // Custom header logo component
-  const Logo = () => (
+  // Custom header logo component - Memoized to prevent re-render
+  const Logo = memo(() => (
     <div className="flex items-center px-1 py-0.5">
       <img 
         src="/lovable-uploads/ddf36f1d-ca4f-4437-8e57-df7c6f916ccc.png" 
@@ -137,23 +138,30 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         )} 
       />
     </div>
-  );
+  ));
+  
+  Logo.displayName = 'Logo';
 
   return (
-    <GalleryHeader
-      title={<Logo />}
-      columnsCount={columnsCount}
-      setColumnsCount={setColumnsCount}
-      isLoading={false}
-      selectedImages={[...selectedIdsLeft, ...selectedIdsRight]}
-      onRefresh={onRefresh}
-      onDeleteSelected={onDelete}
-      isDeletionPending={isDeletionPending}
-      extraControls={extraControls}
-      hideMobileColumns={true}
-      hideDeleteButton={true}
-    />
+    <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
+      <GalleryHeader
+        title={<Logo />}
+        columnsCount={columnsCount}
+        setColumnsCount={setColumnsCount}
+        isLoading={false}
+        selectedImages={[]}  // Don't pass selected images to header to prevent re-renders
+        onRefresh={onRefresh}
+        onDeleteSelected={onDelete}
+        isDeletionPending={isDeletionPending}
+        extraControls={extraControls}
+        hideMobileColumns={true}
+        hideDeleteButton={true}
+      />
+    </div>
   );
-};
+});
+
+// Set display name for debugging
+PageHeader.displayName = 'PageHeader';
 
 export default PageHeader;
