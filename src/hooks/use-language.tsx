@@ -23,7 +23,24 @@ const translations = {
     refresh: 'Refresh',
     close_sidebars: 'Close sidebars',
     multiple_selection: 'Enable multiple selection',
-    single_selection: 'Switch to single selection'
+    single_selection: 'Switch to single selection',
+    // Add missing translations
+    desktop_columns: 'Desktop columns',
+    desktop_single_columns: 'Desktop full view columns',
+    split_columns: 'Split view columns',
+    single_columns: 'Single view columns',
+    noDirectories: 'No directories',
+    date: 'Date',
+    size: 'Size',
+    camera: 'Camera',
+    path: 'Path',
+    hash: 'Hash',
+    duplicates: 'Duplicates',
+    delete_confirmation_title: 'Delete selected media?',
+    delete_confirmation_description: 'This will permanently delete the selected media. This action cannot be undone.',
+    deleting: 'Deleting...',
+    noMediaFound: 'No media found',
+    errorLoadingMedia: 'Error loading media'
   },
   fr: {
     selected: 'sélectionné(s)',
@@ -42,15 +59,35 @@ const translations = {
     refresh: 'Actualiser',
     close_sidebars: 'Fermer les panneaux',
     multiple_selection: 'Activer la sélection multiple',
-    single_selection: 'Passer à la sélection simple'
+    single_selection: 'Passer à la sélection simple',
+    // Add missing translations
+    desktop_columns: 'Colonnes bureau',
+    desktop_single_columns: 'Colonnes plein écran',
+    split_columns: 'Colonnes vue partagée',
+    single_columns: 'Colonnes vue unique',
+    noDirectories: 'Aucun répertoire',
+    date: 'Date',
+    size: 'Taille',
+    camera: 'Appareil photo',
+    path: 'Chemin',
+    hash: 'Hash',
+    duplicates: 'Doublons',
+    delete_confirmation_title: 'Supprimer les médias sélectionnés ?',
+    delete_confirmation_description: 'Cette action supprimera définitivement les médias sélectionnés. Cette action est irréversible.',
+    deleting: 'Suppression...',
+    noMediaFound: 'Aucun média trouvé',
+    errorLoadingMedia: 'Erreur lors du chargement des médias'
   }
 };
+
+// Now update the type for the translation keys to fix type checking
+export type TranslationKey = keyof typeof translations.en;
 
 // Create the context
 type LanguageContextType = {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: keyof typeof translations.en) => string;
+  t: (key: TranslationKey, params?: Record<string, any>) => string;
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -59,8 +96,17 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguage] = useState<Language>('fr');
 
-  const t = (key: keyof typeof translations.en): string => {
-    return translations[language][key] || key;
+  const t = (key: TranslationKey, params?: Record<string, any>): string => {
+    let text = translations[language][key] || key;
+    
+    // Handle interpolation if params are provided
+    if (params) {
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        text = text.replace(`{${paramKey}}`, String(paramValue));
+      });
+    }
+    
+    return text;
   };
 
   return (

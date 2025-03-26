@@ -39,7 +39,9 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
             {t('delete_confirmation_title')}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t('delete_confirmation_description', { count: selectedIds.length })}
+            {selectedIds.length > 1 
+              ? `${t('delete_confirmation_description')} (${selectedIds.length} items)`
+              : t('delete_confirmation_description')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
