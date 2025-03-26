@@ -5,11 +5,13 @@ import GalleryGrid from './gallery/GalleryGrid';
 import GalleryEmptyState from './gallery/GalleryEmptyState';
 import GallerySkeletons from './gallery/GallerySkeletons';
 import MediaPreview from './MediaPreview';
+import MediaInfoPanel from './media/MediaInfoPanel';
 import { DetailedMediaInfo } from '@/api/imageApi';
 import { useGallerySelection } from '@/hooks/use-gallery-selection';
 import { useGalleryPreviewHandler } from '@/hooks/use-gallery-preview-handler';
 import GalleryToolbar from './gallery/GalleryToolbar';
 import { useGalleryMediaHandler } from '@/hooks/use-gallery-media-handler';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 
 export interface ImageItem {
   id: string;
@@ -56,8 +58,9 @@ const Gallery: React.FC<GalleryProps> = ({
   const [showDates, setShowDates] = useState(false);
   const [mediaInfoMap, setMediaInfoMap] = useState<Map<string, DetailedMediaInfo | null>>(new Map());
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
   
-  // Initialize gallery selection features
+  // Initialize gallery selection features with enhanced behavior
   const selection = useGallerySelection(
     mediaIds,
     selectedIds,
@@ -88,6 +91,9 @@ const Gallery: React.FC<GalleryProps> = ({
   const toggleDates = () => {
     setShowDates(prev => !prev);
   };
+  
+  // Determine if we should show the info panel (single selection only)
+  const showInfoPanel = selectedIds.length === 1 && !selection.isMultiSelectMode;
   
   if (isLoading) {
     return (
@@ -123,7 +129,20 @@ const Gallery: React.FC<GalleryProps> = ({
         mediaInfoMap={mediaInfoMap}
         position={position}
         onToggleSidebar={onToggleSidebar}
+        isMultiSelectMode={selection.isMultiSelectMode}
+        setIsMultiSelectMode={selection.setIsMultiSelectMode}
       />
+      
+      {/* Info panel for single selection */}
+      {showInfoPanel && selectedIds.length === 1 && (
+        <MediaInfoPanel
+          selectedIds={selectedIds}
+          onOpenPreview={preview.handleOpenPreview}
+          onDeleteSelected={onDeleteSelected}
+          onDownloadSelected={mediaHandler.handleDownloadSelected}
+          mediaInfoMap={mediaInfoMap}
+        />
+      )}
       
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />
@@ -138,6 +157,9 @@ const Gallery: React.FC<GalleryProps> = ({
             showDates={showDates}
             updateMediaInfo={updateMediaInfo}
             position={position}
+            onTouchStart={selection.handleTouchStart}
+            onTouchEnd={selection.handleTouchEnd}
+            isMultiSelectMode={selection.isMultiSelectMode}
           />
         </div>
       )}
