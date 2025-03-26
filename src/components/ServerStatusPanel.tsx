@@ -33,12 +33,14 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
     staleTime: 1000 * 60, // 1 minute
     enabled: isOpen, // Only fetch when panel is open
     retry: 1,
-    onError: (err) => {
-      toast({
-        title: t('error_fetching_server_status'),
-        description: err instanceof Error ? err.message : t('unknown_error'),
-        variant: "destructive",
-      });
+    meta: {
+      onError: (err: Error) => {
+        toast({
+          title: t('error_fetching_server_status'),
+          description: err instanceof Error ? err.message : t('unknown_error'),
+          variant: "destructive",
+        });
+      }
     }
   });
   

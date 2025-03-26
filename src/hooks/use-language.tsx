@@ -8,7 +8,7 @@ interface Translations {
 interface LanguageContextType {
   lang: string;
   setLang: (lang: string) => void;
-  t: (key: string) => string;
+  t: (key: string, options?: Record<string, any>) => string;
 }
 
 const defaultLanguage = 'en';
@@ -26,7 +26,6 @@ const translations: Record<string, Translations> = {
     edit: 'Edit',
     refresh: 'Refresh',
     search: 'Search',
-    settings: 'Settings',
     close: 'Close',
     open: 'Open',
     preview: 'Preview',
@@ -67,7 +66,8 @@ const translations: Record<string, Translations> = {
     duplicates_only: 'Duplicates Only',
     
     // Actions
-    delete_confirmation: 'Delete Confirmation',
+    delete_confirmation_title: 'Delete Confirmation',
+    delete_confirmation_description: 'Are you sure you want to delete these {{count}} selected items?',
     delete_media_confirm: 'Are you sure you want to delete the selected media?',
     deleting: 'Deleting...',
     delete_success: 'Successfully deleted media',
@@ -77,13 +77,12 @@ const translations: Record<string, Translations> = {
     source: 'Source',
     destination: 'Destination',
     server: 'Server',
-    settings: 'Settings',
+    server_status: 'Server Status',
     close_sidebars: 'Close Sidebars',
     left_panel: 'Left Panel',
     right_panel: 'Right Panel',
     
     // Server Status
-    server_status: 'Server Status',
     connection_status: 'Connection Status',
     online: 'Online',
     offline: 'Offline',
@@ -104,6 +103,9 @@ const translations: Record<string, Translations> = {
     unknown_error: 'An unknown error occurred',
     overview: 'Overview',
     storage: 'Storage',
+    
+    // Settings
+    settings: 'Settings',
   },
   
   fr: {
@@ -118,7 +120,6 @@ const translations: Record<string, Translations> = {
     edit: 'Modifier',
     refresh: 'Actualiser',
     search: 'Rechercher',
-    settings: 'Paramètres',
     close: 'Fermer',
     open: 'Ouvrir',
     preview: 'Aperçu',
@@ -159,7 +160,8 @@ const translations: Record<string, Translations> = {
     duplicates_only: 'Doublons Uniquement',
     
     // Actions
-    delete_confirmation: 'Confirmation de Suppression',
+    delete_confirmation_title: 'Confirmation de Suppression',
+    delete_confirmation_description: 'Êtes-vous sûr de vouloir supprimer ces {{count}} éléments sélectionnés ?',
     delete_media_confirm: 'Êtes-vous sûr de vouloir supprimer les médias sélectionnés ?',
     deleting: 'Suppression en cours...',
     delete_success: 'Médias supprimés avec succès',
@@ -169,13 +171,12 @@ const translations: Record<string, Translations> = {
     source: 'Source',
     destination: 'Destination',
     server: 'Serveur',
-    settings: 'Paramètres',
+    server_status: 'État du Serveur',
     close_sidebars: 'Fermer les panneaux',
     left_panel: 'Panneau Gauche',
     right_panel: 'Panneau Droit',
     
     // Server Status
-    server_status: 'État du Serveur',
     connection_status: 'État de la Connexion',
     online: 'En ligne',
     offline: 'Hors ligne',
@@ -196,6 +197,9 @@ const translations: Record<string, Translations> = {
     unknown_error: 'Une erreur inconnue est survenue',
     overview: 'Aperçu',
     storage: 'Stockage',
+    
+    // Settings
+    settings: 'Paramètres',
   }
 };
 
@@ -215,8 +219,17 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('language', lang);
   }, [lang]);
 
-  const t = (key: string) => {
-    return translations[lang]?.[key] || translations[defaultLanguage][key] || key;
+  const t = (key: string, options?: Record<string, any>) => {
+    let text = translations[lang]?.[key] || translations[defaultLanguage][key] || key;
+    
+    // Replace variables like {{count}} with their values
+    if (options) {
+      Object.keys(options).forEach(optionKey => {
+        text = text.replace(`{{${optionKey}}}`, options[optionKey]);
+      });
+    }
+    
+    return text;
   };
 
   return (
