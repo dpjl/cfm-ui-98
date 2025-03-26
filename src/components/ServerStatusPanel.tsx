@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { ServerStatus, ServerSettings } from '@/api/serverApi';
+import { ServerStatus } from '@/api/serverApi';
 import { useServerStatus } from '@/hooks/use-server-status';
 import { Badge } from '@/components/ui/badge';
 import { HardDrive, Activity, Cog, AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -56,8 +56,8 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({ isOpen, onOpenCha
   const { data, isLoading, error } = useServerStatus();
   const isMobile = useIsMobile();
   
-  const serverStatus: ServerStatus | undefined = data?.status;
-  const serverSettings: ServerSettings | undefined = data?.settings;
+  const serverStatus = data?.status;
+  const serverSettings = data?.settings;
   
   const statusState = error 
     ? 'offline' 
@@ -141,18 +141,18 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({ isOpen, onOpenCha
                       Memory
                     </h3>
                     <p className="text-2xl font-bold">{memoryUsage} <span className="text-sm font-normal text-muted-foreground">/ {totalMemory}</span></p>
-                    {serverStatus?.memoryUsage && serverStatus?.totalMemory && (
+                    {serverStatus?.memoryUsage !== undefined && serverStatus?.totalMemory !== undefined && (
                       <p className="text-xs text-muted-foreground">
                         {((serverStatus.memoryUsage / serverStatus.totalMemory) * 100).toFixed(1)}% used
                       </p>
                     )}
                   </div>
                   
-                  {serverStatus?.diskUsage && (
+                  {serverStatus?.diskUsage !== undefined && (
                     <div className="bg-card p-4 rounded-md border">
                       <h3 className="font-medium mb-2">Disk Usage</h3>
                       <p className="text-2xl font-bold">{formatMemory(serverStatus.diskUsage)} <span className="text-sm font-normal text-muted-foreground">/ {formatMemory(serverStatus.totalDiskSpace)}</span></p>
-                      {serverStatus?.diskUsage && serverStatus?.totalDiskSpace && (
+                      {serverStatus?.diskUsage !== undefined && serverStatus?.totalDiskSpace !== undefined && (
                         <p className="text-xs text-muted-foreground">
                           {((serverStatus.diskUsage / serverStatus.totalDiskSpace) * 100).toFixed(1)}% used
                         </p>
@@ -171,7 +171,7 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({ isOpen, onOpenCha
                   )}
                 </div>
                 
-                {serverStatus?.activeProcesses && (
+                {serverStatus?.activeProcesses && serverStatus.activeProcesses.length > 0 && (
                   <>
                     <Separator />
                     <div>

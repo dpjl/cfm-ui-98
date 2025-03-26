@@ -3,12 +3,28 @@ import { API_BASE_URL } from './constants';
 
 export interface ServerStatus {
   isAccessible: boolean;
+  isRunning?: boolean;
   sourceDirectory: string;
   destinationDirectory: string;
   sourceFileCount: number;
   destinationFileCount: number;
   lastExecutionDate: string | null;
   destinationFormat: string;
+  
+  // Additional properties used in the ServerStatusPanel
+  cpuUsage?: number;
+  cpuCores?: number;
+  memoryUsage?: number;
+  totalMemory?: number;
+  diskUsage?: number;
+  totalDiskSpace?: number;
+  uptimeSeconds?: number;
+  lastUpdated?: string;
+  activeProcesses?: Array<{
+    name: string;
+    cpuUsage: number;
+    memoryUsage: number;
+  }>;
 }
 
 export async function fetchServerStatus(): Promise<ServerStatus> {
@@ -39,12 +55,28 @@ export async function fetchServerStatus(): Promise<ServerStatus> {
     console.log("Using mock server status due to error");
     return {
       isAccessible: false,
+      isRunning: false,
       sourceDirectory: '/mock/source/directory/path',
       destinationDirectory: '/mock/destination/directory/path',
       sourceFileCount: 1250,
       destinationFileCount: 1175,
       lastExecutionDate: new Date().toISOString(),
-      destinationFormat: 'YYYY/MM/DD'
+      destinationFormat: 'YYYY/MM/DD',
+      
+      // Mock data for the panel
+      cpuUsage: 0.25,
+      cpuCores: 8,
+      memoryUsage: 4.2 * 1024 * 1024 * 1024, // 4.2 GB
+      totalMemory: 16 * 1024 * 1024 * 1024, // 16 GB
+      diskUsage: 256 * 1024 * 1024 * 1024, // 256 GB
+      totalDiskSpace: 1024 * 1024 * 1024 * 1024, // 1 TB
+      uptimeSeconds: 3600 * 24 * 3, // 3 days
+      lastUpdated: new Date().toISOString(),
+      activeProcesses: [
+        { name: 'photo-sync', cpuUsage: 0.15, memoryUsage: 1.2 * 1024 * 1024 * 1024 },
+        { name: 'database', cpuUsage: 0.08, memoryUsage: 0.8 * 1024 * 1024 * 1024 },
+        { name: 'web-server', cpuUsage: 0.02, memoryUsage: 0.4 * 1024 * 1024 * 1024 }
+      ]
     };
   }
 }

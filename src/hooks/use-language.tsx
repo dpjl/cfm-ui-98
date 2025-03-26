@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useLocalStorage } from './use-local-storage';
 
@@ -6,7 +7,7 @@ type Language = 'en' | 'fr';
 interface LanguageContextProps {
   language: Language;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, any>) => string;
   dictionary: Record<Language, Record<string, string>>;
 }
 
@@ -36,10 +37,12 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       hide_dates: 'Hide dates',
       preview: 'Preview',
       delete: 'Delete',
+      deleting: 'Deleting...',
       close_sidebars: 'Close sidebars',
       refresh: 'Refresh',
       confirm_delete: 'Confirm Delete',
-      confirm_delete_description: 'Are you sure you want to delete these items? This action cannot be undone.',
+      delete_confirmation_title: 'Delete Selected Items',
+      delete_confirmation_description: 'Are you sure you want to delete these items? This action cannot be undone.',
       cancel: 'Cancel',
       date: 'Date',
       size: 'Size',
@@ -63,10 +66,12 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       hide_dates: 'Masquer les dates',
       preview: 'Aperçu',
       delete: 'Supprimer',
+      deleting: 'Suppression...',
       close_sidebars: 'Fermer les panneaux',
       refresh: 'Actualiser',
       confirm_delete: 'Confirmer la suppression',
-      confirm_delete_description: 'Êtes-vous sûr de vouloir supprimer ces éléments ? Cette action ne peut pas être annulée.',
+      delete_confirmation_title: 'Supprimer les éléments sélectionnés',
+      delete_confirmation_description: 'Êtes-vous sûr de vouloir supprimer ces éléments ? Cette action ne peut pas être annulée.',
       cancel: 'Annuler',
       date: 'Date',
       size: 'Taille',
@@ -82,8 +87,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
   
-  const t = React.useCallback((key: string): string => {
-    return dictionary[language][key] || key;
+  const t = React.useCallback((key: string, params?: Record<string, any>): string => {
+    let text = dictionary[language][key] || key;
+    
+    if (params) {
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        text = text.replace(new RegExp(`{${paramKey}}`, 'g'), String(paramValue));
+      });
+    }
+    
+    return text;
   }, [language]);
   
   const value = React.useMemo(() => {
