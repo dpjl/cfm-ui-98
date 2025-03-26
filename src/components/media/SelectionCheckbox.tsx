@@ -20,11 +20,12 @@ const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
   return (
     <div 
       className={cn(
-        "image-checkbox absolute z-20",
+        "absolute z-20 touch-none",
         isMobile ? "top-1 left-1" : "top-2 left-2"
       )}
       onClick={(e) => {
-        e.stopPropagation(); // S'assurer que le clic ne se propage pas
+        e.preventDefault();
+        e.stopPropagation();
         onSelect(e);
       }}
     >
@@ -32,14 +33,11 @@ const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
         checked={selected}
         className={cn(
           "border-2",
-          isMobile ? "h-4 w-4" : "h-5 w-5",
+          isMobile ? "h-5 w-5" : "h-5 w-5",
           selected ? "border-primary bg-primary shadow-md" : "border-white bg-white/30 shadow-sm",
-          "transition-all duration-200 ease-out",
+          "transition-all duration-200 ease-out touch-none",
           !loaded && "opacity-0"
         )}
-        onTouchEnd={(e) => {
-          e.stopPropagation(); // Arrêter la propagation sur les appareils tactiles
-        }}
       />
     </div>
   );

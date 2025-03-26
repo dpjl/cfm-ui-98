@@ -1,11 +1,13 @@
 
 import React, { memo } from 'react';
-import { RefreshCw, Trash2, PanelLeftClose } from 'lucide-react';
+import { RefreshCw, Trash2, PanelLeftClose, ChevronDown, ChevronUp, Server } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { MobileViewMode } from '@/types/gallery';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 interface PageHeaderProps {
   selectedIdsLeft?: string[];
@@ -17,6 +19,8 @@ interface PageHeaderProps {
   onCloseSidebars?: () => void;
   mobileViewMode?: MobileViewMode;
   setMobileViewMode?: React.Dispatch<React.SetStateAction<MobileViewMode>>;
+  onToggleServerPanel?: () => void;
+  isServerPanelOpen?: boolean;
 }
 
 const PageHeader = memo(({
@@ -28,7 +32,9 @@ const PageHeader = memo(({
   isSidebarOpen = false,
   onCloseSidebars,
   mobileViewMode,
-  setMobileViewMode
+  setMobileViewMode,
+  onToggleServerPanel,
+  isServerPanelOpen = false
 }: PageHeaderProps) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
@@ -37,9 +43,35 @@ const PageHeader = memo(({
 
   return (
     <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm p-3 flex items-center justify-between border-b border-border/30">
-      <h1 className="text-lg font-medium">{t('media_gallery')}</h1>
+      {/* Left section with logo and title */}
+      <div className="flex items-center gap-4">
+        <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
+        <h1 className="text-lg font-medium">{t('media_gallery')}</h1>
+      </div>
       
+      {/* Right section with controls */}
       <div className="flex items-center gap-2">
+        {/* Server status toggle on mobile */}
+        {isMobile && onToggleServerPanel && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onToggleServerPanel}
+                  className="h-8 w-8"
+                >
+                  <Server className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t('server_status')}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
         {/* Refresh button */}
         <TooltipProvider>
           <Tooltip>
@@ -105,6 +137,12 @@ const PageHeader = memo(({
             </Tooltip>
           </TooltipProvider>
         )}
+
+        {/* Theme and Language toggles */}
+        <div className="flex items-center gap-2 ml-2">
+          <ThemeToggle />
+          <LanguageToggle />
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
@@ -19,7 +18,6 @@ const Index = () => {
   
   const isMobile = useIsMobile();
   
-  // Column count states for different modes and sides
   const [desktopColumnsLeft, setDesktopColumnsLeft] = useState<number>(5);
   const [desktopColumnsRight, setDesktopColumnsRight] = useState<number>(5);
   const [mobileSplitColumnsLeft, setMobileSplitColumnsLeft] = useState<number>(2);
@@ -36,10 +34,10 @@ const Index = () => {
   const [mobileViewMode, setMobileViewMode] = useState<MobileViewMode>('both');
   const [leftFilter, setLeftFilter] = useState<MediaFilter>('all');
   const [rightFilter, setRightFilter] = useState<MediaFilter>('all');
+  const [serverPanelOpen, setServerPanelOpen] = useState(false);
   
   const queryClient = useQueryClient();
   
-  // Get current column counts based on mode and side
   const getCurrentColumnsLeft = (): number => {
     if (isMobile) {
       return mobileViewMode === 'both' ? mobileSplitColumnsLeft : mobileSingleColumnsLeft;
@@ -54,7 +52,6 @@ const Index = () => {
     return desktopColumnsRight;
   };
   
-  // Handle column count changes from sidebar
   const handleLeftColumnsChange = (viewMode: 'desktop' | 'mobile-split' | 'mobile-single', count: number) => {
     switch (viewMode) {
       case 'desktop':
@@ -142,7 +139,10 @@ const Index = () => {
   return (
     <LanguageProvider>
       <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
-        <ServerStatusPanel />
+        <ServerStatusPanel 
+          isOpen={serverPanelOpen}
+          onOpenChange={setServerPanelOpen}
+        />
         
         <div className="flex h-full overflow-hidden mt-2 relative">
           <SidePanel 
@@ -173,6 +173,8 @@ const Index = () => {
               selectedIdsLeft={selectedIdsLeft}
               selectedIdsRight={selectedIdsRight}
               onDelete={handleDelete}
+              onToggleServerPanel={() => setServerPanelOpen(!serverPanelOpen)}
+              isServerPanelOpen={serverPanelOpen}
             />
             
             <GalleriesContainer 
