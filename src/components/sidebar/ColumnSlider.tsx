@@ -15,7 +15,7 @@ interface ColumnSliderProps {
   max?: number;
   step?: number;
   label?: string;
-  viewType: 'desktop' | 'mobile-split' | 'mobile-single';
+  viewType: 'desktop' | 'desktop-single' | 'mobile-split' | 'mobile-single';
   currentMobileViewMode?: MobileViewMode;
 }
 
@@ -35,16 +35,28 @@ const ColumnSlider: React.FC<ColumnSliderProps> = ({
 
   // Check if this slider should be visible based on the current view mode
   const isVisible = () => {
-    if (!isMobile) return viewType === 'desktop';
+    if (!isMobile) {
+      // On desktop, only show appropriate sliders
+      if (viewType === 'desktop') {
+        return currentMobileViewMode === 'both';
+      }
+      if (viewType === 'desktop-single') {
+        return currentMobileViewMode !== 'both';
+      }
+      // Don't show mobile sliders on desktop
+      return false;
+    }
     
+    // On mobile
     if (viewType === 'mobile-split') {
       return currentMobileViewMode === 'both';
     }
     
     if (viewType === 'mobile-single') {
-      return currentMobileViewMode === position;
+      return currentMobileViewMode === position || currentMobileViewMode !== 'both';
     }
     
+    // Don't show desktop sliders on mobile
     return false;
   };
 
@@ -52,7 +64,7 @@ const ColumnSlider: React.FC<ColumnSliderProps> = ({
 
   // Get appropriate icon based on view type
   const getIcon = () => {
-    if (viewType === 'desktop') return <Monitor className="h-3 w-3" />;
+    if (viewType.startsWith('desktop')) return <Monitor className="h-3 w-3" />;
     if (viewType === 'mobile-split') return <Smartphone className="h-3 w-3" />;
     return <Columns className="h-3 w-3" />;
   };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
@@ -9,7 +8,7 @@ import SidePanel from '@/components/layout/SidePanel';
 import GalleriesContainer from '@/components/layout/GalleriesContainer';
 import PageHeader from '@/components/layout/PageHeader';
 import ServerStatusPanel from '@/components/ServerStatusPanel';
-import { MobileViewMode } from '@/types/gallery';
+import { MobileViewMode, ViewModeType } from '@/types/gallery';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
@@ -88,6 +87,15 @@ const Index = () => {
       } else {
         setDesktopSingleColumnsRight(count);
       }
+    }
+  };
+  
+  // Map view mode to column configuration type
+  const getViewModeType = (position: 'left' | 'right', currentViewMode: MobileViewMode): ViewModeType => {
+    if (isMobile) {
+      return currentViewMode === 'both' ? 'mobile-split' : 'mobile-single';
+    } else {
+      return currentViewMode === 'both' ? 'desktop' : 'desktop-single';
     }
   };
   
@@ -191,14 +199,15 @@ const Index = () => {
               selectedFilter={leftFilter}
               onFilterChange={setLeftFilter}
               mobileViewMode={viewMode}
-              onColumnsChange={(viewMode, count) => {
-                if (viewMode === 'desktop') {
+              onColumnsChange={(viewType, count) => {
+                const viewModeType = viewType as ViewModeType;
+                if (viewModeType === 'desktop') {
                   setDesktopColumnsLeft(count);
-                } else if (viewMode === 'desktop-single') {
+                } else if (viewModeType === 'desktop-single') {
                   setDesktopSingleColumnsLeft(count);
-                } else if (viewMode === 'mobile-split') {
+                } else if (viewModeType === 'mobile-split') {
                   setMobileSplitColumnsLeft(count);
-                } else if (viewMode === 'mobile-single') {
+                } else if (viewModeType === 'mobile-single') {
                   setMobileSingleColumnsLeft(count);
                 }
               }}
@@ -242,14 +251,15 @@ const Index = () => {
               selectedFilter={rightFilter}
               onFilterChange={setRightFilter}
               mobileViewMode={viewMode}
-              onColumnsChange={(viewMode, count) => {
-                if (viewMode === 'desktop') {
+              onColumnsChange={(viewType, count) => {
+                const viewModeType = viewType as ViewModeType;
+                if (viewModeType === 'desktop') {
                   setDesktopColumnsRight(count);
-                } else if (viewMode === 'desktop-single') {
+                } else if (viewModeType === 'desktop-single') {
                   setDesktopSingleColumnsRight(count);
-                } else if (viewMode === 'mobile-split') {
+                } else if (viewModeType === 'mobile-split') {
                   setMobileSplitColumnsRight(count);
-                } else if (viewMode === 'mobile-single') {
+                } else if (viewModeType === 'mobile-single') {
                   setMobileSingleColumnsRight(count);
                 }
               }}

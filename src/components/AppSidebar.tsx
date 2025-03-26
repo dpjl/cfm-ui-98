@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDirectoryTree } from '@/api/imageApi';
@@ -11,7 +12,7 @@ import { useIsMobile } from '@/hooks/use-breakpoint';
 import { Separator } from '@/components/ui/separator';
 import ColumnSlider from '@/components/sidebar/ColumnSlider';
 import { useColumnsCount } from '@/hooks/use-columns-count';
-import { MobileViewMode } from '@/types/gallery';
+import { MobileViewMode, ViewModeType } from '@/types/gallery';
 
 // Define our filter types
 export type MediaFilter = 'all' | 'unique' | 'duplicates' | 'exclusive' | 'common';
@@ -23,7 +24,7 @@ interface AppSidebarProps {
   selectedFilter?: MediaFilter;
   onFilterChange?: (filter: MediaFilter) => void;
   mobileViewMode?: MobileViewMode;
-  onColumnsChange?: (viewMode: 'desktop' | 'mobile-split' | 'mobile-single', count: number) => void;
+  onColumnsChange?: (viewMode: string, count: number) => void;
 }
 
 interface FilterOption {
@@ -87,16 +88,18 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   useEffect(() => {
     if (!onColumnsChange) return;
     
-    const updateColumns = (viewMode: 'desktop' | 'mobile-split' | 'mobile-single') => {
-      onColumnsChange(viewMode, columnSettings.getColumnCount(viewMode));
+    const updateColumns = (viewMode: string) => {
+      onColumnsChange(viewMode, columnSettings.getColumnCount(viewMode as any));
     };
     
     // Update all view modes
     updateColumns('desktop');
+    updateColumns('desktop-single');
     updateColumns('mobile-split');
     updateColumns('mobile-single');
   }, [
     columnSettings.desktopColumns, 
+    columnSettings.desktopSingleColumns,
     columnSettings.mobileSplitColumns, 
     columnSettings.mobileSingleColumns,
     onColumnsChange
@@ -143,6 +146,18 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
             max={10}
             label={t('desktop_columns')}
             viewType="desktop"
+            currentMobileViewMode={mobileViewMode}
+          />
+          
+          <ColumnSlider 
+            position={position}
+            value={columnSettings.desktopSingleColumns}
+            onChange={columnSettings.updateDesktopSingleColumns}
+            min={2}
+            max={10}
+            label={t('desktop_single_columns')}
+            viewType="desktop-single"
+            currentMobileViewMode={mobileViewMode}
           />
           
           <ColumnSlider 
