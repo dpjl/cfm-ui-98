@@ -47,13 +47,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
   // Desktop sheet implementation
   return <>
       {/* Closed state button/indicator - simplified to only show text */}
-      {!isOpen && <Button variant="ghost" size="icon" className={cn("fixed z-40 h-24 w-10 bg-primary/10 hover:bg-primary/20 transition-all duration-300", position === 'left' ? "left-0 top-1/3 rounded-r-md" : "right-0 top-1/3 rounded-l-md", isHovered && "bg-primary/20 w-12")} onClick={() => onOpenChange(true)} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-          <div className="flex items-center justify-center h-full">
-            <div className={cn("text-xs font-medium tracking-wide text-foreground/70 whitespace-nowrap", position === 'left' ? "rotate-90 origin-center" : "-rotate-90 origin-center")}>
-              {title}
-            </div>
-          </div>
-        </Button>}
+      {!isOpen}
       
       {/* Open state */}
       <Sheet open={isOpen} onOpenChange={onOpenChange} modal={false}>
