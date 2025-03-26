@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
-import { ThemeProvider } from '@/hooks/use-theme';
 import { useToast } from '@/components/ui/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteImages } from '@/api/imageApi';
@@ -12,7 +10,6 @@ import PageHeader from '@/components/layout/PageHeader';
 import ServerStatusPanel from '@/components/ServerStatusPanel';
 import { MobileViewMode } from '@/types/gallery';
 import { useIsMobile } from '@/hooks/use-breakpoint';
-import { useColumnsCount } from '@/hooks/use-columns-count';
 
 const Index = () => {
   const { toast } = useToast();
@@ -21,9 +18,14 @@ const Index = () => {
   
   const isMobile = useIsMobile();
   
-  // Use the hooks to manage column counts with persistence
-  const leftColumns = useColumnsCount('left');
-  const rightColumns = useColumnsCount('right');
+  const [desktopColumnsLeft, setDesktopColumnsLeft] = useState<number>(5);
+  const [desktopColumnsRight, setDesktopColumnsRight] = useState<number>(5);
+  const [desktopSingleColumnsLeft, setDesktopSingleColumnsLeft] = useState<number>(6);
+  const [desktopSingleColumnsRight, setDesktopSingleColumnsRight] = useState<number>(6);
+  const [mobileSplitColumnsLeft, setMobileSplitColumnsLeft] = useState<number>(2);
+  const [mobileSplitColumnsRight, setMobileSplitColumnsRight] = useState<number>(2);
+  const [mobileSingleColumnsLeft, setMobileSingleColumnsLeft] = useState<number>(4);
+  const [mobileSingleColumnsRight, setMobileSingleColumnsRight] = useState<number>(4);
   
   const [selectedIdsLeft, setSelectedIdsLeft] = useState<string[]>([]);
   const [selectedIdsRight, setSelectedIdsRight] = useState<string[]>([]);
@@ -38,27 +40,52 @@ const Index = () => {
   
   const queryClient = useQueryClient();
   
-  // Get column counts based on current view mode
   const getCurrentColumnsLeft = (): number => {
     if (isMobile) {
-      return viewMode === 'both' 
-        ? leftColumns.getColumnCount('mobile-split')
-        : leftColumns.getColumnCount('mobile-single');
+      return viewMode === 'both' ? mobileSplitColumnsLeft : mobileSingleColumnsLeft;
     }
-    return viewMode === 'both'
-      ? leftColumns.getColumnCount('desktop')
-      : leftColumns.getColumnCount('desktop-left');
+    return viewMode === 'both' ? desktopColumnsLeft : desktopSingleColumnsLeft;
   };
   
   const getCurrentColumnsRight = (): number => {
     if (isMobile) {
-      return viewMode === 'both'
-        ? rightColumns.getColumnCount('mobile-split')
-        : rightColumns.getColumnCount('mobile-single');
+      return viewMode === 'both' ? mobileSplitColumnsRight : mobileSingleColumnsRight;
     }
-    return viewMode === 'both'
-      ? rightColumns.getColumnCount('desktop')
-      : rightColumns.getColumnCount('desktop-right');
+    return viewMode === 'both' ? desktopColumnsRight : desktopSingleColumnsRight;
+  };
+  
+  const handleLeftColumnsChange = (viewMode: 'desktop' | 'desktop-single' | 'mobile-split' | 'mobile-single', count: number) => {
+    switch (viewMode) {
+      case 'desktop':
+        setDesktopColumnsLeft(count);
+        break;
+      case 'desktop-single':
+        setDesktopSingleColumnsLeft(count);
+        break;
+      case 'mobile-split':
+        setMobileSplitColumnsLeft(count);
+        break;
+      case 'mobile-single':
+        setMobileSingleColumnsLeft(count);
+        break;
+    }
+  };
+  
+  const handleRightColumnsChange = (viewMode: 'desktop' | 'desktop-single' | 'mobile-split' | 'mobile-single', count: number) => {
+    switch (viewMode) {
+      case 'desktop':
+        setDesktopColumnsRight(count);
+        break;
+      case 'desktop-single':
+        setDesktopSingleColumnsRight(count);
+        break;
+      case 'mobile-split':
+        setMobileSplitColumnsRight(count);
+        break;
+      case 'mobile-single':
+        setMobileSingleColumnsRight(count);
+        break;
+    }
   };
   
   const deleteMutation = useMutation({
@@ -117,105 +144,87 @@ const Index = () => {
 
   const isSidebarOpen = leftPanelOpen || rightPanelOpen;
 
-  const toggleLeftPanel = () => {
-    setLeftPanelOpen(!leftPanelOpen);
-    if (!leftPanelOpen) {
-      setRightPanelOpen(false);
-    }
-  };
-
-  const toggleRightPanel = () => {
-    setRightPanelOpen(!rightPanelOpen);
-    if (!rightPanelOpen) {
-      setLeftPanelOpen(false);
-    }
-  };
-
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
-          <ServerStatusPanel 
-            isOpen={serverPanelOpen}
-            onOpenChange={setServerPanelOpen}
-          />
-          
-          <PageHeader 
-            onRefresh={handleRefresh}
-            isDeletionPending={deleteMutation.isPending}
-            isSidebarOpen={isSidebarOpen}
-            onCloseSidebars={closeBothSidebars}
-            mobileViewMode={viewMode}
-            setMobileViewMode={setViewMode}
-            selectedIdsLeft={selectedIdsLeft}
-            selectedIdsRight={selectedIdsRight}
-            onDelete={handleDelete}
-            onToggleServerPanel={() => setServerPanelOpen(!serverPanelOpen)}
-            isServerPanelOpen={serverPanelOpen}
-            onToggleLeftPanel={toggleLeftPanel}
-            onToggleRightPanel={toggleRightPanel}
-          />
-          
-          <div className="flex h-full overflow-hidden mt-2 relative">
-            <SidePanel 
-              position="left" 
-              isOpen={leftPanelOpen} 
-              onOpenChange={setLeftPanelOpen}
-              title="Source"
-            >
-              <AppSidebar
-                selectedDirectoryId={selectedDirectoryIdLeft}
-                onSelectDirectory={setSelectedDirectoryIdLeft}
-                position="left"
-                selectedFilter={leftFilter}
-                onFilterChange={setLeftFilter}
-                mobileViewMode={viewMode}
-              />
-            </SidePanel>
+    <LanguageProvider>
+      <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
+        <ServerStatusPanel 
+          isOpen={serverPanelOpen}
+          onOpenChange={setServerPanelOpen}
+        />
+        
+        <div className="flex h-full overflow-hidden mt-2 relative">
+          <SidePanel 
+            position="left" 
+            isOpen={leftPanelOpen} 
+            onOpenChange={setLeftPanelOpen}
+            title="Source"
+          >
+            <AppSidebar
+              selectedDirectoryId={selectedDirectoryIdLeft}
+              onSelectDirectory={setSelectedDirectoryIdLeft}
+              position="left"
+              selectedFilter={leftFilter}
+              onFilterChange={setLeftFilter}
+              mobileViewMode={viewMode}
+              onColumnsChange={handleLeftColumnsChange}
+            />
+          </SidePanel>
 
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <GalleriesContainer 
-                columnsCountLeft={getCurrentColumnsLeft()}
-                columnsCountRight={getCurrentColumnsRight()}
-                selectedIdsLeft={selectedIdsLeft}
-                setSelectedIdsLeft={setSelectedIdsLeft}
-                selectedIdsRight={selectedIdsRight}
-                setSelectedIdsRight={setSelectedIdsRight}
-                selectedDirectoryIdLeft={selectedDirectoryIdLeft}
-                selectedDirectoryIdRight={selectedDirectoryIdRight}
-                deleteDialogOpen={deleteDialogOpen}
-                setDeleteDialogOpen={setDeleteDialogOpen}
-                activeSide={activeSide}
-                deleteMutation={deleteMutation}
-                handleDeleteSelected={handleDeleteSelected}
-                mobileViewMode={viewMode}
-                setMobileViewMode={setViewMode}
-                leftFilter={leftFilter}
-                rightFilter={rightFilter}
-                onToggleLeftPanel={toggleLeftPanel}
-                onToggleRightPanel={toggleRightPanel}
-              />
-            </div>
-
-            <SidePanel 
-              position="right" 
-              isOpen={rightPanelOpen} 
-              onOpenChange={setRightPanelOpen}
-              title="Destination"
-            >
-              <AppSidebar
-                selectedDirectoryId={selectedDirectoryIdRight}
-                onSelectDirectory={setSelectedDirectoryIdRight}
-                position="right"
-                selectedFilter={rightFilter}
-                onFilterChange={setRightFilter}
-                mobileViewMode={viewMode}
-              />
-            </SidePanel>
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <PageHeader 
+              onRefresh={() => {}}
+              isDeletionPending={deleteMutation.isPending}
+              isSidebarOpen={isSidebarOpen}
+              onCloseSidebars={closeBothSidebars}
+              mobileViewMode={viewMode}
+              setMobileViewMode={setViewMode}
+              selectedIdsLeft={selectedIdsLeft}
+              selectedIdsRight={selectedIdsRight}
+              onDelete={handleDelete}
+              onToggleServerPanel={() => setServerPanelOpen(!serverPanelOpen)}
+              isServerPanelOpen={serverPanelOpen}
+            />
+            
+            <GalleriesContainer 
+              columnsCountLeft={getCurrentColumnsLeft()}
+              columnsCountRight={getCurrentColumnsRight()}
+              selectedIdsLeft={selectedIdsLeft}
+              setSelectedIdsLeft={setSelectedIdsLeft}
+              selectedIdsRight={selectedIdsRight}
+              setSelectedIdsRight={setSelectedIdsRight}
+              selectedDirectoryIdLeft={selectedDirectoryIdLeft}
+              selectedDirectoryIdRight={selectedDirectoryIdRight}
+              deleteDialogOpen={deleteDialogOpen}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              activeSide={activeSide}
+              deleteMutation={deleteMutation}
+              handleDeleteSelected={handleDeleteSelected}
+              mobileViewMode={viewMode}
+              setMobileViewMode={setViewMode}
+              leftFilter={leftFilter}
+              rightFilter={rightFilter}
+            />
           </div>
+
+          <SidePanel 
+            position="right" 
+            isOpen={rightPanelOpen} 
+            onOpenChange={setRightPanelOpen}
+            title="Destination"
+          >
+            <AppSidebar
+              selectedDirectoryId={selectedDirectoryIdRight}
+              onSelectDirectory={setSelectedDirectoryIdRight}
+              position="right"
+              selectedFilter={rightFilter}
+              onFilterChange={setRightFilter}
+              mobileViewMode={viewMode}
+              onColumnsChange={handleRightColumnsChange}
+            />
+          </SidePanel>
         </div>
-      </LanguageProvider>
-    </ThemeProvider>
+      </div>
+    </LanguageProvider>
   );
 };
 

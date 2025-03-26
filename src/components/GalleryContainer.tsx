@@ -8,8 +8,6 @@ import GalleryContent from '@/components/gallery/GalleryContent';
 import DeleteConfirmationDialog from '@/components/gallery/DeleteConfirmationDialog';
 import { MediaFilter } from '@/components/AppSidebar';
 import { useIsMobile } from '@/hooks/use-breakpoint';
-import { Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface GalleryContainerProps {
   title: string;
@@ -26,7 +24,6 @@ interface GalleryContainerProps {
   viewMode?: 'single' | 'split';
   filter?: MediaFilter;
   hideMobileColumns?: boolean;
-  onToggleSidebar?: () => void;
 }
 
 const GalleryContainer: React.FC<GalleryContainerProps> = ({
@@ -43,8 +40,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   hideHeader = false,
   viewMode = 'single',
   filter = 'all',
-  hideMobileColumns = false,
-  onToggleSidebar
+  hideMobileColumns = false
 }) => {
   const { t } = useLanguage();
   const [mediaIds, setMediaIds] = useState<string[]>([]);
@@ -100,17 +96,11 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     deleteMutation.mutate(selectedIds);
   };
 
-  // Create extra controls for the header (sidebar toggle button for desktop)
-  const extraControls = !isMobile && onToggleSidebar ? (
-    <Button
-      variant="outline"
-      size="icon"
-      onClick={onToggleSidebar}
-      className="h-8 w-8"
-    >
-      <Settings className="h-4 w-4" />
-    </Button>
-  ) : null;
+  // Create extra controls for the header
+  const extraControls = React.useMemo(() => {
+    // You would implement any extra controls here if needed
+    return null;
+  }, []);
   
   return (
     <div className="flex flex-col h-full overflow-hidden">
