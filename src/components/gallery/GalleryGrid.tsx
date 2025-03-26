@@ -13,9 +13,6 @@ interface GalleryGridProps {
   showDates?: boolean;
   updateMediaInfo?: (id: string, info: DetailedMediaInfo) => void;
   position: 'source' | 'destination';
-  onTouchStart?: (id: string) => void;
-  onTouchEnd?: () => void;
-  isMultiSelectMode?: boolean;
 }
 
 // Using memo to prevent unnecessary re-renders
@@ -27,10 +24,7 @@ const GalleryGrid = memo(({
   viewMode = 'single',
   showDates = false,
   updateMediaInfo,
-  position = 'source',
-  onTouchStart,
-  onTouchEnd,
-  isMultiSelectMode = false
+  position = 'source'
 }: GalleryGridProps) => {
   // Simplified container variants for better performance
   const containerVariants = {
@@ -63,9 +57,6 @@ const GalleryGrid = memo(({
           showDates={showDates}
           updateMediaInfo={updateMediaInfo}
           position={position}
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-          isMultiSelectMode={isMultiSelectMode}
         />
       ))}
     </motion.div>

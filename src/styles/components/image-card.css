@@ -1,55 +1,50 @@
 
-.image-card {
-  position: relative;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  transition: all 0.2s ease-out;
-}
-
-.image-card.selected {
-  box-shadow: 0 0 0 3px theme('colors.primary.DEFAULT');
-}
-
-.image-card.multi-select-mode {
-  box-shadow: 0 0 0 2px theme('colors.primary.400/50');
-}
-
-.image-card:hover .image-overlay {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.image-card:active .image-overlay {
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
-.image-card.selected .image-overlay {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.image-overlay {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0);
-  transition: background-color 0.2s ease;
-}
-
-.image-checkbox {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  z-index: 10;
-  opacity: 0;
-  transition: opacity 0.2s ease-out;
-}
-
-.image-card:hover .image-checkbox,
-.image-card.selected .image-checkbox,
-.image-card.multi-select-mode .image-checkbox {
-  opacity: 1;
-}
-
-@media (max-width: 640px) {
-  .image-checkbox {
-    opacity: 1;
+@layer components {
+  .image-card {
+    @apply relative overflow-hidden rounded-lg transition-all duration-300 ease-out cursor-pointer shadow-subtle hover:shadow-elevation;
+    backface-visibility: hidden;
+    transform: translateZ(0); /* Force GPU acceleration */
+    user-select: none; /* Prevent text selection from interfering with clicks */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+  }
+  
+  .image-card.selected {
+    @apply ring-2 ring-primary ring-offset-2;
+  }
+  
+  .image-card img,
+  .image-card video {
+    @apply w-full h-full object-cover transition-all duration-300 ease-out;
+    pointer-events: none; /* Prevent image/video from capturing clicks */
+  }
+  
+  .image-card:hover img,
+  .image-card:hover video {
+    @apply scale-105;
+  }
+  
+  .image-card .image-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 transition-opacity duration-300;
+    pointer-events: none; /* Prevent overlay from capturing clicks */
+  }
+  
+  .image-card:hover .image-overlay {
+    @apply opacity-100;
+  }
+  
+  .image-card .image-checkbox {
+    @apply absolute z-10 transition-all duration-200 ease-out;
+  }
+  
+  /* Mobile responsive adjustments */
+  @media (max-width: 640px) {
+    .image-card {
+      @apply rounded-md shadow-sm;
+      touch-action: manipulation; /* Optimize for touch interactions */
+    }
+    
+    .image-card.selected {
+      @apply ring-1 ring-offset-1;
+    }
   }
 }

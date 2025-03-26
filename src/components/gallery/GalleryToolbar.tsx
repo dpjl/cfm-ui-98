@@ -1,13 +1,11 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useIsMobile } from '@/hooks/use-breakpoint';
+import { CheckSquare, Square, Calendar, CalendarOff, Eye, Download, Trash2, PanelLeft, PanelRight, Settings } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
-import GallerySelectionBar from './GallerySelectionBar';
+import { useIsMobile } from '@/hooks/use-breakpoint';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DetailedMediaInfo } from '@/api/imageApi';
-import { Eye, Trash2, Download, PanelLeft, PanelRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface GalleryToolbarProps {
   selectedIds: string[];
@@ -16,15 +14,13 @@ interface GalleryToolbarProps {
   onDeselectAll: () => void;
   showDates: boolean;
   onToggleDates: () => void;
-  viewMode: 'single' | 'split';
-  onOpenPreview: (id: string) => void;
+  viewMode?: 'single' | 'split';
+  onOpenPreview?: (id: string) => void;
   onDeleteSelected: () => void;
   onDownloadSelected: (ids: string[]) => void;
   mediaInfoMap?: Map<string, DetailedMediaInfo | null>;
   position?: 'source' | 'destination';
   onToggleSidebar?: () => void;
-  isMultiSelectMode?: boolean;
-  setIsMultiSelectMode?: (value: boolean) => void;
 }
 
 const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
@@ -34,108 +30,167 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
   onDeselectAll,
   showDates,
   onToggleDates,
-  viewMode,
+  viewMode = 'single',
   onOpenPreview,
   onDeleteSelected,
   onDownloadSelected,
-  mediaInfoMap = new Map(),
+  mediaInfoMap,
   position = 'source',
   onToggleSidebar,
-  isMultiSelectMode = false,
-  setIsMultiSelectMode
 }) => {
-  const isMobile = useIsMobile();
   const { t } = useLanguage();
-  
-  // Get info for the selected item (if only one is selected)
-  const singleSelectedItemInfo = selectedIds.length === 1 ? mediaInfoMap.get(selectedIds[0]) : null;
+  const isMobile = useIsMobile();
+  const isCompactMode = viewMode === 'split';
+  const hasSelections = selectedIds.length > 0;
   
   return (
-    <div className="sticky top-0 z-10 py-2 space-y-2">
-      {/* Selection bar */}
-      <div className="flex justify-between items-center">
-        <GallerySelectionBar
-          selectedIds={selectedIds}
-          mediaIds={mediaIds}
-          onSelectAll={onSelectAll}
-          onDeselectAll={onDeselectAll}
-          showDates={showDates}
-          onToggleDates={onToggleDates}
-          viewMode={viewMode}
-        />
+    <div className="flex items-center justify-between w-full bg-background/90 backdrop-blur-sm py-1.5 px-3 rounded-md z-10 shadow-sm border border-border/30 mb-2">
+      <div className="flex items-center gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onSelectAll}
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+              >
+                <CheckSquare className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{t('select_all')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
-        <div className="flex items-center gap-1">
-          {/* Multi-select mode indicator */}
-          {isMultiSelectMode && setIsMultiSelectMode && (
-            <Badge 
-              variant="outline" 
-              className="bg-primary/10 hover:bg-primary/20 cursor-pointer"
-              onClick={() => setIsMultiSelectMode(false)}
-            >
-              {t('multi_select')} ×
-            </Badge>
-          )}
-          
-          {/* Sidebar toggle for mobile */}
-          {isMobile && onToggleSidebar && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 ml-1"
-              onClick={onToggleSidebar}
-            >
-              {position === 'source' ? (
-                <PanelLeft className="h-4 w-4" />
-              ) : (
-                <PanelRight className="h-4 w-4" />
-              )}
-            </Button>
-          )}
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onDeselectAll}
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+              >
+                <Square className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{t('deselect_all')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onToggleDates}
+                variant={showDates ? "default" : "outline"}
+                size="icon"
+                className="h-7 w-7"
+              >
+                {showDates ? (
+                  <Calendar className="h-3.5 w-3.5" />
+                ) : (
+                  <CalendarOff className="h-3.5 w-3.5" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{showDates ? t('hide_dates') : t('show_dates')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        {/* Sidebar toggle for desktop mode only */}
+        {!isMobile && onToggleSidebar && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={onToggleSidebar}
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7"
+                >
+                  <Settings className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p>{t('gallery_settings')}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
       
-      {/* Action buttons for selected items */}
-      {selectedIds.length > 0 && (
-        <div className={cn(
-          "flex items-center gap-1 bg-accent/20 p-1.5 rounded-md transition-all",
-          selectedIds.length === 1 && !isMultiSelectMode ? "opacity-0 h-0 pointer-events-none -mb-2" : "opacity-100"
-        )}>
-          <div className="flex-1 pl-1.5 text-xs font-medium">
-            {selectedIds.length} {selectedIds.length === 1 ? t('item_selected') : t('items_selected')}
-          </div>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="h-8"
-            onClick={() => onOpenPreview(selectedIds[0])}
-            disabled={selectedIds.length !== 1}
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            {!isMobile && t('preview')}
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="h-8"
-            onClick={() => onDownloadSelected(selectedIds)}
-          >
-            <Download className="h-4 w-4 mr-1" />
-            {!isMobile && t('download')}
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="h-8 text-destructive hover:text-destructive"
-            onClick={onDeleteSelected}
-          >
-            <Trash2 className="h-4 w-4 mr-1" />
-            {!isMobile && t('delete')}
-          </Button>
+      <div className="flex items-center gap-2">
+        <div className={`text-xs text-muted-foreground mr-2`}>
+          {selectedIds.length}/{mediaIds.length} {!isCompactMode && t('selected')}
         </div>
-      )}
+        
+        {hasSelections && (
+          <>
+            {onOpenPreview && selectedIds.length === 1 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => onOpenPreview(selectedIds[0])}
+                      variant="outline"
+                      size="icon"
+                      className="h-7 w-7"
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p>{t('preview')}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={() => onDownloadSelected(selectedIds)}
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>{t('download')}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={onDeleteSelected}
+                    variant="destructive"
+                    size="icon"
+                    className="h-7 w-7"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>{t('delete')}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </>
+        )}
+      </div>
     </div>
   );
 };
