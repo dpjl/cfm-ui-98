@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckSquare, Square, Calendar, CalendarOff, Eye, Download, Trash2, PanelLeft, Users, UserPlus } from 'lucide-react';
@@ -7,7 +6,6 @@ import { useIsMobile } from '@/hooks/use-breakpoint';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DetailedMediaInfo } from '@/api/imageApi';
 import { SelectionMode } from '@/hooks/use-gallery-selection';
-
 interface GalleryToolbarProps {
   selectedIds: string[];
   mediaIds: string[];
@@ -25,7 +23,6 @@ interface GalleryToolbarProps {
   selectionMode: SelectionMode;
   onToggleSelectionMode: () => void;
 }
-
 const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
   selectedIds,
   mediaIds,
@@ -43,23 +40,18 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
   selectionMode,
   onToggleSelectionMode
 }) => {
-  const { t } = useLanguage();
+  const {
+    t
+  } = useLanguage();
   const isMobile = useIsMobile();
   const isCompactMode = viewMode === 'split';
   const hasSelections = selectedIds.length > 0;
-  
-  return (
-    <div className="flex items-center justify-between w-full bg-background/90 backdrop-blur-sm py-1.5 px-3 rounded-md z-10 shadow-sm border border-border/30 mb-2">
+  return <div className="flex items-center justify-between w-full bg-background/90 backdrop-blur-sm py-1.5 px-3 rounded-md z-10 shadow-sm border border-border/30 mb-2">
       <div className="flex items-center gap-2">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                onClick={onSelectAll}
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-              >
+              <Button onClick={onSelectAll} variant="outline" size="icon" className="h-7 w-7">
                 <CheckSquare className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
@@ -72,12 +64,7 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                onClick={onDeselectAll}
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-              >
+              <Button onClick={onDeselectAll} variant="outline" size="icon" className="h-7 w-7">
                 <Square className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
@@ -90,17 +77,8 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                onClick={onToggleDates}
-                variant={showDates ? "default" : "outline"}
-                size="icon"
-                className="h-7 w-7"
-              >
-                {showDates ? (
-                  <Calendar className="h-3.5 w-3.5" />
-                ) : (
-                  <CalendarOff className="h-3.5 w-3.5" />
-                )}
+              <Button onClick={onToggleDates} variant={showDates ? "default" : "outline"} size="icon" className="h-7 w-7">
+                {showDates ? <Calendar className="h-3.5 w-3.5" /> : <CalendarOff className="h-3.5 w-3.5" />}
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">
@@ -113,17 +91,8 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                onClick={onToggleSelectionMode}
-                variant={selectionMode === 'multiple' ? "default" : "outline"}
-                size="icon"
-                className="h-7 w-7"
-              >
-                {selectionMode === 'multiple' ? (
-                  <Users className="h-3.5 w-3.5" />
-                ) : (
-                  <UserPlus className="h-3.5 w-3.5" />
-                )}
+              <Button onClick={onToggleSelectionMode} variant={selectionMode === 'multiple' ? "default" : "outline"} size="icon" className="h-7 w-7">
+                {selectionMode === 'multiple' ? <Users className="h-3.5 w-3.5" /> : <UserPlus className="h-3.5 w-3.5" />}
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">
@@ -133,16 +102,10 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
         </TooltipProvider>
         
         {/* Sidebar toggle for desktop mode only */}
-        {!isMobile && onToggleSidebar && (
-          <TooltipProvider>
+        {!isMobile && onToggleSidebar && <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  onClick={onToggleSidebar}
-                  variant="outline"
-                  size="icon"
-                  className="h-7 w-7"
-                >
+                <Button onClick={onToggleSidebar} variant="outline" size="icon" className="h-7 w-7">
                   <PanelLeft className="h-3.5 w-3.5" />
                 </Button>
               </TooltipTrigger>
@@ -150,8 +113,7 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
                 <p>{t('gallery_settings')}</p>
               </TooltipContent>
             </Tooltip>
-          </TooltipProvider>
-        )}
+          </TooltipProvider>}
       </div>
       
       <div className="flex items-center gap-2">
@@ -159,39 +121,22 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
           {selectedIds.length}/{mediaIds.length} {!isCompactMode && t('selected')}
         </div>
         
-        {hasSelections && (
-          <>
-            {onOpenPreview && selectedIds.length === 1 && (
-              <TooltipProvider>
+        {hasSelections && <>
+            {onOpenPreview && selectedIds.length === 1 && <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      onClick={() => onOpenPreview(selectedIds[0])}
-                      variant="outline"
-                      size="icon"
-                      className="h-7 w-7"
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                    </Button>
+                    
                   </TooltipTrigger>
                   <TooltipContent side="top">
                     <p>{t('preview')}</p>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-            )}
+              </TooltipProvider>}
             
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    onClick={() => onDownloadSelected(selectedIds)}
-                    variant="outline"
-                    size="icon"
-                    className="h-7 w-7"
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                  </Button>
+                  
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   <p>{t('download')}</p>
@@ -202,25 +147,15 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    onClick={onDeleteSelected}
-                    variant="destructive"
-                    size="icon"
-                    className="h-7 w-7"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                  
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   <p>{t('delete')}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          </>
-        )}
+          </>}
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default GalleryToolbar;
