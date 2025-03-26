@@ -44,8 +44,8 @@ const SidePanel: React.FC<SidePanelProps> = ({
             className={cn(
               "fixed z-40 rounded-full shadow-md bg-primary text-primary-foreground hover:bg-primary/90",
               position === 'left' 
-                ? "left-3 bottom-[4.5rem]" 
-                : "right-3 bottom-[4.5rem]"
+                ? "left-3 bottom-24" 
+                : "right-3 bottom-24"
             )}
           >
             {position === 'left' ? <PanelLeft size={18} /> : <PanelRight size={18} />}
@@ -73,69 +73,35 @@ const SidePanel: React.FC<SidePanelProps> = ({
     );
   }
   
-  // Desktop sheet implementation
+  // For desktop, we don't need the fixed buttons anymore as they've been moved to the header
   return (
-    <>
-      {/* Closed state button/indicator - simplified to only show text */}
-      {!isOpen && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-            "fixed z-40 h-24 w-10 bg-primary/10 hover:bg-primary/20 transition-all duration-300",
-            position === 'left' 
-              ? "left-0 top-1/3 rounded-r-md" 
-              : "right-0 top-1/3 rounded-l-md",
-            isHovered && "bg-primary/20 w-12"
-          )}
-          onClick={() => onOpenChange(true)}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <div className="flex items-center justify-center h-full">
-            <div 
-              className={cn(
-                "text-xs font-medium tracking-wide text-foreground/70 whitespace-nowrap", 
-                position === 'left' 
-                  ? "rotate-90 origin-center" 
-                  : "-rotate-90 origin-center"
-              )}
+    <Sheet open={isOpen} onOpenChange={onOpenChange} modal={false}>
+      <SheetContent 
+        side={position} 
+        className={cn(
+          "w-72 p-0 border-0 shadow-lg bg-card/95 backdrop-blur-sm",
+          position === 'left' ? "border-r" : "border-l"
+        )}
+      >
+        <div className="h-full flex flex-col p-0 overflow-hidden">
+          <div className="flex items-center justify-between p-3 border-b">
+            <h3 className="text-sm font-medium">{title}</h3>
+            {/* Add our custom close button */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-7 w-7"
+              onClick={() => onOpenChange(false)}
             >
-              {title}
-            </div>
+              <X size={16} />
+            </Button>
           </div>
-        </Button>
-      )}
-      
-      {/* Open state */}
-      <Sheet open={isOpen} onOpenChange={onOpenChange} modal={false}>
-        <SheetContent 
-          side={position} 
-          className={cn(
-            "w-72 p-0 border-0 shadow-lg bg-card/95 backdrop-blur-sm",
-            position === 'left' ? "border-r" : "border-l"
-          )}
-        >
-          <div className="h-full flex flex-col p-0 overflow-hidden">
-            <div className="flex items-center justify-between p-3 border-b">
-              <h3 className="text-sm font-medium">{title}</h3>
-              {/* Add our custom close button */}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-7 w-7"
-                onClick={() => onOpenChange(false)}
-              >
-                <X size={16} />
-              </Button>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              {children}
-            </div>
+          <div className="flex-1 overflow-hidden">
+            {children}
           </div>
-        </SheetContent>
-      </Sheet>
-    </>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 };
 

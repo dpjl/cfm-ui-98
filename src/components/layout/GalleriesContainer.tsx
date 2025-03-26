@@ -24,6 +24,8 @@ interface GalleriesContainerProps {
   setMobileViewMode?: React.Dispatch<React.SetStateAction<MobileViewMode>>;
   leftFilter?: MediaFilter;
   rightFilter?: MediaFilter;
+  onToggleLeftPanel?: () => void;
+  onToggleRightPanel?: () => void;
 }
 
 const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
@@ -43,7 +45,9 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
   mobileViewMode = 'both',
   setMobileViewMode,
   leftFilter = 'all',
-  rightFilter = 'all'
+  rightFilter = 'all',
+  onToggleLeftPanel,
+  onToggleRightPanel
 }) => {
   const isMobile = useIsMobile();
   
@@ -92,6 +96,8 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
       rightFilter={rightFilter}
       viewMode={mobileViewMode}
       setViewMode={setMobileViewMode}
+      onToggleLeftPanel={onToggleLeftPanel}
+      onToggleRightPanel={onToggleRightPanel}
     />
   );
 };
