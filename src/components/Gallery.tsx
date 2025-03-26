@@ -10,6 +10,8 @@ import { useGallerySelection } from '@/hooks/use-gallery-selection';
 import { useGalleryPreviewHandler } from '@/hooks/use-gallery-preview-handler';
 import GalleryToolbar from './gallery/GalleryToolbar';
 import { useGalleryMediaHandler } from '@/hooks/use-gallery-media-handler';
+import MediaInfoPanel from './media/MediaInfoPanel';
+import { AnimatePresence } from 'framer-motion';
 
 export interface ImageItem {
   id: string;
@@ -124,6 +126,19 @@ const Gallery: React.FC<GalleryProps> = ({
         position={position}
         onToggleSidebar={onToggleSidebar}
       />
+      
+      {/* Media Info Panel - show when exactly one item is selected */}
+      <AnimatePresence>
+        {selectedIds.length === 1 && (
+          <MediaInfoPanel
+            selectedIds={selectedIds}
+            onOpenPreview={preview.handleOpenPreview}
+            onDeleteSelected={onDeleteSelected}
+            onDownloadSelected={mediaHandler.handleDownloadSelected}
+            mediaInfoMap={mediaInfoMap}
+          />
+        )}
+      </AnimatePresence>
       
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />

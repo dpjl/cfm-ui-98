@@ -1,11 +1,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Server, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd, Settings } from 'lucide-react';
+import { Server, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd, RotateCcw } from 'lucide-react';
 import { MobileViewMode } from '@/types/gallery';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageToggle } from '@/components/LanguageToggle';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useLanguage } from '@/hooks/use-language';
 
 interface PageHeaderProps {
   onRefresh: () => void;
@@ -19,6 +21,7 @@ interface PageHeaderProps {
   onDelete: () => void;
   onToggleServerPanel: () => void;
   isServerPanelOpen: boolean;
+  onResetColumns: () => void;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -26,8 +29,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   isServerPanelOpen,
   mobileViewMode,
   setMobileViewMode,
+  onResetColumns,
 }) => {
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
   
   return (
     <header className="relative z-20 flex items-center justify-between gap-2 p-2 md:p-4 bg-background/80 backdrop-blur-md border-b border-border/40">
@@ -77,6 +82,25 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       </div>
       
       <div className="flex items-center gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onResetColumns}
+                variant="outline"
+                size={isMobile ? "icon" : "default"}
+                className="relative"
+              >
+                <RotateCcw className={isMobile ? "h-4 w-4" : "h-4 w-4 mr-2"} />
+                {!isMobile && t('reset_columns')}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{t('reset_columns')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
         <ThemeToggle />
         <LanguageToggle />
         

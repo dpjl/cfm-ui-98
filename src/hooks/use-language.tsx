@@ -1,113 +1,99 @@
+import React from 'react';
+import { useLocalStorage } from './use-local-storage';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+type Language = 'en' | 'fr';
 
-type LanguageContextType = {
-  language: string;
-  setLanguage: (language: string) => void;
-  t: (key: string, params?: Record<string, any>) => string;
-};
+interface LanguageContextProps {
+  language: Language;
+  setLanguage: (language: Language) => void;
+  t: (key: string) => string;
+  dictionary: Record<Language, Record<string, string>>;
+}
 
-// Translation dictionary
-const translations: Record<string, Record<string, string>> = {
-  en: {
-    selectAll: 'Select All',
-    deselectAll: 'Deselect All',
-    selected: 'selected',
-    noMediaFound: 'No media found',
-    mediaGallery: 'Media Gallery',
-    photos: 'photos',
-    videos: 'videos',
-    refresh: 'Refresh',
-    delete: 'Delete',
-    cancel: 'Cancel',
-    confirm: 'Confirm',
-    columns: 'Columns',
-    directories: 'Directories',
-    folderStructure: 'Folder Structure',
-    noDirectories: 'No directories found',
-    deleteConfirmation: 'Are you sure you want to delete the selected media?',
-    deleteConfirmationDescription: 'This action cannot be undone.',
-    delete_confirmation_title: 'Delete confirmation',
-    delete_confirmation_description: 'Are you sure you want to delete {count} selected items? This action cannot be undone.',
-    title: 'CFM',
-    loading: 'Loading',
-    deleting: 'Deleting',
-    errorLoadingMedia: 'Error loading media',
-  },
-  fr: {
-    selectAll: 'Tout Sélectionner',
-    deselectAll: 'Tout Désélectionner',
-    selected: 'sélectionné(s)',
-    noMediaFound: 'Aucun média trouvé',
-    mediaGallery: 'Galerie de médias',
-    photos: 'photos',
-    videos: 'vidéos',
-    refresh: 'Rafraîchir',
-    delete: 'Supprimer',
-    cancel: 'Annuler',
-    confirm: 'Confirmer',
-    columns: 'Colonnes',
-    directories: 'Répertoires',
-    folderStructure: 'Structure des dossiers',
-    noDirectories: 'Aucun répertoire trouvé',
-    deleteConfirmation: 'Êtes-vous sûr de vouloir supprimer les médias sélectionnés ?',
-    deleteConfirmationDescription: 'Cette action est irréversible.',
-    delete_confirmation_title: 'Confirmation de suppression',
-    delete_confirmation_description: 'Êtes-vous sûr de vouloir supprimer {count} éléments sélectionnés ? Cette action est irréversible.',
-    title: 'CFM',
-    loading: 'Chargement',
-    deleting: 'Suppression',
-    errorLoadingMedia: 'Erreur de chargement des médias',
-  },
-};
+const LanguageContext = React.createContext<LanguageContextProps | null>(null);
 
-// Create context with default values
-const LanguageContext = createContext<LanguageContextType>({
-  language: 'en',
-  setLanguage: () => {},
-  t: (key: string) => key,
-});
+export function useLanguage() {
+  const context = React.useContext(LanguageContext);
+  
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  
+  return context;
+}
 
-// Custom hook to use the language context
-export const useLanguage = () => useContext(LanguageContext);
-
-// Provider component
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Get initial language preference from localStorage or default to 'en'
-  const [language, setLanguage] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedLanguage = localStorage.getItem('language');
-      return savedLanguage || 'en';
+  const [language, setLanguage] = useLocalStorage<Language>('language', 'en');
+  
+  const dictionary: Record<Language, Record<string, string>> = {
+    en: {
+      media_gallery: 'Media Gallery',
+      columns: 'Columns',
+      reset_columns: 'Reset columns',
+      select_all: 'Select all',
+      deselect_all: 'Deselect all',
+      show_dates: 'Show dates',
+      hide_dates: 'Hide dates',
+      preview: 'Preview',
+      delete: 'Delete',
+      close_sidebars: 'Close sidebars',
+      refresh: 'Refresh',
+      confirm_delete: 'Confirm Delete',
+      confirm_delete_description: 'Are you sure you want to delete these items? This action cannot be undone.',
+      cancel: 'Cancel',
+      date: 'Date',
+      size: 'Size',
+      path: 'Path',
+      hash: 'Hash',
+      camera: 'Camera',
+      duplicates: 'Duplicates',
+      all: 'All',
+      images: 'Images',
+      videos: 'Videos',
+      favorites: 'Favorites',
+      directories: 'Directories',
+    },
+    fr: {
+      media_gallery: 'Galerie de médias',
+      columns: 'Colonnes',
+      reset_columns: 'Réinitialiser les colonnes',
+      select_all: 'Tout sélectionner',
+      deselect_all: 'Tout désélectionner',
+      show_dates: 'Afficher les dates',
+      hide_dates: 'Masquer les dates',
+      preview: 'Aperçu',
+      delete: 'Supprimer',
+      close_sidebars: 'Fermer les panneaux',
+      refresh: 'Actualiser',
+      confirm_delete: 'Confirmer la suppression',
+      confirm_delete_description: 'Êtes-vous sûr de vouloir supprimer ces éléments ? Cette action ne peut pas être annulée.',
+      cancel: 'Annuler',
+      date: 'Date',
+      size: 'Taille',
+      path: 'Chemin',
+      hash: 'Hachage',
+      camera: 'Caméra',
+      duplicates: 'Doublons',
+      all: 'Tous',
+      images: 'Images',
+      videos: 'Vidéos',
+      favorites: 'Favoris',
+      directories: 'Répertoires',
     }
-    return 'en';
-  });
-
-  // Save language preference to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem('language', language);
+  };
+  
+  const t = React.useCallback((key: string): string => {
+    return dictionary[language][key] || key;
   }, [language]);
-
-  // Translation function
-  const t = (key: string, params?: Record<string, any>): string => {
-    if (!translations[language]) return key;
-    
-    let text = translations[language][key] || key;
-    
-    // Replace parameters in the text if they exist
-    if (params) {
-      Object.entries(params).forEach(([paramKey, paramValue]) => {
-        text = text.replace(`{${paramKey}}`, String(paramValue));
-      });
-    }
-    
-    return text;
-  };
-
-  const value = {
-    language,
-    setLanguage,
-    t,
-  };
-
+  
+  const value = React.useMemo(() => {
+    return {
+      language,
+      setLanguage,
+      t,
+      dictionary,
+    };
+  }, [language, setLanguage, t, dictionary]);
+  
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 };

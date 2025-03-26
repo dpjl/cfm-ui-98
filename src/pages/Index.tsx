@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
@@ -12,6 +13,14 @@ import { MobileViewMode, ViewModeType } from '@/types/gallery';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
+// Default column counts for different modes
+const DEFAULT_COLUMN_COUNTS = {
+  'desktop': 5,              // Split view desktop
+  'desktop-single': 6,       // Full screen view desktop
+  'mobile-split': 2,         // Split view mobile
+  'mobile-single': 4,        // Full screen view mobile
+};
+
 const Index = () => {
   const { toast } = useToast();
   const [selectedDirectoryIdLeft, setSelectedDirectoryIdLeft] = useState<string>("directory1");
@@ -20,14 +29,14 @@ const Index = () => {
   const isMobile = useIsMobile();
   
   // Column counts for different modes, stored in local storage
-  const [desktopColumnsLeft, setDesktopColumnsLeft] = useLocalStorage('desktop-split-columns-left', 5);
-  const [desktopColumnsRight, setDesktopColumnsRight] = useLocalStorage('desktop-split-columns-right', 5);
-  const [desktopSingleColumnsLeft, setDesktopSingleColumnsLeft] = useLocalStorage('desktop-single-columns-left', 6);
-  const [desktopSingleColumnsRight, setDesktopSingleColumnsRight] = useLocalStorage('desktop-single-columns-right', 6);
-  const [mobileSplitColumnsLeft, setMobileSplitColumnsLeft] = useLocalStorage('mobile-split-columns-left', 2);
-  const [mobileSplitColumnsRight, setMobileSplitColumnsRight] = useLocalStorage('mobile-split-columns-right', 2);
-  const [mobileSingleColumnsLeft, setMobileSingleColumnsLeft] = useLocalStorage('mobile-single-columns-left', 4);
-  const [mobileSingleColumnsRight, setMobileSingleColumnsRight] = useLocalStorage('mobile-single-columns-right', 4);
+  const [desktopColumnsLeft, setDesktopColumnsLeft] = useLocalStorage('desktop-split-columns-left', DEFAULT_COLUMN_COUNTS.desktop);
+  const [desktopColumnsRight, setDesktopColumnsRight] = useLocalStorage('desktop-split-columns-right', DEFAULT_COLUMN_COUNTS.desktop);
+  const [desktopSingleColumnsLeft, setDesktopSingleColumnsLeft] = useLocalStorage('desktop-single-columns-left', DEFAULT_COLUMN_COUNTS['desktop-single']);
+  const [desktopSingleColumnsRight, setDesktopSingleColumnsRight] = useLocalStorage('desktop-single-columns-right', DEFAULT_COLUMN_COUNTS['desktop-single']);
+  const [mobileSplitColumnsLeft, setMobileSplitColumnsLeft] = useLocalStorage('mobile-split-columns-left', DEFAULT_COLUMN_COUNTS['mobile-split']);
+  const [mobileSplitColumnsRight, setMobileSplitColumnsRight] = useLocalStorage('mobile-split-columns-right', DEFAULT_COLUMN_COUNTS['mobile-split']);
+  const [mobileSingleColumnsLeft, setMobileSingleColumnsLeft] = useLocalStorage('mobile-single-columns-left', DEFAULT_COLUMN_COUNTS['mobile-single']);
+  const [mobileSingleColumnsRight, setMobileSingleColumnsRight] = useLocalStorage('mobile-single-columns-right', DEFAULT_COLUMN_COUNTS['mobile-single']);
   
   const [selectedIdsLeft, setSelectedIdsLeft] = useState<string[]>([]);
   const [selectedIdsRight, setSelectedIdsRight] = useState<string[]>([]);
@@ -97,6 +106,24 @@ const Index = () => {
     } else {
       return currentViewMode === 'both' ? 'desktop' : 'desktop-single';
     }
+  };
+  
+  // Reset all column counts to defaults
+  const handleResetColumns = () => {
+    // Reset all column counts to defaults
+    setDesktopColumnsLeft(DEFAULT_COLUMN_COUNTS.desktop);
+    setDesktopColumnsRight(DEFAULT_COLUMN_COUNTS.desktop);
+    setDesktopSingleColumnsLeft(DEFAULT_COLUMN_COUNTS['desktop-single']);
+    setDesktopSingleColumnsRight(DEFAULT_COLUMN_COUNTS['desktop-single']);
+    setMobileSplitColumnsLeft(DEFAULT_COLUMN_COUNTS['mobile-split']);
+    setMobileSplitColumnsRight(DEFAULT_COLUMN_COUNTS['mobile-split']);
+    setMobileSingleColumnsLeft(DEFAULT_COLUMN_COUNTS['mobile-single']);
+    setMobileSingleColumnsRight(DEFAULT_COLUMN_COUNTS['mobile-single']);
+    
+    toast({
+      title: "Columns reset",
+      description: "All column counts have been reset to their default values.",
+    });
   };
   
   const deleteMutation = useMutation({
@@ -183,6 +210,7 @@ const Index = () => {
           onDelete={handleDelete}
           onToggleServerPanel={() => setServerPanelOpen(!serverPanelOpen)}
           isServerPanelOpen={serverPanelOpen}
+          onResetColumns={handleResetColumns}
         />
         
         <div className="flex h-full overflow-hidden mt-2 relative">
