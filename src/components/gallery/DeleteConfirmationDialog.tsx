@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useLanguage } from '@/hooks/use-language';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,8 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useLanguage } from '@/hooks/use-language';
-import { Loader2, Trash2 } from 'lucide-react';
 
 interface DeleteConfirmationDialogProps {
   open: boolean;
@@ -32,45 +31,27 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
 }) => {
   const { t } = useLanguage();
   
-  const handleCancel = () => {
-    onCancel();
-    onOpenChange(false);
-  };
-  
-  const handleConfirm = () => {
-    onConfirm();
-  };
-  
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
-            <Trash2 className="h-5 w-5 text-destructive" />
-            {t('confirm_delete')}
+          <AlertDialogTitle>
+            {t('delete_confirmation_title')}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t('confirm_delete_description')}
-            <div className="mt-2 font-medium">
-              {selectedIds.length} {selectedIds.length === 1 ? 'item' : 'items'}
-            </div>
+            {t('delete_confirmation_description', { count: selectedIds.length })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel}>{t('cancel')}</AlertDialogCancel>
+          <AlertDialogCancel onClick={onCancel} disabled={isPending}>
+            {t('cancel')}
+          </AlertDialogCancel>
           <AlertDialogAction 
-            onClick={handleConfirm}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            onClick={onConfirm}
             disabled={isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('delete')}...
-              </>
-            ) : (
-              t('delete')
-            )}
+            {isPending ? t('deleting') : t('delete')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

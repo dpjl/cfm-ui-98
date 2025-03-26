@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
@@ -12,7 +11,6 @@ import ServerStatusPanel from '@/components/ServerStatusPanel';
 import { MobileViewMode, ViewModeType } from '@/types/gallery';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-import { useColumnsCount, DEFAULT_COLUMN_COUNTS } from '@/hooks/use-columns-count';
 
 const Index = () => {
   const { toast } = useToast();
@@ -90,24 +88,6 @@ const Index = () => {
         setDesktopSingleColumnsRight(count);
       }
     }
-  };
-  
-  // Reset all column counts to default values
-  const handleResetColumns = () => {
-    // Reset all columns to default values
-    setDesktopColumnsLeft(DEFAULT_COLUMN_COUNTS.desktop);
-    setDesktopColumnsRight(DEFAULT_COLUMN_COUNTS.desktop);
-    setDesktopSingleColumnsLeft(DEFAULT_COLUMN_COUNTS['desktop-single']);
-    setDesktopSingleColumnsRight(DEFAULT_COLUMN_COUNTS['desktop-single']);
-    setMobileSplitColumnsLeft(DEFAULT_COLUMN_COUNTS['mobile-split']);
-    setMobileSplitColumnsRight(DEFAULT_COLUMN_COUNTS['mobile-split']);
-    setMobileSingleColumnsLeft(DEFAULT_COLUMN_COUNTS['mobile-single']);
-    setMobileSingleColumnsRight(DEFAULT_COLUMN_COUNTS['mobile-single']);
-    
-    toast({
-      title: "Columns reset",
-      description: "All gallery columns have been reset to default values.",
-    });
   };
   
   // Map view mode to column configuration type
@@ -203,7 +183,6 @@ const Index = () => {
           onDelete={handleDelete}
           onToggleServerPanel={() => setServerPanelOpen(!serverPanelOpen)}
           isServerPanelOpen={serverPanelOpen}
-          onResetColumns={handleResetColumns}
         />
         
         <div className="flex h-full overflow-hidden mt-2 relative">

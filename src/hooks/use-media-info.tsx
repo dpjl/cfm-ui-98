@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchMediaInfo, DetailedMediaInfo } from '@/api/imageApi';
 import { useMediaCache } from './use-media-cache';
 
-export const useMediaInfo = (id: string, isIntersecting: boolean = true, position: 'source' | 'destination' = 'source') => {
+export const useMediaInfo = (id: string, isIntersecting: boolean, position: 'source' | 'destination' = 'source') => {
   const [mediaInfo, setMediaInfo] = useState<DetailedMediaInfo | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(false);

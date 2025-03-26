@@ -1,163 +1,113 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Define supported languages
-export type Language = 'en' | 'fr';
+type LanguageContextType = {
+  language: string;
+  setLanguage: (language: string) => void;
+  t: (key: string, params?: Record<string, any>) => string;
+};
 
-export interface Translations {
-  [key: string]: string;
-}
-
-// Define the context type
-interface LanguageContextType {
-  t: (key: string, params?: Record<string, string | number>) => string;
-  language: Language;
-  setLanguage: (lang: Language) => void;
-  availableLanguages: Language[];
-}
-
-// Create the context with a default value
-const LanguageContext = createContext<LanguageContextType>({
-  t: (key: string) => key,
-  language: 'en',
-  setLanguage: () => {},
-  availableLanguages: ['en', 'fr']
-});
-
-interface LanguageProviderProps {
-  children: ReactNode;
-  defaultLanguage?: Language;
-}
-
-// Translations data for each language
-const translations: Record<Language, Translations> = {
+// Translation dictionary
+const translations: Record<string, Record<string, string>> = {
   en: {
-    media_gallery: 'Media Gallery',
-    columns: 'Columns',
+    selectAll: 'Select All',
+    deselectAll: 'Deselect All',
+    selected: 'selected',
+    noMediaFound: 'No media found',
+    mediaGallery: 'Media Gallery',
+    photos: 'photos',
+    videos: 'videos',
     refresh: 'Refresh',
     delete: 'Delete',
-    select_all: 'Select All',
-    deselect_all: 'Deselect All',
-    show_dates: 'Show Dates',
-    hide_dates: 'Hide Dates',
-    selected: 'Selected',
-    no_media_found: 'No media found',
-    no_media_description: 'There are no media files available in this directory.',
-    source: 'Source',
-    destination: 'Destination',
-    preview: 'Preview',
-    download: 'Download',
-    close_sidebars: 'Close Sidebars',
-    confirm_delete: 'Confirm Delete',
-    confirm_delete_description: 'Are you sure you want to delete the selected media? This action cannot be undone.',
     cancel: 'Cancel',
-    server: 'Server',
-    server_status: 'Server Status',
-    server_running: 'Server is running',
-    server_stopped: 'Server is not running',
-    server_running_description: 'The server is currently running and processing tasks.',
-    server_stopped_description: 'The server is currently stopped or not responding.',
-    error_fetching_status: 'Error fetching server status',
-    error_try_again: 'There was an error connecting to the server. Please try again later.',
-    retry: 'Retry',
-    loading_server_status: 'Loading server status...',
-    last_updated: 'Last updated',
-    unknown: 'Unknown',
-    cpu_usage: 'CPU Usage',
-    memory_usage: 'Memory Usage',
-    disk_usage: 'Disk Usage',
-    uptime: 'Uptime',
-    active_processes: 'Active Processes',
-    processes: 'processes',
-    processes_running: '{count} processes running',
-    cpu_cores: 'Cores',
-    reset_columns: 'Reset Columns',
-    reset_columns_tooltip: 'Reset all gallery columns to default values',
+    confirm: 'Confirm',
+    columns: 'Columns',
+    directories: 'Directories',
+    folderStructure: 'Folder Structure',
+    noDirectories: 'No directories found',
+    deleteConfirmation: 'Are you sure you want to delete the selected media?',
+    deleteConfirmationDescription: 'This action cannot be undone.',
+    delete_confirmation_title: 'Delete confirmation',
+    delete_confirmation_description: 'Are you sure you want to delete {count} selected items? This action cannot be undone.',
+    title: 'CFM',
+    loading: 'Loading',
+    deleting: 'Deleting',
+    errorLoadingMedia: 'Error loading media',
   },
   fr: {
-    media_gallery: 'Galerie Média',
-    columns: 'Colonnes',
-    refresh: 'Actualiser',
+    selectAll: 'Tout Sélectionner',
+    deselectAll: 'Tout Désélectionner',
+    selected: 'sélectionné(s)',
+    noMediaFound: 'Aucun média trouvé',
+    mediaGallery: 'Galerie de médias',
+    photos: 'photos',
+    videos: 'vidéos',
+    refresh: 'Rafraîchir',
     delete: 'Supprimer',
-    select_all: 'Tout sélectionner',
-    deselect_all: 'Tout désélectionner',
-    show_dates: 'Afficher les dates',
-    hide_dates: 'Masquer les dates',
-    selected: 'Sélectionné',
-    no_media_found: 'Aucun média trouvé',
-    no_media_description: 'Aucun fichier média disponible dans ce répertoire.',
-    source: 'Source',
-    destination: 'Destination',
-    preview: 'Aperçu',
-    download: 'Télécharger',
-    close_sidebars: 'Fermer les panneaux',
-    confirm_delete: 'Confirmer la suppression',
-    confirm_delete_description: 'Êtes-vous sûr de vouloir supprimer les médias sélectionnés? Cette action ne peut pas être annulée.',
     cancel: 'Annuler',
-    server: 'Serveur',
-    server_status: 'État du serveur',
-    server_running: 'Le serveur est en cours d\'exécution',
-    server_stopped: 'Le serveur n\'est pas en cours d\'exécution',
-    server_running_description: 'Le serveur fonctionne actuellement et traite des tâches.',
-    server_stopped_description: 'Le serveur est actuellement arrêté ou ne répond pas.',
-    error_fetching_status: 'Erreur lors de la récupération de l\'état du serveur',
-    error_try_again: 'Une erreur s\'est produite lors de la connexion au serveur. Veuillez réessayer plus tard.',
-    retry: 'Réessayer',
-    loading_server_status: 'Chargement de l\'état du serveur...',
-    last_updated: 'Dernière mise à jour',
-    unknown: 'Inconnu',
-    cpu_usage: 'Utilisation CPU',
-    memory_usage: 'Utilisation Mémoire',
-    disk_usage: 'Utilisation Disque',
-    uptime: 'Temps de fonctionnement',
-    active_processes: 'Processus Actifs',
-    processes: 'processus',
-    processes_running: '{count} processus en cours',
-    cpu_cores: 'Cœurs',
-    reset_columns: 'Réinitialiser',
-    reset_columns_tooltip: 'Réinitialiser toutes les colonnes des galeries aux valeurs par défaut',
+    confirm: 'Confirmer',
+    columns: 'Colonnes',
+    directories: 'Répertoires',
+    folderStructure: 'Structure des dossiers',
+    noDirectories: 'Aucun répertoire trouvé',
+    deleteConfirmation: 'Êtes-vous sûr de vouloir supprimer les médias sélectionnés ?',
+    deleteConfirmationDescription: 'Cette action est irréversible.',
+    delete_confirmation_title: 'Confirmation de suppression',
+    delete_confirmation_description: 'Êtes-vous sûr de vouloir supprimer {count} éléments sélectionnés ? Cette action est irréversible.',
+    title: 'CFM',
+    loading: 'Chargement',
+    deleting: 'Suppression',
+    errorLoadingMedia: 'Erreur de chargement des médias',
   },
 };
 
-export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageProviderProps) {
-  const [language, setLanguage] = useLocalStorage<Language>('preferred-language', defaultLanguage);
-  const [availableLanguages] = useState<Language[]>(['en', 'fr']);
-
-  // Get translation for a key
-  const t = (key: string, params?: Record<string, string | number>): string => {
-    // Get the translation for the key
-    const translation = translations[language][key] || key;
-    
-    // If there are no params, return the translation as is
-    if (!params) return translation;
-    
-    // Replace the placeholders with the values
-    return Object.entries(params).reduce((acc, [paramKey, paramValue]) => {
-      return acc.replace(`{${paramKey}}`, String(paramValue));
-    }, translation);
-  };
-
-  // Value to be provided by the context
-  const contextValue: LanguageContextType = {
-    t,
-    language,
-    setLanguage,
-    availableLanguages,
-  };
-
-  return (
-    <LanguageContext.Provider value={contextValue}>
-      {children}
-    </LanguageContext.Provider>
-  );
-}
+// Create context with default values
+const LanguageContext = createContext<LanguageContextType>({
+  language: 'en',
+  setLanguage: () => {},
+  t: (key: string) => key,
+});
 
 // Custom hook to use the language context
-export function useLanguage() {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
-}
+export const useLanguage = () => useContext(LanguageContext);
+
+// Provider component
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Get initial language preference from localStorage or default to 'en'
+  const [language, setLanguage] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem('language');
+      return savedLanguage || 'en';
+    }
+    return 'en';
+  });
+
+  // Save language preference to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
+
+  // Translation function
+  const t = (key: string, params?: Record<string, any>): string => {
+    if (!translations[language]) return key;
+    
+    let text = translations[language][key] || key;
+    
+    // Replace parameters in the text if they exist
+    if (params) {
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        text = text.replace(`{${paramKey}}`, String(paramValue));
+      });
+    }
+    
+    return text;
+  };
+
+  const value = {
+    language,
+    setLanguage,
+    t,
+  };
+
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+};

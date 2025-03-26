@@ -1,102 +1,131 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-breakpoint';
-import SelectionCheckbox from '@/components/media/SelectionCheckbox';
-import DateDisplay from '@/components/media/DateDisplay';
-import MediaItemRenderer from '@/components/media/MediaItemRenderer';
-import { useMediaInfo } from '@/hooks/use-media-info';
-import { DetailedMediaInfo } from '@/api/imageApi';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Video } from 'lucide-react';
+import DateDisplay from './media/DateDisplay';
 
 interface ImageCardProps {
-  id: string;
+  src: string;
+  alt: string;
   selected: boolean;
-  onSelect: (id: string, extendSelection: boolean) => void;
-  onImageLoad?: () => void;
-  showDate?: boolean;
-  position?: 'source' | 'destination';
-  updateMediaInfo?: (id: string, info: DetailedMediaInfo | null) => void;
-  onTouchStart?: (id: string) => void;
-  onTouchEnd?: () => void;
+  onSelect: (extendSelection: boolean) => void;
+  onPreview: () => void;
+  aspectRatio?: "portrait" | "square" | "video";
+  type?: "image" | "video";
+  onInView?: () => void;
+  createdAt?: string;
+  showDates?: boolean;
 }
 
 const ImageCard: React.FC<ImageCardProps> = ({
-  id,
+  src,
+  alt,
   selected,
   onSelect,
-  onImageLoad,
-  showDate = false,
-  position = 'source',
-  updateMediaInfo,
-  onTouchStart,
-  onTouchEnd
+  onPreview,
+  aspectRatio = "square",
+  type = "image",
+  onInView,
+  createdAt,
+  showDates = false
 }) => {
   const [loaded, setLoaded] = useState(false);
-  const isMobile = useIsMobile();
-  const { mediaInfo, isLoading: isLoadingInfo } = useMediaInfo(id, true, position);
+  const videoRef = useRef<HTMLVideoElement>(null);
   
-  // Call the updateMediaInfo callback when media info changes
+  // Call onInView immediately when component mounts if it exists
   React.useEffect(() => {
-    if (updateMediaInfo && mediaInfo) {
-      updateMediaInfo(id, mediaInfo);
+    if (onInView) {
+      onInView();
     }
-  }, [id, mediaInfo, updateMediaInfo]);
+  }, [onInView]);
   
-  const handleImageLoad = () => {
-    setLoaded(true);
-    onImageLoad?.();
-  };
+  // Determine if it's a video based on file extension
+  const isVideo = type === "video" || alt.match(/\.(mp4|webm|ogg|mov)$/i);
   
-  const handleSelect = (e: React.MouseEvent) => {
-    // Check if Ctrl key is pressed for desktop (multi-select)
-    const extendSelection = e.ctrlKey || e.metaKey; // metaKey for Mac
-    onSelect(id, extendSelection);
-  };
-  
-  const handleTouchStart = () => {
-    // For mobile long-press handling
-    if (onTouchStart) {
-      onTouchStart(id);
+  const handleMouseOver = () => {
+    if (isVideo && videoRef.current) {
+      videoRef.current.play().catch(err => console.error('Error playing video:', err));
     }
   };
   
-  const handleTouchEnd = () => {
-    if (onTouchEnd) {
-      onTouchEnd();
+  const handleMouseOut = () => {
+    if (isVideo && videoRef.current) {
+      videoRef.current.pause();
     }
   };
+  
+  // Direct handler for clicking on the card
+  const handleCardClick = (e: React.MouseEvent) => {
+    // If we're not clicking on the checkbox, proceed with selection
+    if (!(e.target as HTMLElement).closest('.image-checkbox')) {
+      onSelect(e.shiftKey);
+    }
+  }
   
   return (
     <div 
       className={cn(
-        "group relative overflow-hidden rounded-md cursor-pointer transition-all duration-200 ease-out transform bg-muted/30",
-        "hover:shadow-md active:scale-[0.98]",
-        selected && "shadow-md border-2 border-primary ring-1 ring-primary"
+        "image-card group relative", 
+        "aspect-square", // Always use square aspect
+        selected && "selected",
+        !loaded && "animate-pulse bg-muted"
       )}
-      onClick={() => onSelect(id, false)}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      onClick={handleCardClick}
+      onMouseOver={handleMouseOver}
+      onMouseOut={handleMouseOut}
     >
-      <SelectionCheckbox 
-        selected={selected} 
-        onSelect={handleSelect}
-        loaded={loaded}
-        mediaId={id}
-      />
-      
-      <MediaItemRenderer 
-        id={id} 
-        position={position} 
-        onLoad={handleImageLoad}
-        loaded={loaded}
-      />
-      
-      {showDate && loaded && mediaInfo?.createdAt && (
-        <DateDisplay 
-          createdAt={mediaInfo.createdAt} 
-          loaded={loaded} 
+      {isVideo ? (
+        <>
+          <video 
+            ref={videoRef}
+            src={src}
+            title={alt}
+            className={cn(
+              "w-full h-full object-cover transition-all duration-500",
+              loaded ? "opacity-100" : "opacity-0"
+            )}
+            onLoadedData={() => setLoaded(true)}
+            muted
+            loop
+            playsInline
+          />
+          {/* Video icon overlay */}
+          <div className="absolute top-2 left-2 z-10 bg-black/70 p-1 rounded-md text-white">
+            <Video className="h-4 w-4" />
+          </div>
+        </>
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          className={cn(
+            "w-full h-full object-cover transition-all duration-500",
+            loaded ? "opacity-100" : "opacity-0"
+          )}
+          onLoad={() => setLoaded(true)}
         />
       )}
+
+      {/* Use the DateDisplay component */}
+      <DateDisplay dateString={createdAt} showDate={showDates} />
+
+      <div className="image-overlay" />
+      <div className="image-checkbox" onClick={(e) => e.stopPropagation()}>
+        <Checkbox 
+          checked={selected}
+          className={cn(
+            "h-5 w-5 border-2",
+            selected ? "border-primary bg-primary" : "border-white bg-white/20",
+            "transition-all duration-200 ease-out",
+            !loaded && "opacity-0"
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(e.shiftKey);
+          }}
+        />
+      </div>
     </div>
   );
 };
