@@ -1,5 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useIsMobile } from '@/hooks/use-breakpoint';
+import { useState } from 'react';
 
 export function useGallerySelection(
   mediaIds: string[],
@@ -7,125 +6,70 @@ export function useGallerySelection(
   onSelectId: (id: string) => void
 ) {
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
-  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
-  const isMobile = useIsMobile();
-  
-  // Helper to check if we're in multi-select mode
-  const checkMultiSelectMode = (event?: React.MouseEvent | React.TouchEvent) => {
-    if (isMobile) {
-      return isMultiSelectMode;
-    } else {
-      // On desktop, check if Ctrl key is pressed
-      return event && 'ctrlKey' in event && event.ctrlKey;
-    }
-  };
-  
-  // Clear any existing selections when leaving multi-select mode
-  useEffect(() => {
-    if (!isMultiSelectMode && selectedIds.length > 1) {
-      // Keep only the last selected item when exiting multi-select mode
-      if (lastSelectedId && selectedIds.includes(lastSelectedId)) {
-        selectedIds.forEach(id => {
-          if (id !== lastSelectedId) {
-            onSelectId(id);
+
+  const handleSelectItem = (id: string, extendSelection: boolean) => {
+    console.log(`Selecting item: ${id}, extend: ${extendSelection}`);
+    
+    // If Shift key is used to extend selection
+    if (extendSelection && lastSelectedId) {
+      // Find indices
+      const lastIndex = mediaIds.indexOf(lastSelectedId);
+      const currentIndex = mediaIds.indexOf(id);
+      
+      if (lastIndex !== -1 && currentIndex !== -1) {
+        // Define selection range
+        const start = Math.min(lastIndex, currentIndex);
+        const end = Math.max(lastIndex, currentIndex);
+        
+        // Select all items in the range
+        const idsToSelect = mediaIds.slice(start, end + 1);
+        
+        // Create a new selection set keeping already selected items
+        const newSelection = new Set([...selectedIds]);
+        
+        // Add all items in the range
+        idsToSelect.forEach(mediaId => {
+          if (!newSelection.has(mediaId)) {
+            newSelection.add(mediaId);
+            onSelectId(mediaId); // Inform parent of each newly selected item
           }
         });
-      } else {
-        // If last selected is not in the selection, deselect all
-        handleDeselectAll();
-      }
-    }
-  }, [isMultiSelectMode]);
-  
-  // Handle touch start for long press detection (mobile only)
-  const handleTouchStart = useCallback((id: string) => {
-    if (!isMobile) return;
-    
-    // Setup long press timer
-    const timer = setTimeout(() => {
-      setIsMultiSelectMode(true);
-      // Vibrate if available
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
-    }, 500); // 500ms long press to activate multi-select
-    
-    setLongPressTimer(timer);
-  }, [isMobile]);
-  
-  // Handle touch end to clear timer
-  const handleTouchEnd = useCallback(() => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
-  }, [longPressTimer]);
-  
-  const handleSelectItem = useCallback((id: string, extendSelection: boolean = false, event?: React.MouseEvent | React.TouchEvent) => {
-    const isMultiSelect = extendSelection || checkMultiSelectMode(event);
-    
-    // If not in multi-select mode and we already have selections
-    if (!isMultiSelect && selectedIds.length > 0) {
-      // If clicking on an already selected item, do nothing
-      if (selectedIds.includes(id) && selectedIds.length === 1) {
-        return;
-      }
-      
-      // If clicking on a different item, deselect all and select the new one
-      selectedIds.forEach(selectedId => {
-        if (selectedId !== id) {
-          onSelectId(selectedId);
-        }
-      });
-      
-      // If the item wasn't already selected, select it
-      if (!selectedIds.includes(id)) {
-        onSelectId(id);
       }
     } 
-    // For multi-select or first selection
+    // If only one item is already selected and we click on another (without Shift)
+    else if (selectedIds.length === 1 && !selectedIds.includes(id) && !extendSelection) {
+      // Deselect the current item
+      onSelectId(selectedIds[0]);
+      // Select the new item
+      onSelectId(id);
+    }
+    // If multiple items are already selected, or we click on an already selected item
     else {
       // Toggle the selection of this item
       onSelectId(id);
     }
     
-    // Keep track of the last selected item
+    // Keep track of the last selected item for Shift functionality
     setLastSelectedId(id);
-  }, [selectedIds, onSelectId, checkMultiSelectMode]);
-  
-  const handleSelectAll = useCallback(() => {
-    setIsMultiSelectMode(true);
+  };
+
+  const handleSelectAll = () => {
     // Select all media
     mediaIds.forEach(id => {
       if (!selectedIds.includes(id)) {
         onSelectId(id);
       }
     });
-  }, [mediaIds, selectedIds, onSelectId]);
-  
-  const handleDeselectAll = useCallback(() => {
+  };
+
+  const handleDeselectAll = () => {
     // Deselect all media
     selectedIds.forEach(id => onSelectId(id));
-    setLastSelectedId(null);
-    
-    // If in multi-select mode, exit it
-    if (isMultiSelectMode) {
-      setIsMultiSelectMode(false);
-    }
-  }, [selectedIds, onSelectId, isMultiSelectMode]);
-  
-  const toggleMultiSelectMode = useCallback(() => {
-    setIsMultiSelectMode(prev => !prev);
-  }, []);
-  
+  };
+
   return {
     handleSelectItem,
     handleSelectAll,
-    handleDeselectAll,
-    handleTouchStart,
-    handleTouchEnd,
-    isMultiSelectMode,
-    toggleMultiSelectMode
+    handleDeselectAll
   };
 }

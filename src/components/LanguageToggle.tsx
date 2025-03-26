@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export function LanguageToggle() {
-  const { lang, setLang, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   
   return (
     <DropdownMenu>
@@ -27,14 +27,14 @@ export function LanguageToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem 
-          onClick={() => setLang('en')}
-          className={lang === 'en' ? 'bg-accent text-accent-foreground' : ''}
+          onClick={() => setLanguage('en')}
+          className={language === 'en' ? 'bg-accent text-accent-foreground' : ''}
         >
           English
         </DropdownMenuItem>
         <DropdownMenuItem 
-          onClick={() => setLang('fr')}
-          className={lang === 'fr' ? 'bg-accent text-accent-foreground' : ''}
+          onClick={() => setLanguage('fr')}
+          className={language === 'fr' ? 'bg-accent text-accent-foreground' : ''}
         >
           Français
         </DropdownMenuItem>

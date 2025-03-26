@@ -7,17 +7,13 @@ import { useIsMobile } from '@/hooks/use-breakpoint';
 interface SelectionCheckboxProps {
   selected: boolean;
   onSelect: (e: React.MouseEvent) => void;
-  onTouchStart?: () => void;
-  onTouchEnd?: () => void;
   loaded: boolean;
-  mediaId: string;
+  mediaId: string; // Added for accessibility
 }
 
 const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
   selected,
   onSelect,
-  onTouchStart,
-  onTouchEnd,
   loaded,
   mediaId
 }) => {
@@ -34,17 +30,10 @@ const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
         e.stopPropagation();
         onSelect(e);
       }}
-      onTouchStart={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (onTouchStart) onTouchStart();
-      }}
       onTouchEnd={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (onTouchEnd) onTouchEnd();
-        
-        // Create a synthetic mouse event for the click handler
+        // Create a synthetic mouse event
         const mouseEvent = new MouseEvent('click', {
           bubbles: true,
           cancelable: true,

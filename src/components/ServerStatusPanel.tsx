@@ -1,230 +1,256 @@
 
-import React from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
-import { useIsMobile } from '@/hooks/use-breakpoint';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useQuery } from '@tanstack/react-query';
-import { fetchServerStatus, ServerStatus } from '@/api/serverApi';
-import { formatDistanceToNow } from 'date-fns';
-import { useToast } from '@/components/ui/use-toast';
-import { Server, HardDrive, Clock, FolderOpenDot, Database, AlertTriangle } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import React, { useState, useEffect } from 'react';
+import { Server, RefreshCw, Folder, Files, Calendar, FileText, X } from 'lucide-react';
+import { 
+  Drawer, 
+  DrawerContent, 
+  DrawerHeader, 
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerClose
+} from '@/components/ui/drawer';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useLanguage } from '@/hooks/use-language';
+import { cn } from '@/lib/utils';
+import { fetchServerStatus } from '@/api/serverApi';
+import { useIsMobile } from '@/hooks/use-breakpoint';
+import { useTheme } from '@/hooks/use-theme';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+
+interface ServerStatus {
+  isAccessible: boolean;
+  sourceDirectory: string;
+  destinationDirectory: string;
+  sourceFileCount: number;
+  destinationFileCount: number;
+  lastExecutionDate: string | null;
+  destinationFormat: string;
+}
 
 interface ServerStatusPanelProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({ 
-  isOpen, 
-  onOpenChange 
+const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
+  isOpen,
+  onOpenChange,
 }) => {
+  const [status, setStatus] = useState<ServerStatus | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const isMobile = useIsMobile();
-  const { toast } = useToast();
-  const { t } = useLanguage();
+  const { theme } = useTheme();
   
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['serverStatus'],
-    queryFn: fetchServerStatus,
-    staleTime: 1000 * 60, // 1 minute
-    enabled: isOpen, // Only fetch when panel is open
-    retry: 1,
-    meta: {
-      onError: (err: Error) => {
-        toast({
-          title: t('error_fetching_server_status'),
-          description: err instanceof Error ? err.message : t('unknown_error'),
-          variant: "destructive",
-        });
-      }
+  const getServerStatus = async () => {
+    try {
+      setIsLoading(true);
+      const data = await fetchServerStatus();
+      setStatus(data);
+      setError(null);
+      setLastRefreshed(new Date());
+    } catch (err) {
+      console.error('Failed to fetch server status:', err);
+      setError('Unable to connect to server');
+      setStatus({
+        isAccessible: false,
+        sourceDirectory: '—',
+        destinationDirectory: '—',
+        sourceFileCount: 0,
+        destinationFileCount: 0,
+        lastExecutionDate: null,
+        destinationFormat: '—'
+      });
+    } finally {
+      setIsLoading(false);
     }
-  });
-  
-  const statusData: ServerStatus | undefined = data;
-  
-  // Tabs for mobile and desktop
-  const tabs = [
-    { id: 'overview', label: t('overview'), icon: <Server className="h-4 w-4" /> },
-    { id: 'storage', label: t('storage'), icon: <HardDrive className="h-4 w-4" /> },
-    { id: 'source', label: t('source'), icon: <FolderOpenDot className="h-4 w-4" /> },
-    { id: 'destination', label: t('destination'), icon: <Database className="h-4 w-4" /> },
-  ];
+  };
 
-  const renderContent = () => (
-    <div className="h-full flex flex-col">
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="w-full grid" style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}>
-          {tabs.map(tab => (
-            <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2">
-              {tab.icon}
-              {!isMobile && <span>{tab.label}</span>}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        
-        <div className="p-4 overflow-y-auto flex-1">
-          {isLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-16 w-full" />
-              <Skeleton className="h-16 w-full" />
+  useEffect(() => {
+    if (isOpen) {
+      getServerStatus();
+    }
+    const intervalId = isOpen ? setInterval(getServerStatus, 30000) : null;
+    
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isOpen]);
+
+  const triggerRefresh = () => {
+    getServerStatus();
+  };
+
+  const getLastRefreshedText = () => {
+    if (!lastRefreshed) return 'Jamais';
+    
+    const now = new Date();
+    const diffMs = now.getTime() - lastRefreshed.getTime();
+    const diffSec = Math.floor(diffMs / 1000);
+    
+    if (diffSec < 60) return `il y a ${diffSec} sec`;
+    if (diffSec < 3600) return `il y a ${Math.floor(diffSec / 60)} min`;
+    
+    return format(lastRefreshed, isMobile ? 'HH:mm' : 'HH:mm:ss', { locale: fr });
+  };
+
+  return (
+    <Drawer open={isOpen} onOpenChange={onOpenChange}>
+      <DrawerContent className="max-h-[85vh]">
+        <DrawerHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Server className="h-5 w-5 text-primary" />
+              <DrawerTitle>État du Serveur</DrawerTitle>
+              <Badge 
+                variant={status?.isAccessible ? "success" : "destructive"}
+                className="text-[0.65rem] h-5"
+              >
+                {status?.isAccessible ? 'En ligne' : 'Hors ligne'}
+              </Badge>
             </div>
-          ) : isError ? (
-            <div className="flex flex-col items-center justify-center text-center space-y-4 py-8">
-              <AlertTriangle className="h-12 w-12 text-destructive" />
-              <h3 className="text-lg font-medium">{t('server_error')}</h3>
-              <p className="text-sm text-muted-foreground">{error instanceof Error ? error.message : t('unknown_error')}</p>
+            
+            <div className="flex items-center gap-2">
+              <DrawerDescription className="m-0">
+                Dernière actualisation: {getLastRefreshedText()}
+              </DrawerDescription>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+                onClick={triggerRefresh}
+                disabled={isLoading}
+              >
+                <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
+              </Button>
+              <DrawerClose className="h-7 w-7 rounded-md border flex items-center justify-center hover:bg-secondary">
+                <X className="h-3.5 w-3.5" />
+                <span className="sr-only">Fermer</span>
+              </DrawerClose>
+            </div>
+          </div>
+        </DrawerHeader>
+        
+        <div className="px-4 py-4">
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="p-4">
+                  <Skeleton className="h-4 w-24 mb-3" />
+                  <Skeleton className="h-3 w-full mb-2" />
+                  <Skeleton className="h-3 w-4/5" />
+                </Card>
+              ))}
             </div>
           ) : (
-            <>
-              <TabsContent value="overview">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">{t('server_status')}</h3>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="bg-card p-4 rounded-lg border shadow-sm">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="text-sm text-muted-foreground">{t('connection_status')}</p>
-                            <h4 className="text-lg font-semibold">
-                              {statusData?.isAccessible ? 
-                                <span className="text-green-500">{t('online')}</span> : 
-                                <span className="text-destructive">{t('offline')}</span>
-                              }
-                            </h4>
-                          </div>
-                          <Badge variant={statusData?.isAccessible ? "default" : "destructive"}>
-                            {statusData?.isAccessible ? t('connected') : t('disconnected')}
-                          </Badge>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-card p-4 rounded-lg border shadow-sm">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="text-sm text-muted-foreground">{t('last_execution')}</p>
-                            <h4 className="text-lg font-semibold">
-                              {statusData?.lastExecutionDate ? 
-                                formatDistanceToNow(new Date(statusData.lastExecutionDate), { addSuffix: true }) : 
-                                t('never')
-                              }
-                            </h4>
-                          </div>
-                          <Clock className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ServerInfoCard
+                icon={<Folder className="h-4 w-4" />}
+                title="Répertoires"
+                items={[
+                  { label: 'Source:', value: status?.sourceDirectory || '—' },
+                  { label: 'Destination:', value: status?.destinationDirectory || '—' }
+                ]}
+              />
               
-              <TabsContent value="storage">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium mb-2">{t('storage_information')}</h3>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm font-medium">{t('source_files')}</span>
-                        <span className="text-sm">{statusData?.sourceFileCount} {t('files')}</span>
-                      </div>
-                      <Progress value={(statusData?.sourceFileCount || 0) / (statusData ? Math.max((statusData.sourceFileCount + statusData.destinationFileCount), 1) : 1) * 100} />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm font-medium">{t('destination_files')}</span>
-                        <span className="text-sm">{statusData?.destinationFileCount} {t('files')}</span>
-                      </div>
-                      <Progress value={(statusData?.destinationFileCount || 0) / (statusData ? Math.max((statusData.sourceFileCount + statusData.destinationFileCount), 1) : 1) * 100} />
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
+              <ServerInfoCard
+                icon={<Files className="h-4 w-4" />}
+                title="Fichiers"
+                items={[
+                  { label: 'Source:', value: `${status?.sourceFileCount.toLocaleString() || '0'} fichiers` },
+                  { label: 'Destination:', value: `${status?.destinationFileCount.toLocaleString() || '0'} fichiers` }
+                ]}
+              />
               
-              <TabsContent value="source">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium mb-2">{t('source_directory')}</h3>
-                  <div className="bg-card p-4 rounded-lg border shadow-sm space-y-3">
-                    <div>
-                      <span className="text-sm text-muted-foreground">{t('path')}</span>
-                      <p className="font-mono text-sm bg-muted p-2 rounded mt-1 break-all">
-                        {statusData?.sourceDirectory || t('not_configured')}
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <span className="text-sm text-muted-foreground">{t('file_count')}</span>
-                      <p className="text-lg font-semibold mt-1">
-                        {statusData?.sourceFileCount || 0} {t('files')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
+              <ServerInfoCard
+                icon={<Calendar className="h-4 w-4" />}
+                title="Dernière exécution"
+                items={[
+                  {
+                    label: '',
+                    value: status?.lastExecutionDate 
+                      ? format(new Date(status.lastExecutionDate), 
+                          isMobile ? 'dd/MM/yy HH:mm' : 'dd MMMM yyyy HH:mm:ss', 
+                          { locale: fr })
+                      : 'Jamais exécuté'
+                  }
+                ]}
+              />
               
-              <TabsContent value="destination">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium mb-2">{t('destination_directory')}</h3>
-                  <div className="bg-card p-4 rounded-lg border shadow-sm space-y-3">
-                    <div>
-                      <span className="text-sm text-muted-foreground">{t('path')}</span>
-                      <p className="font-mono text-sm bg-muted p-2 rounded mt-1 break-all">
-                        {statusData?.destinationDirectory || t('not_configured')}
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <span className="text-sm text-muted-foreground">{t('file_count')}</span>
-                      <p className="text-lg font-semibold mt-1">
-                        {statusData?.destinationFileCount || 0} {t('files')}
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <span className="text-sm text-muted-foreground">{t('format')}</span>
-                      <p className="font-mono text-sm bg-muted p-2 rounded mt-1">
-                        {statusData?.destinationFormat || 'YYYY/MM/DD'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-            </>
+              <ServerInfoCard
+                icon={<FileText className="h-4 w-4" />}
+                title="Configuration"
+                items={[
+                  { label: 'Format:', value: status?.destinationFormat || '—' }
+                ]}
+              />
+            </div>
           )}
         </div>
-      </Tabs>
-    </div>
-  );
-
-  // Use Sheet for Desktop and Drawer for Mobile
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={onOpenChange}>
-      <DrawerContent className="px-0 pb-0">
-        <DrawerHeader className="px-4 pb-0">
-          <DrawerTitle className="flex items-center gap-2">
-            <Server className="h-5 w-5" />
-            <span className="text-xl">{t('server')}</span>
-          </DrawerTitle>
-        </DrawerHeader>
-        {renderContent()}
+        
+        <DrawerFooter className="border-t pt-4">
+          <div className="flex items-center justify-between w-full">
+            {error ? (
+              <p className="text-sm text-destructive">{error}</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {status?.isAccessible 
+                  ? 'Le serveur fonctionne normalement'
+                  : 'Le serveur est actuellement indisponible'}
+              </p>
+            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onOpenChange(false)}
+            >
+              Fermer
+            </Button>
+          </div>
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  ) : (
-    <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="max-w-md p-0">
-        <SheetHeader className="p-4 pb-0">
-          <SheetTitle className="flex items-center gap-2">
-            <Server className="h-5 w-5" />
-            <span>{t('server_status')}</span>
-          </SheetTitle>
-        </SheetHeader>
-        {renderContent()}
-      </SheetContent>
-    </Sheet>
+  );
+};
+
+interface ServerInfoCardProps {
+  icon: React.ReactNode;
+  title: string;
+  items: Array<{ label: string; value: string }>;
+}
+
+const ServerInfoCard: React.FC<ServerInfoCardProps> = ({ icon, title, items }) => {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium flex items-center gap-2">
+          {icon}
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          {items.map((item, index) => (
+            <div key={index} className="grid grid-cols-3 text-xs">
+              {item.label && (
+                <span className="text-muted-foreground">{item.label}</span>
+              )}
+              <span className={cn(
+                "font-mono truncate",
+                item.label ? "col-span-2" : "col-span-3"
+              )} title={item.value}>
+                {item.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
