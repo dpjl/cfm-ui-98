@@ -1,20 +1,10 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, PanelLeft, PanelRight, ChevronDown, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-breakpoint';
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-} from '@/components/ui/drawer';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { cn } from '@/lib/utils';
-
 interface SidePanelProps {
   children: React.ReactNode;
   position: 'left' | 'right';
@@ -22,7 +12,6 @@ interface SidePanelProps {
   onOpenChange: (open: boolean) => void;
   title: string;
 }
-
 const SidePanel: React.FC<SidePanelProps> = ({
   children,
   position,
@@ -32,35 +21,18 @@ const SidePanel: React.FC<SidePanelProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const [isHovered, setIsHovered] = useState(false);
-  
+
   // Mobile drawer implementation
   if (isMobile) {
-    return (
-      <Drawer open={isOpen} onOpenChange={onOpenChange}>
+    return <Drawer open={isOpen} onOpenChange={onOpenChange}>
         <DrawerTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className={cn(
-              "fixed z-40 rounded-full shadow-md bg-primary text-primary-foreground hover:bg-primary/90",
-              position === 'left' 
-                ? "left-3 bottom-[4.5rem]" 
-                : "right-3 bottom-[4.5rem]"
-            )}
-          >
-            {position === 'left' ? <PanelLeft size={18} /> : <PanelRight size={18} />}
-          </Button>
+          
         </DrawerTrigger>
         <DrawerContent className="h-[85vh] max-h-[85vh] rounded-t-xl">
           <div className="p-1 h-full overflow-hidden">
             <div className="flex items-center justify-between mb-2 px-2">
               <h3 className="text-sm font-medium">{title}</h3>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-7 w-7"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button variant="ghost" size="sm" className="h-7 w-7" onClick={() => onOpenChange(false)}>
                 <ChevronDown size={16} />
               </Button>
             </div>
@@ -69,63 +41,28 @@ const SidePanel: React.FC<SidePanelProps> = ({
             </div>
           </div>
         </DrawerContent>
-      </Drawer>
-    );
+      </Drawer>;
   }
-  
+
   // Desktop sheet implementation
-  return (
-    <>
+  return <>
       {/* Closed state button/indicator - simplified to only show text */}
-      {!isOpen && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-            "fixed z-40 h-24 w-10 bg-primary/10 hover:bg-primary/20 transition-all duration-300",
-            position === 'left' 
-              ? "left-0 top-1/3 rounded-r-md" 
-              : "right-0 top-1/3 rounded-l-md",
-            isHovered && "bg-primary/20 w-12"
-          )}
-          onClick={() => onOpenChange(true)}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
+      {!isOpen && <Button variant="ghost" size="icon" className={cn("fixed z-40 h-24 w-10 bg-primary/10 hover:bg-primary/20 transition-all duration-300", position === 'left' ? "left-0 top-1/3 rounded-r-md" : "right-0 top-1/3 rounded-l-md", isHovered && "bg-primary/20 w-12")} onClick={() => onOpenChange(true)} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
           <div className="flex items-center justify-center h-full">
-            <div 
-              className={cn(
-                "text-xs font-medium tracking-wide text-foreground/70 whitespace-nowrap", 
-                position === 'left' 
-                  ? "rotate-90 origin-center" 
-                  : "-rotate-90 origin-center"
-              )}
-            >
+            <div className={cn("text-xs font-medium tracking-wide text-foreground/70 whitespace-nowrap", position === 'left' ? "rotate-90 origin-center" : "-rotate-90 origin-center")}>
               {title}
             </div>
           </div>
-        </Button>
-      )}
+        </Button>}
       
       {/* Open state */}
       <Sheet open={isOpen} onOpenChange={onOpenChange} modal={false}>
-        <SheetContent 
-          side={position} 
-          className={cn(
-            "w-72 p-0 border-0 shadow-lg bg-card/95 backdrop-blur-sm",
-            position === 'left' ? "border-r" : "border-l"
-          )}
-        >
+        <SheetContent side={position} className={cn("w-72 p-0 border-0 shadow-lg bg-card/95 backdrop-blur-sm", position === 'left' ? "border-r" : "border-l")}>
           <div className="h-full flex flex-col p-0 overflow-hidden">
             <div className="flex items-center justify-between p-3 border-b">
               <h3 className="text-sm font-medium">{title}</h3>
               {/* Add our custom close button */}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-7 w-7"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onOpenChange(false)}>
                 <X size={16} />
               </Button>
             </div>
@@ -135,8 +72,6 @@ const SidePanel: React.FC<SidePanelProps> = ({
           </div>
         </SheetContent>
       </Sheet>
-    </>
-  );
+    </>;
 };
-
 export default SidePanel;
