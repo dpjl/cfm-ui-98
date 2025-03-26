@@ -1,9 +1,12 @@
-import React from 'react';
+
+import React, { useMemo } from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
 import { Separator } from '@/components/ui/separator';
 import { MediaFilter } from '@/components/AppSidebar';
+import { Button } from '@/components/ui/button';
+import { PanelLeft, PanelRight } from 'lucide-react';
 
 interface MobileGalleriesViewProps {
   columnsCountLeft: number;
@@ -80,7 +83,6 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 viewMode={mobileViewMode === 'left' ? 'single' : 'split'}
                 filter={leftFilter}
                 hideMobileColumns={true}
-                onToggleSidebar={onToggleLeftPanel}
               />
             )}
           </div>
@@ -118,19 +120,39 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 viewMode={mobileViewMode === 'right' ? 'single' : 'split'}
                 filter={rightFilter}
                 hideMobileColumns={true}
-                onToggleSidebar={onToggleRightPanel}
               />
             )}
           </div>
         </div>
       </div>
       
-      {/* Only keep the view mode switcher in the bottom menu */}
-      <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center z-20">
+      {/* Mode switcher and sidebar buttons */}
+      <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-20">
+        {/* Left sidebar button */}
+        <Button 
+          variant="secondary" 
+          size="icon"
+          className="rounded-full shadow-md h-10 w-10"
+          onClick={onToggleLeftPanel}
+        >
+          <PanelLeft className="h-5 w-5" />
+        </Button>
+        
+        {/* Mode switcher */}
         <MobileViewSwitcher 
           mobileViewMode={mobileViewMode}
           setMobileViewMode={setMobileViewMode}
         />
+        
+        {/* Right sidebar button */}
+        <Button 
+          variant="secondary" 
+          size="icon"
+          className="rounded-full shadow-md h-10 w-10"
+          onClick={onToggleRightPanel}
+        >
+          <PanelRight className="h-5 w-5" />
+        </Button>
       </div>
     </div>
   );
