@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
@@ -10,6 +11,7 @@ import PageHeader from '@/components/layout/PageHeader';
 import ServerStatusPanel from '@/components/ServerStatusPanel';
 import { MobileViewMode } from '@/types/gallery';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 
 const Index = () => {
   const { toast } = useToast();
@@ -18,14 +20,15 @@ const Index = () => {
   
   const isMobile = useIsMobile();
   
-  const [desktopColumnsLeft, setDesktopColumnsLeft] = useState<number>(5);
-  const [desktopColumnsRight, setDesktopColumnsRight] = useState<number>(5);
-  const [desktopSingleColumnsLeft, setDesktopSingleColumnsLeft] = useState<number>(6);
-  const [desktopSingleColumnsRight, setDesktopSingleColumnsRight] = useState<number>(6);
-  const [mobileSplitColumnsLeft, setMobileSplitColumnsLeft] = useState<number>(2);
-  const [mobileSplitColumnsRight, setMobileSplitColumnsRight] = useState<number>(2);
-  const [mobileSingleColumnsLeft, setMobileSingleColumnsLeft] = useState<number>(4);
-  const [mobileSingleColumnsRight, setMobileSingleColumnsRight] = useState<number>(4);
+  // Column counts for different modes, stored in local storage
+  const [desktopColumnsLeft, setDesktopColumnsLeft] = useLocalStorage('desktop-split-columns-left', 5);
+  const [desktopColumnsRight, setDesktopColumnsRight] = useLocalStorage('desktop-split-columns-right', 5);
+  const [desktopSingleColumnsLeft, setDesktopSingleColumnsLeft] = useLocalStorage('desktop-single-columns-left', 6);
+  const [desktopSingleColumnsRight, setDesktopSingleColumnsRight] = useLocalStorage('desktop-single-columns-right', 6);
+  const [mobileSplitColumnsLeft, setMobileSplitColumnsLeft] = useLocalStorage('mobile-split-columns-left', 2);
+  const [mobileSplitColumnsRight, setMobileSplitColumnsRight] = useLocalStorage('mobile-split-columns-right', 2);
+  const [mobileSingleColumnsLeft, setMobileSingleColumnsLeft] = useLocalStorage('mobile-single-columns-left', 4);
+  const [mobileSingleColumnsRight, setMobileSingleColumnsRight] = useLocalStorage('mobile-single-columns-right', 4);
   
   const [selectedIdsLeft, setSelectedIdsLeft] = useState<string[]>([]);
   const [selectedIdsRight, setSelectedIdsRight] = useState<string[]>([]);
@@ -40,6 +43,7 @@ const Index = () => {
   
   const queryClient = useQueryClient();
   
+  // Get current column count based on view mode and device
   const getCurrentColumnsLeft = (): number => {
     if (isMobile) {
       return viewMode === 'both' ? mobileSplitColumnsLeft : mobileSingleColumnsLeft;
@@ -54,37 +58,36 @@ const Index = () => {
     return viewMode === 'both' ? desktopColumnsRight : desktopSingleColumnsRight;
   };
   
-  const handleLeftColumnsChange = (viewMode: 'desktop' | 'desktop-single' | 'mobile-split' | 'mobile-single', count: number) => {
-    switch (viewMode) {
-      case 'desktop':
-        setDesktopColumnsLeft(count);
-        break;
-      case 'desktop-single':
-        setDesktopSingleColumnsLeft(count);
-        break;
-      case 'mobile-split':
+  // Update column count for the specific view mode
+  const handleLeftColumnsChange = (count: number) => {
+    if (isMobile) {
+      if (viewMode === 'both') {
         setMobileSplitColumnsLeft(count);
-        break;
-      case 'mobile-single':
+      } else {
         setMobileSingleColumnsLeft(count);
-        break;
+      }
+    } else {
+      if (viewMode === 'both') {
+        setDesktopColumnsLeft(count);
+      } else {
+        setDesktopSingleColumnsLeft(count);
+      }
     }
   };
   
-  const handleRightColumnsChange = (viewMode: 'desktop' | 'desktop-single' | 'mobile-split' | 'mobile-single', count: number) => {
-    switch (viewMode) {
-      case 'desktop':
-        setDesktopColumnsRight(count);
-        break;
-      case 'desktop-single':
-        setDesktopSingleColumnsRight(count);
-        break;
-      case 'mobile-split':
+  const handleRightColumnsChange = (count: number) => {
+    if (isMobile) {
+      if (viewMode === 'both') {
         setMobileSplitColumnsRight(count);
-        break;
-      case 'mobile-single':
+      } else {
         setMobileSingleColumnsRight(count);
-        break;
+      }
+    } else {
+      if (viewMode === 'both') {
+        setDesktopColumnsRight(count);
+      } else {
+        setDesktopSingleColumnsRight(count);
+      }
     }
   };
   
@@ -137,6 +140,14 @@ const Index = () => {
     }
   };
 
+  const toggleLeftPanel = () => {
+    setLeftPanelOpen(prev => !prev);
+  };
+
+  const toggleRightPanel = () => {
+    setRightPanelOpen(prev => !prev);
+  };
+
   const closeBothSidebars = () => {
     setLeftPanelOpen(false);
     setRightPanelOpen(false);
@@ -150,6 +161,20 @@ const Index = () => {
         <ServerStatusPanel 
           isOpen={serverPanelOpen}
           onOpenChange={setServerPanelOpen}
+        />
+        
+        <PageHeader 
+          onRefresh={handleRefresh}
+          isDeletionPending={deleteMutation.isPending}
+          isSidebarOpen={isSidebarOpen}
+          onCloseSidebars={closeBothSidebars}
+          mobileViewMode={viewMode}
+          setMobileViewMode={setViewMode}
+          selectedIdsLeft={selectedIdsLeft}
+          selectedIdsRight={selectedIdsRight}
+          onDelete={handleDelete}
+          onToggleServerPanel={() => setServerPanelOpen(!serverPanelOpen)}
+          isServerPanelOpen={serverPanelOpen}
         />
         
         <div className="flex h-full overflow-hidden mt-2 relative">
@@ -166,25 +191,21 @@ const Index = () => {
               selectedFilter={leftFilter}
               onFilterChange={setLeftFilter}
               mobileViewMode={viewMode}
-              onColumnsChange={handleLeftColumnsChange}
+              onColumnsChange={(viewMode, count) => {
+                if (viewMode === 'desktop') {
+                  setDesktopColumnsLeft(count);
+                } else if (viewMode === 'desktop-single') {
+                  setDesktopSingleColumnsLeft(count);
+                } else if (viewMode === 'mobile-split') {
+                  setMobileSplitColumnsLeft(count);
+                } else if (viewMode === 'mobile-single') {
+                  setMobileSingleColumnsLeft(count);
+                }
+              }}
             />
           </SidePanel>
 
           <div className="flex-1 flex flex-col overflow-hidden">
-            <PageHeader 
-              onRefresh={() => {}}
-              isDeletionPending={deleteMutation.isPending}
-              isSidebarOpen={isSidebarOpen}
-              onCloseSidebars={closeBothSidebars}
-              mobileViewMode={viewMode}
-              setMobileViewMode={setViewMode}
-              selectedIdsLeft={selectedIdsLeft}
-              selectedIdsRight={selectedIdsRight}
-              onDelete={handleDelete}
-              onToggleServerPanel={() => setServerPanelOpen(!serverPanelOpen)}
-              isServerPanelOpen={serverPanelOpen}
-            />
-            
             <GalleriesContainer 
               columnsCountLeft={getCurrentColumnsLeft()}
               columnsCountRight={getCurrentColumnsRight()}
@@ -203,6 +224,8 @@ const Index = () => {
               setMobileViewMode={setViewMode}
               leftFilter={leftFilter}
               rightFilter={rightFilter}
+              onToggleLeftPanel={toggleLeftPanel}
+              onToggleRightPanel={toggleRightPanel}
             />
           </div>
 
@@ -219,7 +242,17 @@ const Index = () => {
               selectedFilter={rightFilter}
               onFilterChange={setRightFilter}
               mobileViewMode={viewMode}
-              onColumnsChange={handleRightColumnsChange}
+              onColumnsChange={(viewMode, count) => {
+                if (viewMode === 'desktop') {
+                  setDesktopColumnsRight(count);
+                } else if (viewMode === 'desktop-single') {
+                  setDesktopSingleColumnsRight(count);
+                } else if (viewMode === 'mobile-split') {
+                  setMobileSplitColumnsRight(count);
+                } else if (viewMode === 'mobile-single') {
+                  setMobileSingleColumnsRight(count);
+                }
+              }}
             />
           </SidePanel>
         </div>

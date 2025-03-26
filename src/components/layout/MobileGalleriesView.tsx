@@ -5,6 +5,8 @@ import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
 import { Separator } from '@/components/ui/separator';
 import { MediaFilter } from '@/components/AppSidebar';
+import { Button } from '@/components/ui/button';
+import { PanelLeft, PanelRight } from 'lucide-react';
 
 interface MobileGalleriesViewProps {
   columnsCountLeft: number;
@@ -24,6 +26,8 @@ interface MobileGalleriesViewProps {
   deleteMutation: any;
   leftFilter?: MediaFilter;
   rightFilter?: MediaFilter;
+  onToggleLeftPanel: () => void;
+  onToggleRightPanel: () => void;
 }
 
 const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
@@ -43,7 +47,9 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   setDeleteDialogOpen,
   deleteMutation,
   leftFilter = 'all',
-  rightFilter = 'all'
+  rightFilter = 'all',
+  onToggleLeftPanel,
+  onToggleRightPanel
 }) => {
   return (
     <div className="flex-1 overflow-hidden h-full relative">
@@ -120,11 +126,34 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
         </div>
       </div>
       
-      {/* Mode switcher floating button */}
-      <MobileViewSwitcher 
-        mobileViewMode={mobileViewMode}
-        setMobileViewMode={setMobileViewMode}
-      />
+      {/* Mode switcher and sidebar buttons */}
+      <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-20">
+        {/* Left sidebar button */}
+        <Button 
+          variant="secondary" 
+          size="icon"
+          className="rounded-full shadow-md h-10 w-10"
+          onClick={onToggleLeftPanel}
+        >
+          <PanelLeft className="h-5 w-5" />
+        </Button>
+        
+        {/* Mode switcher */}
+        <MobileViewSwitcher 
+          mobileViewMode={mobileViewMode}
+          setMobileViewMode={setMobileViewMode}
+        />
+        
+        {/* Right sidebar button */}
+        <Button 
+          variant="secondary" 
+          size="icon"
+          className="rounded-full shadow-md h-10 w-10"
+          onClick={onToggleRightPanel}
+        >
+          <PanelRight className="h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 };

@@ -24,6 +24,7 @@ interface GalleryContainerProps {
   viewMode?: 'single' | 'split';
   filter?: MediaFilter;
   hideMobileColumns?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 const GalleryContainer: React.FC<GalleryContainerProps> = ({
@@ -40,7 +41,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
   hideHeader = false,
   viewMode = 'single',
   filter = 'all',
-  hideMobileColumns = false
+  hideMobileColumns = false,
+  onToggleSidebar
 }) => {
   const { t } = useLanguage();
   const [mediaIds, setMediaIds] = useState<string[]>([]);
@@ -133,6 +135,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
           title={title}
           filter={filter}
           position={apiPosition}
+          onToggleSidebar={onToggleSidebar}
         />
       </div>
       

@@ -27,9 +27,9 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
   }, [setMobileViewMode]);
   
   return (
-    <div className="mobile-view-switcher fixed bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 bg-background shadow-md border border-border rounded-full p-2">
+    <div className="bg-background shadow-md border border-border rounded-full p-2 flex gap-2">
       <Button 
-        variant={mobileViewMode === 'left' ? "default" : "outline"} 
+        variant={mobileViewMode === 'left' ? "default" : "ghost"} 
         size="icon" 
         onClick={handleLeftView}
         className="h-10 w-10 rounded-full"
@@ -39,7 +39,7 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
       </Button>
       
       <Button 
-        variant={mobileViewMode === 'both' ? "default" : "outline"} 
+        variant={mobileViewMode === 'both' ? "default" : "ghost"} 
         size="icon" 
         onClick={handleSplitView}
         className="h-10 w-10 rounded-full"
@@ -49,11 +49,11 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
       </Button>
       
       <Button 
-        variant={mobileViewMode === 'right' ? "default" : "outline"} 
+        variant={mobileViewMode === 'right' ? "default" : "ghost"} 
         size="icon" 
         onClick={handleRightView}
         className="h-10 w-10 rounded-full"
-        title="Destination Gallery View"
+        title="Destination Gallery Only"
       >
         <GalleryVerticalEnd className="h-5 w-5" />
       </Button>

@@ -1,9 +1,6 @@
 
-import React, { memo } from 'react';
+import React, { useState } from 'react';
 import Gallery from '@/components/Gallery';
-import GalleryEmptyState from '@/components/gallery/GalleryEmptyState';
-import GallerySkeletons from '@/components/gallery/GallerySkeletons';
-import GalleryError from '@/components/gallery/GalleryError';
 
 interface GalleryContentProps {
   mediaIds: string[];
@@ -13,16 +10,16 @@ interface GalleryContentProps {
   isError: boolean;
   error: unknown;
   columnsCount: number;
-  viewMode: 'single' | 'split';
+  viewMode?: 'single' | 'split';
   onPreviewItem: (id: string) => void;
   onDeleteSelected: () => void;
   title: string;
   filter?: string;
   position?: 'source' | 'destination';
+  onToggleSidebar?: () => void;
 }
 
-// Using memo to prevent unnecessary re-renders
-const GalleryContent: React.FC<GalleryContentProps> = memo(({
+const GalleryContent: React.FC<GalleryContentProps> = ({
   mediaIds,
   selectedIds,
   onSelectId,
@@ -30,25 +27,14 @@ const GalleryContent: React.FC<GalleryContentProps> = memo(({
   isError,
   error,
   columnsCount,
-  viewMode,
+  viewMode = 'single',
   onPreviewItem,
   onDeleteSelected,
   title,
   filter = 'all',
-  position = 'source'
+  position = 'source',
+  onToggleSidebar
 }) => {
-  if (isLoading) {
-    return <GallerySkeletons columnsCount={columnsCount} />;
-  }
-
-  if (isError) {
-    return <GalleryError error={error} />;
-  }
-
-  if (mediaIds.length === 0) {
-    return <GalleryEmptyState filter={filter} />;
-  }
-
   return (
     <Gallery
       title={title}
@@ -61,11 +47,12 @@ const GalleryContent: React.FC<GalleryContentProps> = memo(({
       viewMode={viewMode}
       onDeleteSelected={onDeleteSelected}
       position={position}
+      isError={isError}
+      error={error}
+      filter={filter}
+      onToggleSidebar={onToggleSidebar}
     />
   );
-});
-
-// Set component display name for debugging
-GalleryContent.displayName = 'GalleryContent';
+};
 
 export default GalleryContent;
