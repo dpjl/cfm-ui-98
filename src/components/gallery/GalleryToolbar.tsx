@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckSquare, Square, Calendar, CalendarOff, Eye, Download, Trash2, PanelLeft, PanelRight, Settings } from 'lucide-react';
+import { CheckSquare, Square, Calendar, CalendarOff, Eye, Download, Trash2, PanelLeft, Users, UserPlus } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DetailedMediaInfo } from '@/api/imageApi';
+import { SelectionMode } from '@/hooks/use-gallery-selection';
 
 interface GalleryToolbarProps {
   selectedIds: string[];
@@ -21,6 +22,8 @@ interface GalleryToolbarProps {
   mediaInfoMap?: Map<string, DetailedMediaInfo | null>;
   position?: 'source' | 'destination';
   onToggleSidebar?: () => void;
+  selectionMode: SelectionMode;
+  onToggleSelectionMode: () => void;
 }
 
 const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
@@ -37,6 +40,8 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
   mediaInfoMap,
   position = 'source',
   onToggleSidebar,
+  selectionMode,
+  onToggleSelectionMode
 }) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
@@ -104,6 +109,29 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
           </Tooltip>
         </TooltipProvider>
         
+        {/* Bouton de sélection multiple */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onToggleSelectionMode}
+                variant={selectionMode === 'multiple' ? "default" : "outline"}
+                size="icon"
+                className="h-7 w-7"
+              >
+                {selectionMode === 'multiple' ? (
+                  <Users className="h-3.5 w-3.5" />
+                ) : (
+                  <UserPlus className="h-3.5 w-3.5" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{selectionMode === 'multiple' ? t('single_selection') : t('multiple_selection')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
         {/* Sidebar toggle for desktop mode only */}
         {!isMobile && onToggleSidebar && (
           <TooltipProvider>
@@ -115,7 +143,7 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
                   size="icon"
                   className="h-7 w-7"
                 >
-                  <Settings className="h-3.5 w-3.5" />
+                  <PanelLeft className="h-3.5 w-3.5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top">

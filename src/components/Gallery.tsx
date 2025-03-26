@@ -10,6 +10,7 @@ import { useGallerySelection } from '@/hooks/use-gallery-selection';
 import { useGalleryPreviewHandler } from '@/hooks/use-gallery-preview-handler';
 import GalleryToolbar from './gallery/GalleryToolbar';
 import { useGalleryMediaHandler } from '@/hooks/use-gallery-media-handler';
+import MediaInfoPanel from './media/MediaInfoPanel';
 
 export interface ImageItem {
   id: string;
@@ -57,12 +58,12 @@ const Gallery: React.FC<GalleryProps> = ({
   const [mediaInfoMap, setMediaInfoMap] = useState<Map<string, DetailedMediaInfo | null>>(new Map());
   const { t } = useLanguage();
   
-  // Initialize gallery selection features
-  const selection = useGallerySelection(
+  // Initialize gallery selection features with the new hook structure
+  const selection = useGallerySelection({
     mediaIds,
     selectedIds,
     onSelectId
-  );
+  });
   
   // Initialize preview features
   const preview = useGalleryPreviewHandler(
@@ -88,6 +89,9 @@ const Gallery: React.FC<GalleryProps> = ({
   const toggleDates = () => {
     setShowDates(prev => !prev);
   };
+  
+  // Déterminer si nous devons afficher le panneau d'information
+  const shouldShowInfoPanel = selectedIds.length === 1 && selection.selectionMode === 'single';
   
   if (isLoading) {
     return (
@@ -123,7 +127,20 @@ const Gallery: React.FC<GalleryProps> = ({
         mediaInfoMap={mediaInfoMap}
         position={position}
         onToggleSidebar={onToggleSidebar}
+        selectionMode={selection.selectionMode}
+        onToggleSelectionMode={selection.toggleSelectionMode}
       />
+      
+      {/* Panneau d'information des médias pour un seul élément sélectionné */}
+      {shouldShowInfoPanel && (
+        <MediaInfoPanel
+          selectedIds={selectedIds}
+          onOpenPreview={preview.handleOpenPreview}
+          onDeleteSelected={onDeleteSelected}
+          onDownloadSelected={mediaHandler.handleDownloadSelected}
+          mediaInfoMap={mediaInfoMap}
+        />
+      )}
       
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />

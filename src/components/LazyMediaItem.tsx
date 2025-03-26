@@ -31,6 +31,9 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   position
 }) => {
   const [loaded, setLoaded] = useState(false);
+  const [longPressTriggered, setLongPressTriggered] = useState(false);
+  const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
+  
   const { elementRef, isIntersecting } = useIntersectionObserver<HTMLDivElement>({ 
     threshold: 0.1, 
     freezeOnceVisible: true 
@@ -38,6 +41,15 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting, position);
   const { getCachedThumbnailUrl, setCachedThumbnailUrl } = useMediaCache();
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  
+  // Nettoyer le timer quand le composant est démonté
+  useEffect(() => {
+    return () => {
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+      }
+    };
+  }, [pressTimer]);
   
   // Load thumbnail URL, using cache if available
   useEffect(() => {
@@ -64,17 +76,38 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   // Determine if this is a video based on the file extension if available
   const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
   
-  // Improved handler for selecting the item with shift key support and better touch handling
+  // Gestion des clics
   const handleItemClick = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default behavior
-    onSelect(id, e.shiftKey);
+    onSelect(id, e.shiftKey || e.ctrlKey || e.metaKey);
   };
   
-  // Create a separate touch handler for mobile devices
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault(); // Prevent default behavior
-    // We don't have shift key support on touch, so always pass false
-    onSelect(id, false);
+  // Gestion du appui long pour les mobiles (comme alternative au Ctrl+click)
+  const handleTouchStart = () => {
+    // Démarrer le timer pour détecter un appui long
+    const timer = setTimeout(() => {
+      setLongPressTriggered(true);
+      // Simuler un "Ctrl+click" en passant true comme second argument
+      onSelect(id, true);
+    }, 500); // 500ms est un bon délai pour un appui long
+    
+    setPressTimer(timer);
+  };
+  
+  const handleTouchEnd = () => {
+    // Annuler le timer si l'utilisateur relâche trop tôt
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      setPressTimer(null);
+    }
+    
+    // Si ce n'était pas un appui long, traiter comme un clic normal
+    if (!longPressTriggered) {
+      onSelect(id, false);
+    }
+    
+    // Réinitialiser l'état pour le prochain appui
+    setLongPressTriggered(false);
   };
   
   // Simplified animation variants for better performance
@@ -116,6 +149,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
             selected && "selected",
           )}
           onClick={handleItemClick}
+          onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           role="button"
           aria-label={`Media item ${mediaInfo?.alt || id}`}
@@ -124,7 +158,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              onSelect(id, e.shiftKey);
+              onSelect(id, e.shiftKey || e.ctrlKey || e.metaKey);
             }
           }}
           data-media-id={id}
@@ -144,7 +178,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
             selected={selected}
             onSelect={(e) => {
               e.stopPropagation();
-              onSelect(id, e.shiftKey);
+              onSelect(id, e.shiftKey || e.ctrlKey || e.metaKey);
             }}
             loaded={loaded}
             mediaId={id}
