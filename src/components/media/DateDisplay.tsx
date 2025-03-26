@@ -1,29 +1,41 @@
 
 import React from 'react';
+import { cn } from '@/lib/utils';
 import { Calendar } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { useIsMobile } from '@/hooks/use-breakpoint';
 
 interface DateDisplayProps {
-  dateString: string | null;
-  showDate?: boolean;
+  date?: string;
+  createdAt?: string; 
+  loaded?: boolean;
 }
 
-const DateDisplay: React.FC<DateDisplayProps> = ({ dateString, showDate = false }) => {
-  const isMobile = useIsMobile();
+const DateDisplay: React.FC<DateDisplayProps> = ({ 
+  date, 
+  createdAt, 
+  loaded = false 
+}) => {
+  // Use either date or createdAt
+  const dateString = date || createdAt;
   
-  if (!dateString || !showDate) return null;
+  if (!dateString) return null;
   
-  // Format date based on device type
-  const formattedDate = isMobile 
-    ? format(new Date(dateString), 'dd/MM/yy', { locale: fr })  // Shorter format for mobile
-    : format(new Date(dateString), 'dd MMM yyyy', { locale: fr }); // Standard format for desktop
+  const formattedDate = new Date(dateString).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
   
   return (
-    <div className="absolute bottom-2 left-2 z-10 bg-black/70 px-1.5 py-0.5 text-[10px] rounded-md text-white flex items-center date-display-small">
-      <Calendar className="h-2.5 w-2.5 mr-0.5 date-icon" />
-      {formattedDate}
+    <div 
+      className={cn(
+        "absolute bottom-0 left-0 right-0 p-1 bg-gradient-to-t from-black/60 to-transparent z-10",
+        "text-white text-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200",
+        loaded ? "translate-y-0" : "translate-y-2",
+        "transition-all duration-300 ease-out"
+      )}
+    >
+      <Calendar className="h-3 w-3" />
+      <span>{formattedDate}</span>
     </div>
   );
 };

@@ -7,10 +7,16 @@ type ServerStatusQueryOptions = Omit<
   'queryFn'
 >;
 
-export function useServerStatus(options: ServerStatusQueryOptions) {
-  return useQuery({
+export function useServerStatus(options: ServerStatusQueryOptions = {}) {
+  const query = useQuery({
     queryKey: options.queryKey || ['serverStatus'],
     queryFn: fetchServerStatus,
     ...options,
   });
+
+  return {
+    ...query,
+    status: query.data,
+    isLoading: query.isPending
+  };
 }

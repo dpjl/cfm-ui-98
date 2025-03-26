@@ -16,6 +16,8 @@ interface ImageCardProps {
   showDate?: boolean;
   position?: 'source' | 'destination';
   updateMediaInfo?: (id: string, info: DetailedMediaInfo | null) => void;
+  onTouchStart?: (id: string) => void;
+  onTouchEnd?: () => void;
 }
 
 const ImageCard: React.FC<ImageCardProps> = ({
@@ -25,11 +27,13 @@ const ImageCard: React.FC<ImageCardProps> = ({
   onImageLoad,
   showDate = false,
   position = 'source',
-  updateMediaInfo
+  updateMediaInfo,
+  onTouchStart,
+  onTouchEnd
 }) => {
   const [loaded, setLoaded] = useState(false);
   const isMobile = useIsMobile();
-  const { mediaInfo, isLoading: isLoadingInfo } = useMediaInfo(id, position);
+  const { mediaInfo, isLoading: isLoadingInfo } = useMediaInfo(id, true, position);
   
   // Call the updateMediaInfo callback when media info changes
   React.useEffect(() => {
@@ -51,7 +55,15 @@ const ImageCard: React.FC<ImageCardProps> = ({
   
   const handleTouchStart = () => {
     // For mobile long-press handling
-    onSelect(id, true); // Use true to indicate potential multi-select
+    if (onTouchStart) {
+      onTouchStart(id);
+    }
+  };
+  
+  const handleTouchEnd = () => {
+    if (onTouchEnd) {
+      onTouchEnd();
+    }
   };
   
   return (
@@ -62,11 +74,12 @@ const ImageCard: React.FC<ImageCardProps> = ({
         selected && "shadow-md border-2 border-primary ring-1 ring-primary"
       )}
       onClick={() => onSelect(id, false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <SelectionCheckbox 
         selected={selected} 
         onSelect={handleSelect}
-        onTouchStart={isMobile ? handleTouchStart : undefined}
         loaded={loaded}
         mediaId={id}
       />
@@ -75,10 +88,14 @@ const ImageCard: React.FC<ImageCardProps> = ({
         id={id} 
         position={position} 
         onLoad={handleImageLoad}
+        loaded={loaded}
       />
       
       {showDate && loaded && mediaInfo?.createdAt && (
-        <DateDisplay date={mediaInfo.createdAt} loaded={loaded} />
+        <DateDisplay 
+          createdAt={mediaInfo.createdAt} 
+          loaded={loaded} 
+        />
       )}
     </div>
   );

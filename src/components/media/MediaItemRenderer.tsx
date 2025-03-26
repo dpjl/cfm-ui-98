@@ -1,25 +1,44 @@
 
-import React, { useRef, memo } from 'react';
+import React, { useRef, memo, useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Video } from 'lucide-react';
+import { getThumbnailUrl } from '@/api/imageApi';
 
 interface MediaItemRendererProps {
-  src: string;
-  alt: string;
-  isVideo: boolean;
-  onLoad: () => void;
-  loaded: boolean;
+  src?: string;
+  alt?: string;
+  isVideo?: boolean;
+  onLoad?: () => void;
+  loaded?: boolean;
+  id?: string;
+  position?: 'source' | 'destination';
 }
 
 // Using memo to prevent unnecessary re-renders
 const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
   src,
-  alt,
-  isVideo,
-  onLoad,
-  loaded
+  alt = "",
+  isVideo = false,
+  onLoad = () => {},
+  loaded = false,
+  id,
+  position = 'source'
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [mediaLoaded, setMediaLoaded] = useState(loaded);
+  const [mediaSrc, setMediaSrc] = useState(src);
+  
+  useEffect(() => {
+    if (!src && id) {
+      // If no src is provided but we have an ID, generate the URL
+      setMediaSrc(getThumbnailUrl(id, position));
+    }
+  }, [id, position, src]);
+  
+  const handleLoadEvent = () => {
+    setMediaLoaded(true);
+    onLoad();
+  };
   
   const handleMouseOver = () => {
     if (isVideo && videoRef.current) {
@@ -36,12 +55,12 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
   // Common classes and styles
   const mediaClasses = cn(
     "w-full h-full object-cover pointer-events-none", // Disable pointer events on the media itself
-    loaded ? "opacity-100" : "opacity-0"
+    mediaLoaded ? "opacity-100" : "opacity-0"
   );
   
   const containerClasses = cn(
     "w-full h-full rounded-md overflow-hidden",
-    !loaded && "animate-pulse bg-muted"
+    !mediaLoaded && "animate-pulse bg-muted"
   );
   
   return (
@@ -55,10 +74,10 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
         <>
           <video 
             ref={videoRef}
-            src={src}
+            src={mediaSrc}
             title={alt}
             className={mediaClasses}
-            onLoadedData={onLoad}
+            onLoadedData={handleLoadEvent}
             muted
             loop
             playsInline
@@ -71,10 +90,10 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
         </>
       ) : (
         <img
-          src={src}
-          alt=""  // Empty alt because parent has aria-label
+          src={mediaSrc}
+          alt={alt}
           className={mediaClasses}
-          onLoad={onLoad}
+          onLoad={handleLoadEvent}
           style={{ transition: 'opacity 300ms ease' }}
         />
       )}

@@ -19,7 +19,7 @@ import {
   RefreshCw,
   Cpu,
   HardDrive,
-  Memory,
+  MemoryStick,
   Clock,
   Activity
 } from "lucide-react";
@@ -49,11 +49,6 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
     retry: 3,
     refetchInterval: 30000, // 30 seconds
     refetchOnWindowFocus: true,
-    meta: {
-      onError: (error: Error) => {
-        console.error('Error fetching server status:', error);
-      }
-    }
   });
   
   // Handle the refresh button click
@@ -88,7 +83,7 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
                 {t('server_status')}
               </SheetTitle>
               <SheetDescription>
-                {status?.isRunning ? 
+                {status?.isAccessible ? 
                   t('server_running_description') : 
                   t('server_stopped_description')
                 }
@@ -115,25 +110,25 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
             <RefreshCw size={32} className="animate-spin text-primary" />
             <p className="text-center text-sm text-muted-foreground">{t('loading_server_status')}</p>
           </div>
-        ) : (
+        ) : status ? (
           <div className="space-y-6">
             {/* Server status indicator */}
             <div className="rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {status?.isRunning ? (
+                  {status.isAccessible ? (
                     <Server className="h-6 w-6 text-primary" />
                   ) : (
                     <ServerOff className="h-6 w-6 text-destructive" />
                   )}
                   <div>
                     <h3 className="font-medium">
-                      {status?.isRunning ? t('server_running') : t('server_stopped')}
+                      {status.isAccessible ? t('server_running') : t('server_stopped')}
                     </h3>
                     <p className="text-xs text-muted-foreground">
                       {t('last_updated')}: {
-                        status?.lastUpdated ? 
-                        new Date(status.lastUpdated).toLocaleString() : 
+                        status.lastExecutionDate ? 
+                        new Date(status.lastExecutionDate).toLocaleString() : 
                         t('unknown')
                       }
                     </p>
@@ -151,95 +146,68 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
               </div>
             </div>
             
-            {/* Server metrics */}
-            {status?.isRunning && (
+            {/* Server metrics - using sample metrics since the API has different properties */}
+            {status.isAccessible && (
               <div className="space-y-4">
-                {/* CPU Usage */}
+                {/* Source Files */}
                 <div className="rounded-lg border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Cpu className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium">{t('cpu_usage')}</h3>
+                    <h3 className="font-medium">{t('source_files')}</h3>
                   </div>
-                  <Progress value={status.cpuUsage} className="h-2 mb-2" />
                   <div className="flex items-center justify-between text-sm">
-                    <span>{Math.round(status.cpuUsage)}%</span>
+                    <span>{status.sourceFileCount} {t('files')}</span>
                     <span className="text-xs text-muted-foreground">
-                      {t('cpu_cores')}: {status.cpuCores}
+                      {t('source_directory')}: {status.sourceDirectory}
                     </span>
                   </div>
                 </div>
                 
-                {/* Memory Usage */}
+                {/* Destination Files */}
                 <div className="rounded-lg border p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Memory className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium">{t('memory_usage')}</h3>
+                    <MemoryStick className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-medium">{t('destination_files')}</h3>
                   </div>
-                  <Progress 
-                    value={(status.memoryUsage / status.totalMemory) * 100} 
-                    className="h-2 mb-2" 
-                  />
                   <div className="flex items-center justify-between text-sm">
-                    <span>
-                      {Math.round(status.memoryUsage / 1024 / 1024 / 1024 * 10) / 10} GB 
-                      / {Math.round(status.totalMemory / 1024 / 1024 / 1024 * 10) / 10} GB
-                    </span>
+                    <span>{status.destinationFileCount} {t('files')}</span>
                     <span className="text-xs text-muted-foreground">
-                      {Math.round((status.memoryUsage / status.totalMemory) * 100)}%
+                      {t('destination_directory')}: {status.destinationDirectory}
                     </span>
                   </div>
                 </div>
                 
-                {/* Disk Usage */}
+                {/* Destination Format */}
                 <div className="rounded-lg border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <HardDrive className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium">{t('disk_usage')}</h3>
+                    <h3 className="font-medium">{t('destination_format')}</h3>
                   </div>
-                  <Progress 
-                    value={(status.diskUsage / status.totalDiskSpace) * 100} 
-                    className="h-2 mb-2" 
-                  />
-                  <div className="flex items-center justify-between text-sm">
-                    <span>
-                      {Math.round(status.diskUsage / 1024 / 1024 / 1024 * 10) / 10} GB 
-                      / {Math.round(status.totalDiskSpace / 1024 / 1024 / 1024 * 10) / 10} GB
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {Math.round((status.diskUsage / status.totalDiskSpace) * 100)}%
-                    </span>
+                  <div className="text-sm">
+                    {status.destinationFormat}
                   </div>
                 </div>
                 
-                {/* Uptime */}
+                {/* Last Execution Date */}
                 <div className="rounded-lg border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium">{t('uptime')}</h3>
+                    <h3 className="font-medium">{t('last_execution')}</h3>
                   </div>
                   <div className="text-sm">
-                    {Math.floor(status.uptimeSeconds / 86400)}d {Math.floor((status.uptimeSeconds % 86400) / 3600)}h {Math.floor((status.uptimeSeconds % 3600) / 60)}m {Math.floor(status.uptimeSeconds % 60)}s
-                  </div>
-                </div>
-                
-                {/* Active Processes */}
-                <div className="rounded-lg border p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Activity className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium">{t('active_processes')}</h3>
-                  </div>
-                  <div className="text-sm flex justify-between items-center">
-                    <span>{status.activeProcesses} {t('processes')}</span>
+                    {status.lastExecutionDate ? 
+                      new Date(status.lastExecutionDate).toLocaleString() : 
+                      t('never_executed')}
                   </div>
                 </div>
               </div>
             )}
           </div>
-        )}
+        ) : null}
         
         <SheetFooter className="mt-6">
           <div className="w-full text-center text-xs text-muted-foreground">
-            {status?.activeProcesses ? t('processes_running', { count: status.activeProcesses }) : ''}
+            {status?.sourceFileCount ? t('files_count', { count: status.sourceFileCount }) : ''}
           </div>
         </SheetFooter>
       </SheetContent>
