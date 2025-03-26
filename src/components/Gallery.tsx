@@ -91,7 +91,7 @@ const Gallery: React.FC<GalleryProps> = ({
   };
   
   // Déterminer si nous devons afficher le panneau d'information
-  const shouldShowInfoPanel = selectedIds.length === 1 && selection.selectionMode === 'single';
+  const shouldShowInfoPanel = selectedIds.length > 0;
   
   if (isLoading) {
     return (
@@ -121,17 +121,13 @@ const Gallery: React.FC<GalleryProps> = ({
         showDates={showDates}
         onToggleDates={toggleDates}
         viewMode={viewMode}
-        onOpenPreview={preview.handleOpenPreview}
-        onDeleteSelected={onDeleteSelected}
-        onDownloadSelected={mediaHandler.handleDownloadSelected}
-        mediaInfoMap={mediaInfoMap}
         position={position}
         onToggleSidebar={onToggleSidebar}
         selectionMode={selection.selectionMode}
         onToggleSelectionMode={selection.toggleSelectionMode}
       />
       
-      {/* Panneau d'information des médias pour un seul élément sélectionné */}
+      {/* Panneau d'information des médias - affiché peu importe le mode de sélection */}
       {shouldShowInfoPanel && (
         <MediaInfoPanel
           selectedIds={selectedIds}
@@ -139,6 +135,7 @@ const Gallery: React.FC<GalleryProps> = ({
           onDeleteSelected={onDeleteSelected}
           onDownloadSelected={mediaHandler.handleDownloadSelected}
           mediaInfoMap={mediaInfoMap}
+          selectionMode={selection.selectionMode}
         />
       )}
       

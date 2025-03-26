@@ -1,11 +1,13 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckSquare, Square, Calendar, CalendarOff, Eye, Download, Trash2, PanelLeft, Users, UserPlus } from 'lucide-react';
+import { CheckSquare, Square, Calendar, CalendarOff, PanelLeft, Users, UserPlus } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DetailedMediaInfo } from '@/api/imageApi';
 import { SelectionMode } from '@/hooks/use-gallery-selection';
+
 interface GalleryToolbarProps {
   selectedIds: string[];
   mediaIds: string[];
@@ -14,15 +16,12 @@ interface GalleryToolbarProps {
   showDates: boolean;
   onToggleDates: () => void;
   viewMode?: 'single' | 'split';
-  onOpenPreview?: (id: string) => void;
-  onDeleteSelected: () => void;
-  onDownloadSelected: (ids: string[]) => void;
-  mediaInfoMap?: Map<string, DetailedMediaInfo | null>;
   position?: 'source' | 'destination';
   onToggleSidebar?: () => void;
   selectionMode: SelectionMode;
   onToggleSelectionMode: () => void;
 }
+
 const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
   selectedIds,
   mediaIds,
@@ -31,10 +30,6 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
   showDates,
   onToggleDates,
   viewMode = 'single',
-  onOpenPreview,
-  onDeleteSelected,
-  onDownloadSelected,
-  mediaInfoMap,
   position = 'source',
   onToggleSidebar,
   selectionMode,
@@ -45,7 +40,7 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
   } = useLanguage();
   const isMobile = useIsMobile();
   const isCompactMode = viewMode === 'split';
-  const hasSelections = selectedIds.length > 0;
+
   return <div className="flex items-center justify-between w-full bg-background/90 backdrop-blur-sm py-1.5 px-3 rounded-md z-10 shadow-sm border border-border/30 mb-2">
       <div className="flex items-center gap-2">
         <TooltipProvider>
@@ -120,42 +115,8 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
         <div className={`text-xs text-muted-foreground mr-2`}>
           {selectedIds.length}/{mediaIds.length} {!isCompactMode && t('selected')}
         </div>
-        
-        {hasSelections && <>
-            {onOpenPreview && selectedIds.length === 1 && <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p>{t('preview')}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>}
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p>{t('download')}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p>{t('delete')}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </>}
       </div>
     </div>;
 };
+
 export default GalleryToolbar;
