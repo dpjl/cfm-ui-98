@@ -11,8 +11,10 @@ interface GalleryGridProps {
   columnsCount: number;
   viewMode?: 'single' | 'split';
   showDates?: boolean;
-  updateMediaInfo?: (id: string, info: DetailedMediaInfo) => void;
+  updateMediaInfo?: (id: string, info: DetailedMediaInfo | null) => void;
   position: 'source' | 'destination';
+  onTouchStart?: (id: string) => void;
+  onTouchEnd?: () => void;
 }
 
 // Using memo to prevent unnecessary re-renders
@@ -24,7 +26,9 @@ const GalleryGrid = memo(({
   viewMode = 'single',
   showDates = false,
   updateMediaInfo,
-  position = 'source'
+  position = 'source',
+  onTouchStart,
+  onTouchEnd
 }: GalleryGridProps) => {
   // Simplified container variants for better performance
   const containerVariants = {
@@ -53,6 +57,8 @@ const GalleryGrid = memo(({
           id={id}
           selected={selectedIds.includes(id)}
           onSelect={onSelectId}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
           index={index}
           showDates={showDates}
           updateMediaInfo={updateMediaInfo}

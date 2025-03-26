@@ -6,7 +6,7 @@ import { ViewModeType } from '@/types/gallery';
 type SidePosition = 'left' | 'right';
 
 // Default column counts for different modes
-const DEFAULT_COLUMN_COUNTS = {
+export const DEFAULT_COLUMN_COUNTS = {
   'desktop': 5,              // Split view desktop
   'desktop-single': 6,       // Full screen view desktop
   'mobile-split': 2,         // Split view mobile
@@ -50,6 +50,14 @@ export function useColumnsCount(position: SidePosition) {
     localStorage.setItem(`columns-mobile-single-${position}`, value.toString());
   };
 
+  // Reset all column counts to defaults
+  const resetAllToDefaults = () => {
+    updateDesktopColumns(DEFAULT_COLUMN_COUNTS.desktop);
+    updateDesktopSingleColumns(DEFAULT_COLUMN_COUNTS['desktop-single']);
+    updateMobileSplitColumns(DEFAULT_COLUMN_COUNTS['mobile-split']);
+    updateMobileSingleColumns(DEFAULT_COLUMN_COUNTS['mobile-single']);
+  };
+
   // Get the column count based on the current view mode
   const getColumnCount = (viewMode: ViewModeType | string): number => {
     switch (viewMode) {
@@ -75,6 +83,7 @@ export function useColumnsCount(position: SidePosition) {
     updateDesktopSingleColumns,
     updateMobileSplitColumns,
     updateMobileSingleColumns,
+    resetAllToDefaults,
     getColumnCount,
   };
 }

@@ -1,11 +1,19 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Server, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd, Settings } from 'lucide-react';
+import { Server, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd, LayoutGrid } from 'lucide-react';
 import { MobileViewMode } from '@/types/gallery';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageToggle } from '@/components/LanguageToggle';
+import { useLanguage } from '@/hooks/use-language';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
+import { DEFAULT_COLUMN_COUNTS } from '@/hooks/use-columns-count';
 
 interface PageHeaderProps {
   onRefresh: () => void;
@@ -19,6 +27,7 @@ interface PageHeaderProps {
   onDelete: () => void;
   onToggleServerPanel: () => void;
   isServerPanelOpen: boolean;
+  onResetColumns: () => void;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -26,8 +35,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   isServerPanelOpen,
   mobileViewMode,
   setMobileViewMode,
+  onResetColumns
 }) => {
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
   
   return (
     <header className="relative z-20 flex items-center justify-between gap-2 p-2 md:p-4 bg-background/80 backdrop-blur-md border-b border-border/40">
@@ -77,6 +88,32 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       </div>
       
       <div className="flex items-center gap-2">
+        {/* Reset Columns Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size={isMobile ? "icon" : "default"}
+                onClick={onResetColumns}
+                className="relative"
+              >
+                {isMobile ? (
+                  <LayoutGrid className="h-4 w-4" />
+                ) : (
+                  <>
+                    <LayoutGrid className="h-4 w-4 mr-2" />
+                    <span>{t('reset_columns')}</span>
+                  </>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{t('reset_columns_tooltip')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
         <ThemeToggle />
         <LanguageToggle />
         
@@ -91,7 +128,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           ) : (
             <>
               <Server className="h-4 w-4 mr-2" />
-              <span>Serveur</span>
+              <span>{t('server')}</span>
             </>
           )}
         </Button>

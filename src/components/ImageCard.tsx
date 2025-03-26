@@ -1,131 +1,85 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Video } from 'lucide-react';
-import DateDisplay from './media/DateDisplay';
+import { useIsMobile } from '@/hooks/use-breakpoint';
+import SelectionCheckbox from '@/components/media/SelectionCheckbox';
+import DateDisplay from '@/components/media/DateDisplay';
+import MediaItemRenderer from '@/components/media/MediaItemRenderer';
+import { useMediaInfo } from '@/hooks/use-media-info';
+import { DetailedMediaInfo } from '@/api/imageApi';
 
 interface ImageCardProps {
-  src: string;
-  alt: string;
+  id: string;
   selected: boolean;
-  onSelect: (extendSelection: boolean) => void;
-  onPreview: () => void;
-  aspectRatio?: "portrait" | "square" | "video";
-  type?: "image" | "video";
-  onInView?: () => void;
-  createdAt?: string;
-  showDates?: boolean;
+  onSelect: (id: string, extendSelection: boolean) => void;
+  onImageLoad?: () => void;
+  showDate?: boolean;
+  position?: 'source' | 'destination';
+  updateMediaInfo?: (id: string, info: DetailedMediaInfo | null) => void;
 }
 
 const ImageCard: React.FC<ImageCardProps> = ({
-  src,
-  alt,
+  id,
   selected,
   onSelect,
-  onPreview,
-  aspectRatio = "square",
-  type = "image",
-  onInView,
-  createdAt,
-  showDates = false
+  onImageLoad,
+  showDate = false,
+  position = 'source',
+  updateMediaInfo
 }) => {
   const [loaded, setLoaded] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const isMobile = useIsMobile();
+  const { mediaInfo, isLoading: isLoadingInfo } = useMediaInfo(id, position);
   
-  // Call onInView immediately when component mounts if it exists
+  // Call the updateMediaInfo callback when media info changes
   React.useEffect(() => {
-    if (onInView) {
-      onInView();
+    if (updateMediaInfo && mediaInfo) {
+      updateMediaInfo(id, mediaInfo);
     }
-  }, [onInView]);
+  }, [id, mediaInfo, updateMediaInfo]);
   
-  // Determine if it's a video based on file extension
-  const isVideo = type === "video" || alt.match(/\.(mp4|webm|ogg|mov)$/i);
-  
-  const handleMouseOver = () => {
-    if (isVideo && videoRef.current) {
-      videoRef.current.play().catch(err => console.error('Error playing video:', err));
-    }
+  const handleImageLoad = () => {
+    setLoaded(true);
+    onImageLoad?.();
   };
   
-  const handleMouseOut = () => {
-    if (isVideo && videoRef.current) {
-      videoRef.current.pause();
-    }
+  const handleSelect = (e: React.MouseEvent) => {
+    // Check if Ctrl key is pressed for desktop (multi-select)
+    const extendSelection = e.ctrlKey || e.metaKey; // metaKey for Mac
+    onSelect(id, extendSelection);
   };
   
-  // Direct handler for clicking on the card
-  const handleCardClick = (e: React.MouseEvent) => {
-    // If we're not clicking on the checkbox, proceed with selection
-    if (!(e.target as HTMLElement).closest('.image-checkbox')) {
-      onSelect(e.shiftKey);
-    }
-  }
+  const handleTouchStart = () => {
+    // For mobile long-press handling
+    onSelect(id, true); // Use true to indicate potential multi-select
+  };
   
   return (
     <div 
       className={cn(
-        "image-card group relative", 
-        "aspect-square", // Always use square aspect
-        selected && "selected",
-        !loaded && "animate-pulse bg-muted"
+        "group relative overflow-hidden rounded-md cursor-pointer transition-all duration-200 ease-out transform bg-muted/30",
+        "hover:shadow-md active:scale-[0.98]",
+        selected && "shadow-md border-2 border-primary ring-1 ring-primary"
       )}
-      onClick={handleCardClick}
-      onMouseOver={handleMouseOver}
-      onMouseOut={handleMouseOut}
+      onClick={() => onSelect(id, false)}
     >
-      {isVideo ? (
-        <>
-          <video 
-            ref={videoRef}
-            src={src}
-            title={alt}
-            className={cn(
-              "w-full h-full object-cover transition-all duration-500",
-              loaded ? "opacity-100" : "opacity-0"
-            )}
-            onLoadedData={() => setLoaded(true)}
-            muted
-            loop
-            playsInline
-          />
-          {/* Video icon overlay */}
-          <div className="absolute top-2 left-2 z-10 bg-black/70 p-1 rounded-md text-white">
-            <Video className="h-4 w-4" />
-          </div>
-        </>
-      ) : (
-        <img
-          src={src}
-          alt={alt}
-          className={cn(
-            "w-full h-full object-cover transition-all duration-500",
-            loaded ? "opacity-100" : "opacity-0"
-          )}
-          onLoad={() => setLoaded(true)}
-        />
+      <SelectionCheckbox 
+        selected={selected} 
+        onSelect={handleSelect}
+        onTouchStart={isMobile ? handleTouchStart : undefined}
+        loaded={loaded}
+        mediaId={id}
+      />
+      
+      <MediaItemRenderer 
+        id={id} 
+        position={position} 
+        onLoad={handleImageLoad}
+      />
+      
+      {showDate && loaded && mediaInfo?.createdAt && (
+        <DateDisplay date={mediaInfo.createdAt} loaded={loaded} />
       )}
-
-      {/* Use the DateDisplay component */}
-      <DateDisplay dateString={createdAt} showDate={showDates} />
-
-      <div className="image-overlay" />
-      <div className="image-checkbox" onClick={(e) => e.stopPropagation()}>
-        <Checkbox 
-          checked={selected}
-          className={cn(
-            "h-5 w-5 border-2",
-            selected ? "border-primary bg-primary" : "border-white bg-white/20",
-            "transition-all duration-200 ease-out",
-            !loaded && "opacity-0"
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect(e.shiftKey);
-          }}
-        />
-      </div>
     </div>
   );
 };

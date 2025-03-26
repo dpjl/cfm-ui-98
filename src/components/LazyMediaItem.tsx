@@ -1,161 +1,83 @@
 
-import React, { useState, useEffect, memo } from 'react';
-import { cn } from '@/lib/utils';
-import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
-import { useMediaInfo } from '@/hooks/use-media-info';
-import { getThumbnailUrl } from '@/api/imageApi';
-import { motion } from 'framer-motion';
-import MediaItemRenderer from './media/MediaItemRenderer';
-import DateDisplay from './media/DateDisplay';
-import SelectionCheckbox from './media/SelectionCheckbox';
-import { useMediaCache } from '@/hooks/use-media-cache';
+import React, { useState, useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
+import ImageCard from '@/components/ImageCard';
+import { DetailedMediaInfo } from '@/api/imageApi';
 
 interface LazyMediaItemProps {
   id: string;
   selected: boolean;
   onSelect: (id: string, extendSelection: boolean) => void;
-  index: number;
+  onTouchStart?: (id: string) => void;
+  onTouchEnd?: () => void;
+  index?: number;
   showDates?: boolean;
-  updateMediaInfo?: (id: string, info: any) => void;
-  position: 'source' | 'destination';
+  updateMediaInfo?: (id: string, info: DetailedMediaInfo | null) => void;
+  position?: 'source' | 'destination';
 }
 
-// Using memo to prevent unnecessary re-renders
-const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
+const LazyMediaItem: React.FC<LazyMediaItemProps> = ({
   id,
   selected,
   onSelect,
-  index,
+  onTouchStart,
+  onTouchEnd,
+  index = 0,
   showDates = false,
   updateMediaInfo,
-  position
+  position = 'source',
 }) => {
-  const [loaded, setLoaded] = useState(false);
-  const { elementRef, isIntersecting } = useIntersectionObserver<HTMLDivElement>({ 
-    threshold: 0.1, 
-    freezeOnceVisible: true 
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  
+  // Use intersection observer to detect when the item is in view
+  const { ref, inView } = useInView({
+    threshold: 0,
+    triggerOnce: true,
+    rootMargin: '200px', // Load images before they enter the viewport
   });
-  const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting, position);
-  const { getCachedThumbnailUrl, setCachedThumbnailUrl } = useMediaCache();
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   
-  // Load thumbnail URL, using cache if available
+  // Set item as visible once it's in view
   useEffect(() => {
-    if (isIntersecting) {
-      const cachedUrl = getCachedThumbnailUrl(id, position);
-      if (cachedUrl) {
-        setThumbnailUrl(cachedUrl);
-        return;
-      }
-      
-      const url = getThumbnailUrl(id, position);
-      setThumbnailUrl(url);
-      setCachedThumbnailUrl(id, position, url);
+    if (inView && !isVisible) {
+      setIsVisible(true);
     }
-  }, [id, isIntersecting, position, getCachedThumbnailUrl, setCachedThumbnailUrl]);
+  }, [inView, isVisible]);
   
-  // Update the parent component with media info when it's loaded
-  useEffect(() => {
-    if (mediaInfo && updateMediaInfo) {
-      updateMediaInfo(id, mediaInfo);
-    }
-  }, [id, mediaInfo, updateMediaInfo]);
-  
-  // Determine if this is a video based on the file extension if available
-  const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
-  
-  // Improved handler for selecting the item with shift key support and better touch handling
-  const handleItemClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default behavior
-    onSelect(id, e.shiftKey);
-  };
-  
-  // Create a separate touch handler for mobile devices
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault(); // Prevent default behavior
-    // We don't have shift key support on touch, so always pass false
-    onSelect(id, false);
-  };
-  
-  // Simplified animation variants for better performance
-  const itemVariants = {
-    hidden: { opacity: 0 },
+  // Animation variants
+  const variants = {
+    hidden: { opacity: 0, y: 20 },
     visible: { 
-      opacity: 1,
-      transition: {
-        duration: 0.2
-      }
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.3 } 
     }
   };
-  
-  // Only render a simple placeholder when the item is not intersecting
-  if (!isIntersecting) {
-    return (
-      <div 
-        ref={elementRef} 
-        className="aspect-square bg-muted rounded-lg"
-        role="img"
-        aria-label="Loading media item"
-      ></div>
-    );
-  }
   
   return (
-    <motion.div
-      ref={elementRef}
-      variants={itemVariants}
-      initial="hidden"
-      animate="visible"
-      layout="position"
+    <div 
+      ref={ref}
+      className="aspect-square"
+      style={{ 
+        // Add a slight delay based on index for staggered animations
+        animationDelay: `${index * 50}ms` 
+      }}
     >
-      {thumbnailUrl && (
-        <div 
-          className={cn(
-            "image-card group relative", 
-            "aspect-square cursor-pointer", 
-            selected && "selected",
-          )}
-          onClick={handleItemClick}
-          onTouchEnd={handleTouchEnd}
-          role="button"
-          aria-label={`Media item ${mediaInfo?.alt || id}`}
-          aria-pressed={selected}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              onSelect(id, e.shiftKey);
-            }
-          }}
-          data-media-id={id}
-        >
-          <MediaItemRenderer
-            src={thumbnailUrl}
-            alt={mediaInfo?.alt || id}
-            isVideo={Boolean(isVideo)}
-            onLoad={() => setLoaded(true)}
-            loaded={loaded}
-          />
-
-          <DateDisplay dateString={mediaInfo?.createdAt} showDate={showDates} />
-
-          <div className="image-overlay pointer-events-none" />
-          <SelectionCheckbox
-            selected={selected}
-            onSelect={(e) => {
-              e.stopPropagation();
-              onSelect(id, e.shiftKey);
-            }}
-            loaded={loaded}
-            mediaId={id}
-          />
-        </div>
+      {isVisible && (
+        <ImageCard
+          id={id}
+          selected={selected}
+          onSelect={onSelect}
+          onImageLoad={() => setHasLoaded(true)}
+          showDate={showDates}
+          position={position}
+          updateMediaInfo={updateMediaInfo}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        />
       )}
-    </motion.div>
+    </div>
   );
-});
-
-// Set component display name for debugging
-LazyMediaItem.displayName = 'LazyMediaItem';
+};
 
 export default LazyMediaItem;

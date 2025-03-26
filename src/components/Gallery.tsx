@@ -138,6 +138,8 @@ const Gallery: React.FC<GalleryProps> = ({
             showDates={showDates}
             updateMediaInfo={updateMediaInfo}
             position={position}
+            onTouchStart={selection.handleTouchStart}
+            onTouchEnd={selection.handleTouchEnd}
           />
         </div>
       )}

@@ -1,256 +1,249 @@
 
-import React, { useState, useEffect } from 'react';
-import { Server, RefreshCw, Folder, Files, Calendar, FileText, X } from 'lucide-react';
+import React from 'react';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from "@/components/ui/sheet";
+import { ServerStatus } from '@/api/serverApi';
+import { useServerStatus } from '@/hooks/use-server-status';
+import { useLanguage } from '@/hooks/use-language';
+import { Button } from "@/components/ui/button";
 import { 
-  Drawer, 
-  DrawerContent, 
-  DrawerHeader, 
-  DrawerTitle,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerClose
-} from '@/components/ui/drawer';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { fetchServerStatus } from '@/api/serverApi';
-import { useIsMobile } from '@/hooks/use-breakpoint';
-import { useTheme } from '@/hooks/use-theme';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-
-interface ServerStatus {
-  isAccessible: boolean;
-  sourceDirectory: string;
-  destinationDirectory: string;
-  sourceFileCount: number;
-  destinationFileCount: number;
-  lastExecutionDate: string | null;
-  destinationFormat: string;
-}
+  ServerCrash, 
+  Server, 
+  ServerOff, 
+  RefreshCw,
+  Cpu,
+  HardDrive,
+  Memory,
+  Clock,
+  Activity
+} from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-breakpoint";
 
 interface ServerStatusPanelProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
-  isOpen,
-  onOpenChange,
+const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({ 
+  isOpen, 
+  onOpenChange 
 }) => {
-  const [status, setStatus] = useState<ServerStatus | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+  const { t } = useLanguage();
   const isMobile = useIsMobile();
-  const { theme } = useTheme();
   
-  const getServerStatus = async () => {
-    try {
-      setIsLoading(true);
-      const data = await fetchServerStatus();
-      setStatus(data);
-      setError(null);
-      setLastRefreshed(new Date());
-    } catch (err) {
-      console.error('Failed to fetch server status:', err);
-      setError('Unable to connect to server');
-      setStatus({
-        isAccessible: false,
-        sourceDirectory: '—',
-        destinationDirectory: '—',
-        sourceFileCount: 0,
-        destinationFileCount: 0,
-        lastExecutionDate: null,
-        destinationFormat: '—'
-      });
-    } finally {
-      setIsLoading(false);
+  const { 
+    status, 
+    isLoading, 
+    isError, 
+    refetch 
+  } = useServerStatus({
+    queryKey: ['serverStatus'],
+    retry: 3,
+    refetchInterval: 30000, // 30 seconds
+    refetchOnWindowFocus: true,
+    meta: {
+      onError: (error: Error) => {
+        console.error('Error fetching server status:', error);
+      }
     }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      getServerStatus();
-    }
-    const intervalId = isOpen ? setInterval(getServerStatus, 30000) : null;
-    
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isOpen]);
-
-  const triggerRefresh = () => {
-    getServerStatus();
-  };
-
-  const getLastRefreshedText = () => {
-    if (!lastRefreshed) return 'Jamais';
-    
-    const now = new Date();
-    const diffMs = now.getTime() - lastRefreshed.getTime();
-    const diffSec = Math.floor(diffMs / 1000);
-    
-    if (diffSec < 60) return `il y a ${diffSec} sec`;
-    if (diffSec < 3600) return `il y a ${Math.floor(diffSec / 60)} min`;
-    
-    return format(lastRefreshed, isMobile ? 'HH:mm' : 'HH:mm:ss', { locale: fr });
+  });
+  
+  // Handle the refresh button click
+  const handleRefresh = async () => {
+    await refetch();
   };
 
   return (
-    <Drawer open={isOpen} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[85vh]">
-        <DrawerHeader className="border-b">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Server className="h-5 w-5 text-primary" />
-              <DrawerTitle>État du Serveur</DrawerTitle>
-              <Badge 
-                variant={status?.isAccessible ? "success" : "destructive"}
-                className="text-[0.65rem] h-5"
-              >
-                {status?.isAccessible ? 'En ligne' : 'Hors ligne'}
-              </Badge>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <DrawerDescription className="m-0">
-                Dernière actualisation: {getLastRefreshedText()}
-              </DrawerDescription>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-                onClick={triggerRefresh}
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
+      <SheetContent className="w-full md:max-w-md overflow-y-auto">
+        <SheetHeader className="mb-4">
+          {isMobile ? (
+            <div className="flex items-center justify-between">
+              <SheetTitle className="flex items-center gap-2">
+                <Server className="h-4 w-4" />
+                {t('server_status')}
+              </SheetTitle>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefresh}
                 disabled={isLoading}
+                className="h-8 w-8 p-0"
               >
-                <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
+                <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
               </Button>
-              <DrawerClose className="h-7 w-7 rounded-md border flex items-center justify-center hover:bg-secondary">
-                <X className="h-3.5 w-3.5" />
-                <span className="sr-only">Fermer</span>
-              </DrawerClose>
-            </div>
-          </div>
-        </DrawerHeader>
-        
-        <div className="px-4 py-4">
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="p-4">
-                  <Skeleton className="h-4 w-24 mb-3" />
-                  <Skeleton className="h-3 w-full mb-2" />
-                  <Skeleton className="h-3 w-4/5" />
-                </Card>
-              ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ServerInfoCard
-                icon={<Folder className="h-4 w-4" />}
-                title="Répertoires"
-                items={[
-                  { label: 'Source:', value: status?.sourceDirectory || '—' },
-                  { label: 'Destination:', value: status?.destinationDirectory || '—' }
-                ]}
-              />
-              
-              <ServerInfoCard
-                icon={<Files className="h-4 w-4" />}
-                title="Fichiers"
-                items={[
-                  { label: 'Source:', value: `${status?.sourceFileCount.toLocaleString() || '0'} fichiers` },
-                  { label: 'Destination:', value: `${status?.destinationFileCount.toLocaleString() || '0'} fichiers` }
-                ]}
-              />
-              
-              <ServerInfoCard
-                icon={<Calendar className="h-4 w-4" />}
-                title="Dernière exécution"
-                items={[
-                  {
-                    label: '',
-                    value: status?.lastExecutionDate 
-                      ? format(new Date(status.lastExecutionDate), 
-                          isMobile ? 'dd/MM/yy HH:mm' : 'dd MMMM yyyy HH:mm:ss', 
-                          { locale: fr })
-                      : 'Jamais exécuté'
-                  }
-                ]}
-              />
-              
-              <ServerInfoCard
-                icon={<FileText className="h-4 w-4" />}
-                title="Configuration"
-                items={[
-                  { label: 'Format:', value: status?.destinationFormat || '—' }
-                ]}
-              />
-            </div>
+            <>
+              <SheetTitle className="flex items-center gap-2">
+                <Server className="h-5 w-5" />
+                {t('server_status')}
+              </SheetTitle>
+              <SheetDescription>
+                {status?.isRunning ? 
+                  t('server_running_description') : 
+                  t('server_stopped_description')
+                }
+              </SheetDescription>
+            </>
           )}
-        </div>
+        </SheetHeader>
         
-        <DrawerFooter className="border-t pt-4">
-          <div className="flex items-center justify-between w-full">
-            {error ? (
-              <p className="text-sm text-destructive">{error}</p>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {status?.isAccessible 
-                  ? 'Le serveur fonctionne normalement'
-                  : 'Le serveur est actuellement indisponible'}
-              </p>
-            )}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => onOpenChange(false)}
-            >
-              Fermer
+        {/* Status content */}
+        {isError ? (
+          <div className="flex flex-col items-center justify-center gap-4 py-8">
+            <ServerCrash size={48} className="text-destructive" />
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-destructive">{t('error_fetching_status')}</h3>
+              <p className="text-sm text-muted-foreground mt-2">{t('error_try_again')}</p>
+            </div>
+            <Button onClick={handleRefresh} className="mt-4">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              {t('retry')}
             </Button>
           </div>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  );
-};
-
-interface ServerInfoCardProps {
-  icon: React.ReactNode;
-  title: string;
-  items: Array<{ label: string; value: string }>;
-}
-
-const ServerInfoCard: React.FC<ServerInfoCardProps> = ({ icon, title, items }) => {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium flex items-center gap-2">
-          {icon}
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {items.map((item, index) => (
-            <div key={index} className="grid grid-cols-3 text-xs">
-              {item.label && (
-                <span className="text-muted-foreground">{item.label}</span>
-              )}
-              <span className={cn(
-                "font-mono truncate",
-                item.label ? "col-span-2" : "col-span-3"
-              )} title={item.value}>
-                {item.value}
-              </span>
+        ) : isLoading ? (
+          <div className="flex flex-col items-center justify-center gap-4 py-8">
+            <RefreshCw size={32} className="animate-spin text-primary" />
+            <p className="text-center text-sm text-muted-foreground">{t('loading_server_status')}</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Server status indicator */}
+            <div className="rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {status?.isRunning ? (
+                    <Server className="h-6 w-6 text-primary" />
+                  ) : (
+                    <ServerOff className="h-6 w-6 text-destructive" />
+                  )}
+                  <div>
+                    <h3 className="font-medium">
+                      {status?.isRunning ? t('server_running') : t('server_stopped')}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {t('last_updated')}: {
+                        status?.lastUpdated ? 
+                        new Date(status.lastUpdated).toLocaleString() : 
+                        t('unknown')
+                      }
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleRefresh}
+                  className={isMobile ? "hidden" : ""}
+                >
+                  <RefreshCw className={cn("mr-2 h-4 w-4", isLoading && "animate-spin")} />
+                  {t('refresh')}
+                </Button>
+              </div>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            
+            {/* Server metrics */}
+            {status?.isRunning && (
+              <div className="space-y-4">
+                {/* CPU Usage */}
+                <div className="rounded-lg border p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Cpu className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-medium">{t('cpu_usage')}</h3>
+                  </div>
+                  <Progress value={status.cpuUsage} className="h-2 mb-2" />
+                  <div className="flex items-center justify-between text-sm">
+                    <span>{Math.round(status.cpuUsage)}%</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t('cpu_cores')}: {status.cpuCores}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Memory Usage */}
+                <div className="rounded-lg border p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Memory className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-medium">{t('memory_usage')}</h3>
+                  </div>
+                  <Progress 
+                    value={(status.memoryUsage / status.totalMemory) * 100} 
+                    className="h-2 mb-2" 
+                  />
+                  <div className="flex items-center justify-between text-sm">
+                    <span>
+                      {Math.round(status.memoryUsage / 1024 / 1024 / 1024 * 10) / 10} GB 
+                      / {Math.round(status.totalMemory / 1024 / 1024 / 1024 * 10) / 10} GB
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {Math.round((status.memoryUsage / status.totalMemory) * 100)}%
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Disk Usage */}
+                <div className="rounded-lg border p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <HardDrive className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-medium">{t('disk_usage')}</h3>
+                  </div>
+                  <Progress 
+                    value={(status.diskUsage / status.totalDiskSpace) * 100} 
+                    className="h-2 mb-2" 
+                  />
+                  <div className="flex items-center justify-between text-sm">
+                    <span>
+                      {Math.round(status.diskUsage / 1024 / 1024 / 1024 * 10) / 10} GB 
+                      / {Math.round(status.totalDiskSpace / 1024 / 1024 / 1024 * 10) / 10} GB
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {Math.round((status.diskUsage / status.totalDiskSpace) * 100)}%
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Uptime */}
+                <div className="rounded-lg border p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-medium">{t('uptime')}</h3>
+                  </div>
+                  <div className="text-sm">
+                    {Math.floor(status.uptimeSeconds / 86400)}d {Math.floor((status.uptimeSeconds % 86400) / 3600)}h {Math.floor((status.uptimeSeconds % 3600) / 60)}m {Math.floor(status.uptimeSeconds % 60)}s
+                  </div>
+                </div>
+                
+                {/* Active Processes */}
+                <div className="rounded-lg border p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-medium">{t('active_processes')}</h3>
+                  </div>
+                  <div className="text-sm flex justify-between items-center">
+                    <span>{status.activeProcesses} {t('processes')}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        
+        <SheetFooter className="mt-6">
+          <div className="w-full text-center text-xs text-muted-foreground">
+            {status?.activeProcesses ? t('processes_running', { count: status.activeProcesses }) : ''}
+          </div>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 };
 
