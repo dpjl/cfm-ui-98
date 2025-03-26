@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import GalleryGrid from './gallery/GalleryGrid';
 import GalleryEmptyState from './gallery/GalleryEmptyState';
@@ -58,7 +58,7 @@ const Gallery: React.FC<GalleryProps> = ({
   const [mediaInfoMap, setMediaInfoMap] = useState<Map<string, DetailedMediaInfo | null>>(new Map());
   const { t } = useLanguage();
   
-  // Initialize gallery selection features with the new hook structure
+  // Initialize gallery selection features
   const selection = useGallerySelection({
     mediaIds,
     selectedIds,
@@ -66,10 +66,10 @@ const Gallery: React.FC<GalleryProps> = ({
   });
   
   // Initialize preview features
-  const preview = useGalleryPreviewHandler(
+  const preview = useGalleryPreviewHandler({
     mediaIds,
     onPreviewMedia
-  );
+  });
   
   // Initialize media operations
   const mediaHandler = useGalleryMediaHandler(
@@ -78,17 +78,17 @@ const Gallery: React.FC<GalleryProps> = ({
   );
 
   // Collect media info from child components
-  const updateMediaInfo = (id: string, info: DetailedMediaInfo | null) => {
+  const updateMediaInfo = useCallback((id: string, info: DetailedMediaInfo | null) => {
     setMediaInfoMap(prev => {
       const newMap = new Map(prev);
       newMap.set(id, info);
       return newMap;
     });
-  };
+  }, []);
 
-  const toggleDates = () => {
+  const toggleDates = useCallback(() => {
     setShowDates(prev => !prev);
-  };
+  }, []);
   
   // Déterminer si nous devons afficher le panneau d'information
   const shouldShowInfoPanel = selectedIds.length > 0;
@@ -127,7 +127,7 @@ const Gallery: React.FC<GalleryProps> = ({
         onToggleSelectionMode={selection.toggleSelectionMode}
       />
       
-      {/* Panneau d'information des médias - affiché peu importe le mode de sélection */}
+      {/* Panneau d'information des médias */}
       {shouldShowInfoPanel && (
         <MediaInfoPanel
           selectedIds={selectedIds}

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
 import { useMediaInfo } from '@/hooks/use-media-info';
@@ -38,6 +38,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
     threshold: 0.1, 
     freezeOnceVisible: true 
   });
+  
   const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting, position);
   const { getCachedThumbnailUrl, setCachedThumbnailUrl } = useMediaCache();
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
@@ -77,13 +78,13 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
   
   // Gestion des clics
-  const handleItemClick = (e: React.MouseEvent) => {
+  const handleItemClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default behavior
     onSelect(id, e.shiftKey || e.ctrlKey || e.metaKey);
-  };
+  }, [id, onSelect]);
   
   // Gestion du appui long pour les mobiles (comme alternative au Ctrl+click)
-  const handleTouchStart = () => {
+  const handleTouchStart = useCallback(() => {
     // Démarrer le timer pour détecter un appui long
     const timer = setTimeout(() => {
       setLongPressTriggered(true);
@@ -92,9 +93,9 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
     }, 500); // 500ms est un bon délai pour un appui long
     
     setPressTimer(timer);
-  };
+  }, [id, onSelect]);
   
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     // Annuler le timer si l'utilisateur relâche trop tôt
     if (pressTimer) {
       clearTimeout(pressTimer);
@@ -108,7 +109,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
     
     // Réinitialiser l'état pour le prochain appui
     setLongPressTriggered(false);
-  };
+  }, [pressTimer, longPressTriggered, id, onSelect]);
   
   // Simplified animation variants for better performance
   const itemVariants = {
