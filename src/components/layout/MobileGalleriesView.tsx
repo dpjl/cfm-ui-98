@@ -7,6 +7,8 @@ import { Separator } from '@/components/ui/separator';
 import { MediaFilter } from '@/components/AppSidebar';
 
 interface MobileGalleriesViewProps {
+  columnsCountLeft: number;
+  columnsCountRight: number;
   mobileViewMode: MobileViewMode;
   setMobileViewMode: React.Dispatch<React.SetStateAction<MobileViewMode>>;
   selectedDirectoryIdLeft: string;
@@ -25,6 +27,8 @@ interface MobileGalleriesViewProps {
 }
 
 const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
+  columnsCountLeft,
+  columnsCountRight,
   mobileViewMode,
   setMobileViewMode,
   selectedDirectoryIdLeft,
@@ -41,17 +45,6 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   leftFilter = 'all',
   rightFilter = 'all'
 }) => {
-  // Memoize column counts to prevent recalculations
-  const leftColumnCount = useMemo(() => 
-    mobileViewMode === 'left' ? 4 : 2, 
-    [mobileViewMode]
-  );
-  
-  const rightColumnCount = useMemo(() => 
-    mobileViewMode === 'right' ? 4 : 2, 
-    [mobileViewMode]
-  );
-  
   return (
     <div className="flex-1 overflow-hidden h-full relative">
       <div className="h-full bg-background rounded-lg border-2 border-border/40 shadow-sm">
@@ -73,7 +66,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 title="Left Gallery"
                 directory={selectedDirectoryIdLeft}
                 position="left"
-                columnsCount={leftColumnCount}
+                columnsCount={columnsCountLeft}
                 selectedIds={selectedIdsLeft}
                 setSelectedIds={setSelectedIdsLeft}
                 onDeleteSelected={() => handleDeleteSelected('left')}
@@ -110,7 +103,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
                 title="Right Gallery"
                 directory={selectedDirectoryIdRight}
                 position="right"
-                columnsCount={rightColumnCount}
+                columnsCount={columnsCountRight}
                 selectedIds={selectedIdsRight}
                 setSelectedIds={setSelectedIdsRight}
                 onDeleteSelected={() => handleDeleteSelected('right')}

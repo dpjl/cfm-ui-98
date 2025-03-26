@@ -7,7 +7,8 @@ import { MobileViewMode } from '@/types/gallery';
 import { MediaFilter } from '@/components/AppSidebar';
 
 interface GalleriesContainerProps {
-  columnsCount: number;
+  columnsCountLeft: number;
+  columnsCountRight: number;
   selectedIdsLeft: string[];
   setSelectedIdsLeft: React.Dispatch<React.SetStateAction<string[]>>;
   selectedIdsRight: string[];
@@ -26,7 +27,8 @@ interface GalleriesContainerProps {
 }
 
 const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
-  columnsCount,
+  columnsCountLeft,
+  columnsCountRight,
   selectedIdsLeft,
   setSelectedIdsLeft,
   selectedIdsRight,
@@ -49,6 +51,8 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
   if (isMobile) {
     return (
       <MobileGalleriesView
+        columnsCountLeft={columnsCountLeft}
+        columnsCountRight={columnsCountRight}
         mobileViewMode={mobileViewMode}
         setMobileViewMode={setMobileViewMode!}
         selectedDirectoryIdLeft={selectedDirectoryIdLeft}
@@ -71,7 +75,8 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
   // Desktop view with split screen
   return (
     <DesktopGalleriesView
-      columnsCount={columnsCount}
+      columnsCountLeft={columnsCountLeft}
+      columnsCountRight={columnsCountRight}
       selectedDirectoryIdLeft={selectedDirectoryIdLeft}
       selectedDirectoryIdRight={selectedDirectoryIdRight}
       selectedIdsLeft={selectedIdsLeft}

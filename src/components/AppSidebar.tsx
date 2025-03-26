@@ -6,9 +6,13 @@ import FolderTree from '@/components/FolderTree';
 import { useLanguage } from '@/hooks/use-language';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Folder, ImageIcon, Files, Copy, Fingerprint } from 'lucide-react';
+import { Folder, ImageIcon, Files, Copy, Fingerprint, Columns } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import { Separator } from '@/components/ui/separator';
+import ColumnSlider from '@/components/sidebar/ColumnSlider';
+import { useColumnsCount } from '@/hooks/use-columns-count';
+import { MobileViewMode } from '@/types/gallery';
 
 // Define our filter types
 export type MediaFilter = 'all' | 'unique' | 'duplicates' | 'exclusive' | 'common';
@@ -19,6 +23,8 @@ interface AppSidebarProps {
   position?: 'left' | 'right';
   selectedFilter?: MediaFilter;
   onFilterChange?: (filter: MediaFilter) => void;
+  mobileViewMode?: MobileViewMode;
+  onColumnsChange?: (viewMode: 'desktop' | 'mobile-split' | 'mobile-single', count: number) => void;
 }
 
 interface FilterOption {
@@ -32,10 +38,13 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
   onSelectDirectory,
   position = 'left',
   selectedFilter = 'all',
-  onFilterChange = () => {}
+  onFilterChange = () => {},
+  mobileViewMode = 'both',
+  onColumnsChange
 }) => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
+  const columnSettings = useColumnsCount(position);
   
   // Filter options with simpler labels
   const filterOptions: FilterOption[] = [
@@ -75,10 +84,24 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
     queryFn: () => fetchDirectoryTree(position)
   });
 
-  // For debugging purposes
+  // When column counts change, notify parent component
   useEffect(() => {
-    console.log(`${position} directory tree loaded:`, directoryTree);
-  }, [directoryTree, position]);
+    if (!onColumnsChange) return;
+    
+    const updateColumns = (viewMode: 'desktop' | 'mobile-split' | 'mobile-single') => {
+      onColumnsChange(viewMode, columnSettings.getColumnCount(viewMode));
+    };
+    
+    // Update all view modes
+    updateColumns('desktop');
+    updateColumns('mobile-split');
+    updateColumns('mobile-single');
+  }, [
+    columnSettings.desktopColumns, 
+    columnSettings.mobileSplitColumns, 
+    columnSettings.mobileSingleColumns,
+    onColumnsChange
+  ]);
 
   const handleFilterChange = (filter: MediaFilter) => {
     onFilterChange(filter);
@@ -109,6 +132,41 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
               </span>
             </Badge>
           ))}
+        </div>
+        
+        {/* Column count sliders */}
+        <div className="mt-3 space-y-2">
+          <ColumnSlider 
+            position={position}
+            value={columnSettings.desktopColumns}
+            onChange={columnSettings.updateDesktopColumns}
+            min={2}
+            max={10}
+            label={t('desktop_columns')}
+            viewType="desktop"
+          />
+          
+          <ColumnSlider 
+            position={position}
+            value={columnSettings.mobileSplitColumns}
+            onChange={columnSettings.updateMobileSplitColumns}
+            min={1}
+            max={4}
+            label={t('split_columns')}
+            viewType="mobile-split"
+            currentMobileViewMode={mobileViewMode}
+          />
+          
+          <ColumnSlider 
+            position={position}
+            value={columnSettings.mobileSingleColumns}
+            onChange={columnSettings.updateMobileSingleColumns}
+            min={2}
+            max={6}
+            label={t('single_columns')}
+            viewType="mobile-single"
+            currentMobileViewMode={mobileViewMode}
+          />
         </div>
       </div>
       

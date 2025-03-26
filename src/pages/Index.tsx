@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { LanguageProvider } from '@/hooks/use-language';
 import { useToast } from '@/components/ui/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,13 +10,23 @@ import GalleriesContainer from '@/components/layout/GalleriesContainer';
 import PageHeader from '@/components/layout/PageHeader';
 import ServerStatusPanel from '@/components/ServerStatusPanel';
 import { MobileViewMode } from '@/types/gallery';
+import { useIsMobile } from '@/hooks/use-breakpoint';
 
 const Index = () => {
   const { toast } = useToast();
   const [selectedDirectoryIdLeft, setSelectedDirectoryIdLeft] = useState<string>("directory1");
   const [selectedDirectoryIdRight, setSelectedDirectoryIdRight] = useState<string>("directory1");
   
-  const [columnsCount, setColumnsCount] = useState<number>(5);
+  const isMobile = useIsMobile();
+  
+  // Column count states for different modes and sides
+  const [desktopColumnsLeft, setDesktopColumnsLeft] = useState<number>(5);
+  const [desktopColumnsRight, setDesktopColumnsRight] = useState<number>(5);
+  const [mobileSplitColumnsLeft, setMobileSplitColumnsLeft] = useState<number>(2);
+  const [mobileSplitColumnsRight, setMobileSplitColumnsRight] = useState<number>(2);
+  const [mobileSingleColumnsLeft, setMobileSingleColumnsLeft] = useState<number>(4);
+  const [mobileSingleColumnsRight, setMobileSingleColumnsRight] = useState<number>(4);
+  
   const [selectedIdsLeft, setSelectedIdsLeft] = useState<string[]>([]);
   const [selectedIdsRight, setSelectedIdsRight] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -27,6 +38,50 @@ const Index = () => {
   const [rightFilter, setRightFilter] = useState<MediaFilter>('all');
   
   const queryClient = useQueryClient();
+  
+  // Get current column counts based on mode and side
+  const getCurrentColumnsLeft = (): number => {
+    if (isMobile) {
+      return mobileViewMode === 'both' ? mobileSplitColumnsLeft : mobileSingleColumnsLeft;
+    }
+    return desktopColumnsLeft;
+  };
+  
+  const getCurrentColumnsRight = (): number => {
+    if (isMobile) {
+      return mobileViewMode === 'both' ? mobileSplitColumnsRight : mobileSingleColumnsRight;
+    }
+    return desktopColumnsRight;
+  };
+  
+  // Handle column count changes from sidebar
+  const handleLeftColumnsChange = (viewMode: 'desktop' | 'mobile-split' | 'mobile-single', count: number) => {
+    switch (viewMode) {
+      case 'desktop':
+        setDesktopColumnsLeft(count);
+        break;
+      case 'mobile-split':
+        setMobileSplitColumnsLeft(count);
+        break;
+      case 'mobile-single':
+        setMobileSingleColumnsLeft(count);
+        break;
+    }
+  };
+  
+  const handleRightColumnsChange = (viewMode: 'desktop' | 'mobile-split' | 'mobile-single', count: number) => {
+    switch (viewMode) {
+      case 'desktop':
+        setDesktopColumnsRight(count);
+        break;
+      case 'mobile-split':
+        setMobileSplitColumnsRight(count);
+        break;
+      case 'mobile-single':
+        setMobileSingleColumnsRight(count);
+        break;
+    }
+  };
   
   const deleteMutation = useMutation({
     mutationFn: deleteImages,
@@ -102,23 +157,27 @@ const Index = () => {
               position="left"
               selectedFilter={leftFilter}
               onFilterChange={setLeftFilter}
+              mobileViewMode={mobileViewMode}
+              onColumnsChange={handleLeftColumnsChange}
             />
           </SidePanel>
 
           <div className="flex-1 flex flex-col overflow-hidden">
             <PageHeader 
-              columnsCount={columnsCount}
-              setColumnsCount={setColumnsCount}
               onRefresh={handleRefresh}
               isDeletionPending={deleteMutation.isPending}
               isSidebarOpen={isSidebarOpen}
               onCloseSidebars={closeBothSidebars}
               mobileViewMode={mobileViewMode}
               setMobileViewMode={setMobileViewMode}
+              selectedIdsLeft={selectedIdsLeft}
+              selectedIdsRight={selectedIdsRight}
+              onDelete={handleDelete}
             />
             
             <GalleriesContainer 
-              columnsCount={columnsCount}
+              columnsCountLeft={getCurrentColumnsLeft()}
+              columnsCountRight={getCurrentColumnsRight()}
               selectedIdsLeft={selectedIdsLeft}
               setSelectedIdsLeft={setSelectedIdsLeft}
               selectedIdsRight={selectedIdsRight}
@@ -149,6 +208,8 @@ const Index = () => {
               position="right"
               selectedFilter={rightFilter}
               onFilterChange={setRightFilter}
+              mobileViewMode={mobileViewMode}
+              onColumnsChange={handleRightColumnsChange}
             />
           </SidePanel>
         </div>

@@ -56,6 +56,12 @@
     .mobile-gallery-dual > div {
       @apply w-1/2 !important;
     }
+    
+    /* Make slider thumb bigger on mobile for easier touch */
+    [data-sidebar="group-content"] [data-radix-slider-thumb] {
+      @apply h-6 w-6;
+      touch-action: manipulation;
+    }
   }
   
   /* Mobile view mode switcher */
@@ -72,5 +78,14 @@
     border-radius: 9999px;
     padding: 0.25rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Column slider styles */
+  .column-slider {
+    @apply my-3 space-y-1;
+  }
+  
+  .column-slider-label {
+    @apply flex items-center justify-between text-xs text-muted-foreground mb-1;
   }
 }

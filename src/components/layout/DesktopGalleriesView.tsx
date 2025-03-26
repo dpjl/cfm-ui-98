@@ -19,7 +19,8 @@ const containerVariants = {
 };
 
 interface DesktopGalleriesViewProps {
-  columnsCount: number;
+  columnsCountLeft: number;
+  columnsCountRight: number;
   selectedDirectoryIdLeft: string;
   selectedDirectoryIdRight: string;
   selectedIdsLeft: string[];
@@ -36,7 +37,8 @@ interface DesktopGalleriesViewProps {
 }
 
 const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
-  columnsCount,
+  columnsCountLeft,
+  columnsCountRight,
   selectedDirectoryIdLeft,
   selectedDirectoryIdRight,
   selectedIdsLeft,
@@ -66,7 +68,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
               title="Left Gallery"
               directory={selectedDirectoryIdLeft}
               position="left"
-              columnsCount={columnsCount}
+              columnsCount={columnsCountLeft}
               selectedIds={selectedIdsLeft}
               setSelectedIds={setSelectedIdsLeft}
               onDeleteSelected={() => handleDeleteSelected('left')}
@@ -95,7 +97,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
               title="Right Gallery"
               directory={selectedDirectoryIdRight}
               position="right"
-              columnsCount={columnsCount}
+              columnsCount={columnsCountRight}
               selectedIds={selectedIdsRight}
               setSelectedIds={setSelectedIdsRight}
               onDeleteSelected={() => handleDeleteSelected('right')}
