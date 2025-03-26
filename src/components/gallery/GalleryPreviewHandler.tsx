@@ -1,15 +1,10 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-interface GalleryPreviewHandlerProps {
-  mediaIds: string[];
-  onPreviewMedia?: (id: string) => void;
-}
-
-const GalleryPreviewHandler: React.FC<GalleryPreviewHandlerProps> = ({
-  mediaIds,
-  onPreviewMedia
-}) => {
+export function useGalleryPreviewHandler(
+  mediaIds: string[],
+  onPreviewMedia?: (id: string) => void
+) {
   const [previewMediaId, setPreviewMediaId] = useState<string | null>(null);
 
   const handleOpenPreview = (id: string) => {
@@ -45,6 +40,4 @@ const GalleryPreviewHandler: React.FC<GalleryPreviewHandlerProps> = ({
     handleClosePreview,
     handleNavigatePreview
   };
-};
-
-export default GalleryPreviewHandler;
+}

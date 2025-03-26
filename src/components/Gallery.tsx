@@ -6,10 +6,10 @@ import GalleryEmptyState from './gallery/GalleryEmptyState';
 import GallerySkeletons from './gallery/GallerySkeletons';
 import MediaPreview from './MediaPreview';
 import { DetailedMediaInfo } from '@/api/imageApi';
-import GallerySelection from './gallery/GallerySelection';
-import GalleryPreviewHandler from './gallery/GalleryPreviewHandler';
+import { useGallerySelection } from './gallery/GallerySelection';
+import { useGalleryPreviewHandler } from './gallery/GalleryPreviewHandler';
 import GalleryToolbar from './gallery/GalleryToolbar';
-import GalleryMediaHandler from './gallery/GalleryMediaHandler';
+import { useGalleryMediaHandler } from './gallery/GalleryMediaHandler';
 
 export interface ImageItem {
   id: string;
@@ -50,23 +50,23 @@ const Gallery: React.FC<GalleryProps> = ({
   const { t } = useLanguage();
   
   // Initialize gallery selection features
-  const selection = GallerySelection({
+  const selection = useGallerySelection(
     mediaIds,
     selectedIds,
     onSelectId
-  });
+  );
   
   // Initialize preview features
-  const preview = GalleryPreviewHandler({
+  const preview = useGalleryPreviewHandler(
     mediaIds,
     onPreviewMedia
-  });
+  );
   
   // Initialize media operations
-  const mediaHandler = GalleryMediaHandler({
+  const mediaHandler = useGalleryMediaHandler(
     selectedIds,
     position
-  });
+  );
 
   // Collect media info from child components
   const updateMediaInfo = (id: string, info: DetailedMediaInfo | null) => {

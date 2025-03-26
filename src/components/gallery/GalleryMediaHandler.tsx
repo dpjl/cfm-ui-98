@@ -1,17 +1,9 @@
 
-import React, { useState } from 'react';
-import { getMediaUrl, DetailedMediaInfo } from '@/api/imageApi';
+import React from 'react';
+import { getMediaUrl } from '@/api/imageApi';
 import { useToast } from '@/components/ui/use-toast';
 
-interface GalleryMediaHandlerProps {
-  selectedIds: string[];
-  position?: 'source' | 'destination';
-}
-
-const GalleryMediaHandler: React.FC<GalleryMediaHandlerProps> = ({
-  selectedIds,
-  position = 'source'
-}) => {
+export function useGalleryMediaHandler(selectedIds: string[], position: 'source' | 'destination' = 'source') {
   const { toast } = useToast();
 
   const handleDownloadSelected = (ids: string[]) => {
@@ -38,6 +30,4 @@ const GalleryMediaHandler: React.FC<GalleryMediaHandlerProps> = ({
   return {
     handleDownloadSelected
   };
-};
-
-export default GalleryMediaHandler;
+}

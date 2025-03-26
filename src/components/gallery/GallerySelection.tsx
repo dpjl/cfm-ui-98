@@ -1,16 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-interface GallerySelectionProps {
-  mediaIds: string[];
-  selectedIds: string[];
-  onSelectId: (id: string) => void;
-}
-
-const GallerySelection: React.FC<GallerySelectionProps> = ({
-  mediaIds,
-  selectedIds,
-  onSelectId,
-}) => {
+export function useGallerySelection(
+  mediaIds: string[],
+  selectedIds: string[],
+  onSelectId: (id: string) => void
+) {
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
 
   const handleSelectItem = (id: string, extendSelection: boolean) => {
@@ -78,6 +72,4 @@ const GallerySelection: React.FC<GallerySelectionProps> = ({
     handleSelectAll,
     handleDeselectAll
   };
-};
-
-export default GallerySelection;
+}
