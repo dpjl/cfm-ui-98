@@ -33,14 +33,23 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
     }
   };
   
+  // Common classes and styles
+  const mediaClasses = cn(
+    "w-full h-full object-cover pointer-events-none", // Disable pointer events on the media itself
+    loaded ? "opacity-100" : "opacity-0"
+  );
+  
+  const containerClasses = cn(
+    "w-full h-full rounded-md overflow-hidden",
+    !loaded && "animate-pulse bg-muted"
+  );
+  
   return (
     <div 
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
-      className={cn(
-        "w-full h-full rounded-md overflow-hidden",
-        !loaded && "animate-pulse bg-muted"
-      )}
+      className={containerClasses}
+      aria-hidden="true" // The parent element handles interaction
     >
       {isVideo ? (
         <>
@@ -48,10 +57,7 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
             ref={videoRef}
             src={src}
             title={alt}
-            className={cn(
-              "w-full h-full object-cover pointer-events-none", // Désactiver les événements sur la vidéo elle-même
-              loaded ? "opacity-100" : "opacity-0"
-            )}
+            className={mediaClasses}
             onLoadedData={onLoad}
             muted
             loop
@@ -66,11 +72,8 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
       ) : (
         <img
           src={src}
-          alt={alt}
-          className={cn(
-            "w-full h-full object-cover pointer-events-none", // Désactiver les événements sur l'image elle-même
-            loaded ? "opacity-100" : "opacity-0"
-          )}
+          alt=""  // Empty alt because parent has aria-label
+          className={mediaClasses}
           onLoad={onLoad}
           style={{ transition: 'opacity 300ms ease' }}
         />

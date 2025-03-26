@@ -64,11 +64,17 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   // Determine if this is a video based on the file extension if available
   const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
   
-  // Simplified handler for selecting the item with shift key support
+  // Improved handler for selecting the item with shift key support and better touch handling
   const handleItemClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Empêcher la propagation du clic
-    e.preventDefault(); // Empêcher les comportements par défaut
+    e.preventDefault(); // Prevent default behavior
     onSelect(id, e.shiftKey);
+  };
+  
+  // Create a separate touch handler for mobile devices
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent default behavior
+    // We don't have shift key support on touch, so always pass false
+    onSelect(id, false);
   };
   
   // Simplified animation variants for better performance
@@ -82,9 +88,16 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
     }
   };
   
-  // Only render the full content when the item is intersecting
+  // Only render a simple placeholder when the item is not intersecting
   if (!isIntersecting) {
-    return <div ref={elementRef} className="aspect-square bg-muted rounded-lg"></div>;
+    return (
+      <div 
+        ref={elementRef} 
+        className="aspect-square bg-muted rounded-lg"
+        role="img"
+        aria-label="Loading media item"
+      ></div>
+    );
   }
   
   return (
@@ -102,7 +115,19 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
             "aspect-square cursor-pointer", 
             selected && "selected",
           )}
-          onClick={handleItemClick} // Gérer le clic sur toute la zone de la carte
+          onClick={handleItemClick}
+          onTouchEnd={handleTouchEnd}
+          role="button"
+          aria-label={`Media item ${mediaInfo?.alt || id}`}
+          aria-pressed={selected}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onSelect(id, e.shiftKey);
+            }
+          }}
+          data-media-id={id}
         >
           <MediaItemRenderer
             src={thumbnailUrl}
@@ -122,6 +147,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
               onSelect(id, e.shiftKey);
             }}
             loaded={loaded}
+            mediaId={id}
           />
         </div>
       )}
