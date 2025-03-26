@@ -20,6 +20,8 @@ const Index = () => {
   
   const [desktopColumnsLeft, setDesktopColumnsLeft] = useState<number>(5);
   const [desktopColumnsRight, setDesktopColumnsRight] = useState<number>(5);
+  const [desktopSingleColumnsLeft, setDesktopSingleColumnsLeft] = useState<number>(6);
+  const [desktopSingleColumnsRight, setDesktopSingleColumnsRight] = useState<number>(6);
   const [mobileSplitColumnsLeft, setMobileSplitColumnsLeft] = useState<number>(2);
   const [mobileSplitColumnsRight, setMobileSplitColumnsRight] = useState<number>(2);
   const [mobileSingleColumnsLeft, setMobileSingleColumnsLeft] = useState<number>(4);
@@ -31,7 +33,7 @@ const Index = () => {
   const [activeSide, setActiveSide] = useState<'left' | 'right'>('left');
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
-  const [mobileViewMode, setMobileViewMode] = useState<MobileViewMode>('both');
+  const [viewMode, setViewMode] = useState<MobileViewMode>('both');
   const [leftFilter, setLeftFilter] = useState<MediaFilter>('all');
   const [rightFilter, setRightFilter] = useState<MediaFilter>('all');
   const [serverPanelOpen, setServerPanelOpen] = useState(false);
@@ -40,22 +42,25 @@ const Index = () => {
   
   const getCurrentColumnsLeft = (): number => {
     if (isMobile) {
-      return mobileViewMode === 'both' ? mobileSplitColumnsLeft : mobileSingleColumnsLeft;
+      return viewMode === 'both' ? mobileSplitColumnsLeft : mobileSingleColumnsLeft;
     }
-    return desktopColumnsLeft;
+    return viewMode === 'both' ? desktopColumnsLeft : desktopSingleColumnsLeft;
   };
   
   const getCurrentColumnsRight = (): number => {
     if (isMobile) {
-      return mobileViewMode === 'both' ? mobileSplitColumnsRight : mobileSingleColumnsRight;
+      return viewMode === 'both' ? mobileSplitColumnsRight : mobileSingleColumnsRight;
     }
-    return desktopColumnsRight;
+    return viewMode === 'both' ? desktopColumnsRight : desktopSingleColumnsRight;
   };
   
-  const handleLeftColumnsChange = (viewMode: 'desktop' | 'mobile-split' | 'mobile-single', count: number) => {
+  const handleLeftColumnsChange = (viewMode: 'desktop' | 'desktop-single' | 'mobile-split' | 'mobile-single', count: number) => {
     switch (viewMode) {
       case 'desktop':
         setDesktopColumnsLeft(count);
+        break;
+      case 'desktop-single':
+        setDesktopSingleColumnsLeft(count);
         break;
       case 'mobile-split':
         setMobileSplitColumnsLeft(count);
@@ -66,10 +71,13 @@ const Index = () => {
     }
   };
   
-  const handleRightColumnsChange = (viewMode: 'desktop' | 'mobile-split' | 'mobile-single', count: number) => {
+  const handleRightColumnsChange = (viewMode: 'desktop' | 'desktop-single' | 'mobile-split' | 'mobile-single', count: number) => {
     switch (viewMode) {
       case 'desktop':
         setDesktopColumnsRight(count);
+        break;
+      case 'desktop-single':
+        setDesktopSingleColumnsRight(count);
         break;
       case 'mobile-split':
         setMobileSplitColumnsRight(count);
@@ -157,19 +165,19 @@ const Index = () => {
               position="left"
               selectedFilter={leftFilter}
               onFilterChange={setLeftFilter}
-              mobileViewMode={mobileViewMode}
+              mobileViewMode={viewMode}
               onColumnsChange={handleLeftColumnsChange}
             />
           </SidePanel>
 
           <div className="flex-1 flex flex-col overflow-hidden">
             <PageHeader 
-              onRefresh={handleRefresh}
+              onRefresh={() => {}}
               isDeletionPending={deleteMutation.isPending}
               isSidebarOpen={isSidebarOpen}
               onCloseSidebars={closeBothSidebars}
-              mobileViewMode={mobileViewMode}
-              setMobileViewMode={setMobileViewMode}
+              mobileViewMode={viewMode}
+              setMobileViewMode={setViewMode}
               selectedIdsLeft={selectedIdsLeft}
               selectedIdsRight={selectedIdsRight}
               onDelete={handleDelete}
@@ -191,8 +199,8 @@ const Index = () => {
               activeSide={activeSide}
               deleteMutation={deleteMutation}
               handleDeleteSelected={handleDeleteSelected}
-              mobileViewMode={mobileViewMode}
-              setMobileViewMode={setMobileViewMode}
+              mobileViewMode={viewMode}
+              setMobileViewMode={setViewMode}
               leftFilter={leftFilter}
               rightFilter={rightFilter}
             />
@@ -210,7 +218,7 @@ const Index = () => {
               position="right"
               selectedFilter={rightFilter}
               onFilterChange={setRightFilter}
-              mobileViewMode={mobileViewMode}
+              mobileViewMode={viewMode}
               onColumnsChange={handleRightColumnsChange}
             />
           </SidePanel>

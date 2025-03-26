@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDirectoryTree } from '@/api/imageApi';
@@ -187,6 +186,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
               directories={directoryTree}
               selectedDirectoryId={selectedDirectoryId}
               onSelectDirectory={onSelectDirectory}
+              position={position}
             />
           )}
         </div>

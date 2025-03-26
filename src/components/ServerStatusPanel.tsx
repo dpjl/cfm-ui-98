@@ -1,10 +1,19 @@
+
 import React, { useState, useEffect } from 'react';
-import { Server, ServerCrash, RefreshCw, Folder, Files, Calendar, FileText } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Separator } from '@/components/ui/separator';
-import { Card } from '@/components/ui/card';
+import { Server, RefreshCw, Folder, Files, Calendar, FileText, X } from 'lucide-react';
+import { 
+  Drawer, 
+  DrawerContent, 
+  DrawerHeader, 
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerClose
+} from '@/components/ui/drawer';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { fetchServerStatus } from '@/api/serverApi';
 import { useIsMobile } from '@/hooks/use-breakpoint';
@@ -63,11 +72,15 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
   };
 
   useEffect(() => {
-    getServerStatus();
-    const intervalId = setInterval(getServerStatus, 30000);
+    if (isOpen) {
+      getServerStatus();
+    }
+    const intervalId = isOpen ? setInterval(getServerStatus, 30000) : null;
     
-    return () => clearInterval(intervalId);
-  }, []);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isOpen]);
 
   const triggerRefresh = () => {
     getServerStatus();
@@ -87,52 +100,57 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
   };
 
   return (
-    <Collapsible 
-      open={isOpen} 
-      onOpenChange={onOpenChange}
-      className="w-full"
-    >
-      <CollapsibleContent>
-        <div className={cn(
-          "p-3 md:p-4 border-b shadow-lg",
-          theme === 'dark' 
-            ? "bg-slate-900/95 backdrop-blur-md text-slate-100 border-slate-700" 
-            : "bg-white/95 backdrop-blur-md text-slate-800 border-slate-200",
-        )}>
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Server className="h-4 w-4" />
-                <h2 className="text-sm font-medium">Dashboard Serveur</h2>
-                <Badge 
-                  variant={status?.isAccessible ? "success" : "destructive"}
-                  className="text-[0.65rem] h-5"
-                >
-                  {status?.isAccessible ? 'En ligne' : 'Hors ligne'}
-                </Badge>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">
-                  Dernière actualisation: {getLastRefreshedText()}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={triggerRefresh}
-                  disabled={isLoading}
-                >
-                  <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
-                </Button>
-              </div>
+    <Drawer open={isOpen} onOpenChange={onOpenChange}>
+      <DrawerContent className="max-h-[85vh]">
+        <DrawerHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Server className="h-5 w-5 text-primary" />
+              <DrawerTitle>État du Serveur</DrawerTitle>
+              <Badge 
+                variant={status?.isAccessible ? "success" : "destructive"}
+                className="text-[0.65rem] h-5"
+              >
+                {status?.isAccessible ? 'En ligne' : 'Hors ligne'}
+              </Badge>
             </div>
             
-            <Separator className="my-3" />
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="flex items-center gap-2">
+              <DrawerDescription className="m-0">
+                Dernière actualisation: {getLastRefreshedText()}
+              </DrawerDescription>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+                onClick={triggerRefresh}
+                disabled={isLoading}
+              >
+                <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
+              </Button>
+              <DrawerClose className="h-7 w-7 rounded-md border flex items-center justify-center hover:bg-secondary">
+                <X className="h-3.5 w-3.5" />
+                <span className="sr-only">Fermer</span>
+              </DrawerClose>
+            </div>
+          </div>
+        </DrawerHeader>
+        
+        <div className="px-4 py-4">
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="p-4">
+                  <Skeleton className="h-4 w-24 mb-3" />
+                  <Skeleton className="h-3 w-full mb-2" />
+                  <Skeleton className="h-3 w-4/5" />
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ServerInfoCard
-                icon={<Folder className="h-3.5 w-3.5" />}
+                icon={<Folder className="h-4 w-4" />}
                 title="Répertoires"
                 items={[
                   { label: 'Source:', value: status?.sourceDirectory || '—' },
@@ -141,7 +159,7 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
               />
               
               <ServerInfoCard
-                icon={<Files className="h-3.5 w-3.5" />}
+                icon={<Files className="h-4 w-4" />}
                 title="Fichiers"
                 items={[
                   { label: 'Source:', value: `${status?.sourceFileCount.toLocaleString() || '0'} fichiers` },
@@ -150,7 +168,7 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
               />
               
               <ServerInfoCard
-                icon={<Calendar className="h-3.5 w-3.5" />}
+                icon={<Calendar className="h-4 w-4" />}
                 title="Dernière exécution"
                 items={[
                   {
@@ -165,17 +183,38 @@ const ServerStatusPanel: React.FC<ServerStatusPanelProps> = ({
               />
               
               <ServerInfoCard
-                icon={<FileText className="h-3.5 w-3.5" />}
+                icon={<FileText className="h-4 w-4" />}
                 title="Configuration"
                 items={[
                   { label: 'Format:', value: status?.destinationFormat || '—' }
                 ]}
               />
             </div>
-          </div>
+          )}
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+        
+        <DrawerFooter className="border-t pt-4">
+          <div className="flex items-center justify-between w-full">
+            {error ? (
+              <p className="text-sm text-destructive">{error}</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {status?.isAccessible 
+                  ? 'Le serveur fonctionne normalement'
+                  : 'Le serveur est actuellement indisponible'}
+              </p>
+            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onOpenChange(false)}
+            >
+              Fermer
+            </Button>
+          </div>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 };
 
@@ -186,33 +225,31 @@ interface ServerInfoCardProps {
 }
 
 const ServerInfoCard: React.FC<ServerInfoCardProps> = ({ icon, title, items }) => {
-  const { theme } = useTheme();
-  
   return (
-    <Card className={cn(
-      "p-3 border shadow-sm",
-      theme === 'dark' ? "bg-slate-800/70" : "bg-slate-50/70"
-    )}>
-      <div className="flex items-center gap-2 mb-2 text-xs font-medium">
-        {icon}
-        {title}
-      </div>
-      
-      <div className="space-y-2">
-        {items.map((item, index) => (
-          <div key={index} className="grid grid-cols-3 text-xs">
-            {item.label && (
-              <span className="text-muted-foreground">{item.label}</span>
-            )}
-            <span className={cn(
-              "font-mono truncate",
-              item.label ? "col-span-2" : "col-span-3"
-            )} title={item.value}>
-              {item.value}
-            </span>
-          </div>
-        ))}
-      </div>
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium flex items-center gap-2">
+          {icon}
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          {items.map((item, index) => (
+            <div key={index} className="grid grid-cols-3 text-xs">
+              {item.label && (
+                <span className="text-muted-foreground">{item.label}</span>
+              )}
+              <span className={cn(
+                "font-mono truncate",
+                item.label ? "col-span-2" : "col-span-3"
+              )} title={item.value}>
+                {item.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
     </Card>
   );
 };

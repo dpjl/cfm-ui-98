@@ -72,7 +72,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
     );
   }
 
-  // Desktop view with split screen
+  // Desktop view - now supports multiple view modes
   return (
     <DesktopGalleriesView
       columnsCountLeft={columnsCountLeft}
@@ -90,6 +90,8 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
       deleteMutation={deleteMutation}
       leftFilter={leftFilter}
       rightFilter={rightFilter}
+      viewMode={mobileViewMode}
+      setViewMode={setMobileViewMode}
     />
   );
 };
