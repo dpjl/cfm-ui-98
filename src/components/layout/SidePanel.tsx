@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, PanelLeft, PanelRight, ChevronDown, X, Settings } from 'lucide-react';
@@ -7,7 +6,6 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { cn } from '@/lib/utils';
 import { MobileViewMode } from '@/types/gallery';
-
 interface SidePanelProps {
   children: React.ReactNode;
   position: 'left' | 'right';
@@ -16,7 +14,6 @@ interface SidePanelProps {
   title: string;
   viewMode?: MobileViewMode;
 }
-
 const SidePanel: React.FC<SidePanelProps> = ({
   children,
   position,
@@ -62,27 +59,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
   // Custom trigger button that shows the appropriate icon based on position
   const renderTriggerButton = () => {
     if (!shouldShowTrigger()) return null;
-    
-    return (
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className={`h-8 w-auto px-2.5 absolute top-20 z-20 ${position === 'left' ? 'left-0 rounded-l-none' : 'right-0 rounded-r-none'} bg-card/95 backdrop-blur-sm shadow-md border-${position === 'left' ? 'r' : 'l'} flex items-center gap-1.5`}
-        onClick={() => onOpenChange(true)}
-      >
-        {position === 'left' ? (
-          <>
-            <Settings className="h-3.5 w-3.5" />
-            <ChevronRight className="h-3.5 w-3.5" />
-          </>
-        ) : (
-          <>
-            <ChevronLeft className="h-3.5 w-3.5" />
-            <Settings className="h-3.5 w-3.5" />
-          </>
-        )}
-      </Button>
-    );
+    return;
   };
 
   // Desktop sheet implementation
@@ -109,5 +86,4 @@ const SidePanel: React.FC<SidePanelProps> = ({
       </Sheet>
     </>;
 };
-
 export default SidePanel;
