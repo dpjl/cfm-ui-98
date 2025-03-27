@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
 
-interface UseGalleryPreviewHandlerProps {
+export interface UseGalleryPreviewHandlerProps {
   mediaIds: string[];
   onPreviewMedia?: (id: string) => void;
 }

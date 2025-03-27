@@ -3,6 +3,7 @@ import { fetchMediaInfo } from '../api/imageApi';
 
 type ThumbnailCache = Record<string, string>;
 type InfoCache = Record<string, any>;
+type PositionCache = Record<string, any>;
 
 // Create a singleton cache instance that persists across renders
 const globalCache = {
@@ -10,6 +11,7 @@ const globalCache = {
   info: {} as InfoCache,
   pendingThumbnails: new Set<string>(),
   pendingInfo: new Set<string>(),
+  positionInfo: {} as PositionCache,
 };
 
 // Log cache stats periodically
@@ -19,7 +21,7 @@ const logCacheStats = () => {
   console.info(`Cache stats - Thumbnails: ${thumbnailCount}, Info: ${infoCount}`);
 };
 
-// Mock thumbnail fetching function (since fetchThumbnail isn't exported)
+// Mock thumbnail fetching function 
 const fetchThumbnail = async (mediaId: string): Promise<Blob> => {
   // Simulated fetch
   return new Blob([], { type: 'image/jpeg' });
@@ -119,7 +121,7 @@ export const useMediaCache = () => {
     globalCache.pendingInfo.add(mediaId);
     
     try {
-      const info = await fetchMediaInfo(mediaId);
+      const info = await fetchMediaInfo(mediaId, 'source');
       globalCache.info[mediaId] = info;
       forceUpdate({});
       return info;
@@ -148,15 +150,15 @@ export const useMediaCache = () => {
     }
   }, [getMediaInfo, getThumbnailUrl]);
 
-  // Add methods for media info caching
+  // Methods for position-specific media info caching
   const getCachedMediaInfo = useCallback((id: string, position: string) => {
     const key = `${id}-${position}`;
-    return globalCache.info[key] || null;
+    return globalCache.positionInfo[key] || null;
   }, []);
 
   const setCachedMediaInfo = useCallback((id: string, position: string, info: any) => {
     const key = `${id}-${position}`;
-    globalCache.info[key] = info;
+    globalCache.positionInfo[key] = info;
     forceUpdate({});
   }, []);
 

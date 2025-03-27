@@ -98,7 +98,7 @@ const OptimizedGalleryGrid = ({
   }, []);
 
   if (isLoading) {
-    return <GallerySkeletons columns={columns} />;
+    return <GallerySkeletons columnsCount={columns} />;
   }
 
   return (

@@ -11,7 +11,7 @@ interface MediaItemRendererProps {
   onPreview: () => void;
 }
 
-// Utiliser React.memo pour éviter les re-rendus inutiles
+// Use React.memo to avoid unnecessary re-renders
 const MediaItemRenderer = React.memo(
   ({ item, isSelected, onSelect, onPreview }: MediaItemRendererProps) => {
     const handleClick = (e: React.MouseEvent) => {

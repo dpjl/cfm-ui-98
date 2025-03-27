@@ -15,7 +15,7 @@ export const useGalleryState = () => {
   // Use React Query for data fetching
   const { data: mediaIds, isLoading, error } = useQuery({
     queryKey: ['mediaIds', currentDirectory],
-    queryFn: () => fetchMediaIds(currentDirectory),
+    queryFn: () => fetchMediaIds(currentDirectory, 'source'),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 

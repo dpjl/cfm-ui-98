@@ -14,9 +14,15 @@ const GalleryContent: React.FC = () => {
     selectedIds: [],
     onSelectId: () => {} // This will be replaced by a proper handler
   });
-  const preview = useGalleryPreviewHandler(
-    media?.map(item => item.id) || []
-  );
+  
+  // Create a Set for selected IDs
+  const selectedIds = new Set<string>();
+  
+  // Use the hook with proper object argument
+  const preview = useGalleryPreviewHandler({
+    mediaIds: media?.map(item => item.id) || [],
+    onPreviewMedia: undefined
+  });
   
   // Handle error state
   if (error) {
@@ -27,9 +33,6 @@ const GalleryContent: React.FC = () => {
   if (!isLoading && (!media || media.length === 0)) {
     return <GalleryEmptyState />;
   }
-
-  // Extract selected IDs set from selection
-  const selectedIds = new Set<string>();
 
   // Render the optimized gallery grid
   return (

@@ -33,9 +33,13 @@ const LazyMediaItem = React.memo(({ mediaId, alt = '', className = '' }: LazyMed
     
     // Check if we already have the URL
     const loadThumbnail = async () => {
-      const cachedUrl = await getThumbnailUrl(mediaId, true);
-      if (cachedUrl) {
-        setUrl(cachedUrl);
+      try {
+        const cachedUrl = await getThumbnailUrl(mediaId, true);
+        if (cachedUrl) {
+          setUrl(cachedUrl);
+        }
+      } catch (error) {
+        console.error(`Error loading thumbnail for ${mediaId}:`, error);
       }
     };
     
