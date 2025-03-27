@@ -137,15 +137,16 @@ const MobileControls: React.FC<MobileControlsProps> = ({
   onToggleLeftPanel,
   onToggleRightPanel
 }) => {
-  // Only show left panel toggle if we're in both view or right view
-  const showLeftPanelToggle = mobileViewMode === 'both' || mobileViewMode === 'right';
-  
-  // Only show right panel toggle if we're in both view or left view
-  const showRightPanelToggle = mobileViewMode === 'both' || mobileViewMode === 'left';
+  // Fixed: When in left view, show LEFT panel toggle (not right)
+  // Fixed: When in right view, show RIGHT panel toggle (not left)
+  // Only show panel toggles for the galleries that are actually visible
+  const showLeftPanelToggle = mobileViewMode === 'both' || mobileViewMode === 'left';
+  const showRightPanelToggle = mobileViewMode === 'both' || mobileViewMode === 'right';
   
   return (
     <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-20">
-      {showLeftPanelToggle && (
+      {/* Use a placeholder div to maintain spacing when button is hidden */}
+      {showLeftPanelToggle ? (
         <Button 
           variant="secondary" 
           size="icon"
@@ -157,6 +158,8 @@ const MobileControls: React.FC<MobileControlsProps> = ({
             <ChevronRight className="h-4 w-4 -mr-0.5" />
           </div>
         </Button>
+      ) : (
+        <div className="h-10 w-10 opacity-0"></div> // Invisible placeholder to maintain layout
       )}
       
       <MobileViewSwitcher 
@@ -164,7 +167,7 @@ const MobileControls: React.FC<MobileControlsProps> = ({
         setMobileViewMode={setMobileViewMode}
       />
       
-      {showRightPanelToggle && (
+      {showRightPanelToggle ? (
         <Button 
           variant="secondary" 
           size="icon"
@@ -176,6 +179,8 @@ const MobileControls: React.FC<MobileControlsProps> = ({
             <Settings className="h-4 w-4" />
           </div>
         </Button>
+      ) : (
+        <div className="h-10 w-10 opacity-0"></div> // Invisible placeholder to maintain layout
       )}
     </div>
   );

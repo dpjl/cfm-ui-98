@@ -29,11 +29,12 @@ const SidePanel: React.FC<SidePanelProps> = ({
   const [isHovered, setIsHovered] = useState(false);
 
   // Determine if we should show the trigger button based on view mode
+  // Fixed: Only show the settings button for the gallery that is visible
   const shouldShowTrigger = () => {
     if (viewMode === 'both') return true;
-    if (position === 'left' && viewMode === 'left') return false;
-    if (position === 'right' && viewMode === 'right') return false;
-    return true;
+    if (position === 'left' && viewMode === 'left') return true;
+    if (position === 'right' && viewMode === 'right') return true;
+    return false;
   };
 
   // Mobile drawer implementation

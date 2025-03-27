@@ -63,7 +63,7 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
 
   // Selection count display component
   const selectionCountDisplay = (
-    <div className={`text-xs text-muted-foreground ${isSourceGallery ? 'mr-2' : 'ml-2'}`}>
+    <div className={`text-xs text-muted-foreground ${isSourceGallery ? 'ml-0 mr-2' : 'ml-2 mr-0'}`}>
       {selectedIds.length}/{mediaIds.length} {!isCompactMode && t('selected')}
     </div>
   );
