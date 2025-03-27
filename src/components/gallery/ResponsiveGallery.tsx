@@ -93,6 +93,6 @@ const ResponsiveGallery: React.FC<ResponsiveGalleryProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default ResponsiveGallery;

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, memo, useCallback } from 'react';
+import React, { useState, useEffect, memo, useCallback, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
 import { useMediaInfo } from '@/hooks/use-media-info';
@@ -18,6 +18,7 @@ interface LazyMediaItemProps {
   showDates?: boolean;
   updateMediaInfo?: (id: string, info: any) => void;
   position: 'source' | 'destination';
+  isScrolling?: boolean;
 }
 
 // Using memo to prevent unnecessary re-renders
@@ -28,22 +29,24 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   index,
   showDates = false,
   updateMediaInfo,
-  position
+  position,
+  isScrolling = false
 }) => {
   const [loaded, setLoaded] = useState(false);
   const [longPressTriggered, setLongPressTriggered] = useState(false);
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const previousSelected = useRef(selected);
   
   const { elementRef, isIntersecting } = useIntersectionObserver<HTMLDivElement>({ 
     threshold: 0.1, 
-    freezeOnceVisible: true 
+    freezeOnceVisible: false // Changed to false to ensure visibility is checked continuously
   });
   
   const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting, position);
   const { getCachedThumbnailUrl, setCachedThumbnailUrl } = useMediaCache();
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   
-  // Nettoyer le timer quand le composant est démonté
+  // Clean up the timer when component unmounts
   useEffect(() => {
     return () => {
       if (pressTimer) {
@@ -54,7 +57,8 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   
   // Load thumbnail URL, using cache if available
   useEffect(() => {
-    if (isIntersecting) {
+    // Don't load during scrolling to avoid thrashing
+    if (isIntersecting && (!isScrolling || loaded)) {
       const cachedUrl = getCachedThumbnailUrl(id, position);
       if (cachedUrl) {
         setThumbnailUrl(cachedUrl);
@@ -65,49 +69,55 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
       setThumbnailUrl(url);
       setCachedThumbnailUrl(id, position, url);
     }
-  }, [id, isIntersecting, position, getCachedThumbnailUrl, setCachedThumbnailUrl]);
+  }, [id, isIntersecting, position, getCachedThumbnailUrl, setCachedThumbnailUrl, isScrolling, loaded]);
   
   // Update the parent component with media info when it's loaded
   useEffect(() => {
-    if (mediaInfo && updateMediaInfo) {
+    if (mediaInfo && updateMediaInfo && isIntersecting) {
       updateMediaInfo(id, mediaInfo);
     }
-  }, [id, mediaInfo, updateMediaInfo]);
+  }, [id, mediaInfo, updateMediaInfo, isIntersecting]);
+  
+  // Track selection changes to avoid flicker
+  useEffect(() => {
+    previousSelected.current = selected;
+  }, [selected]);
   
   // Determine if this is a video based on the file extension if available
   const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
   
-  // Gestion des clics
+  // Handle clicks
   const handleItemClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default behavior
+    e.stopPropagation(); // Stop event from bubbling up
     onSelect(id, e.shiftKey || e.ctrlKey || e.metaKey);
   }, [id, onSelect]);
   
-  // Gestion du appui long pour les mobiles (comme alternative au Ctrl+click)
+  // Handle long press for mobile devices (as an alternative to Ctrl+click)
   const handleTouchStart = useCallback(() => {
-    // Démarrer le timer pour détecter un appui long
+    // Start a timer to detect long press
     const timer = setTimeout(() => {
       setLongPressTriggered(true);
-      // Simuler un "Ctrl+click" en passant true comme second argument
+      // Simulate a "Ctrl+click" by passing true as the second argument
       onSelect(id, true);
-    }, 500); // 500ms est un bon délai pour un appui long
+    }, 500); // 500ms is a good delay for a long press
     
     setPressTimer(timer);
   }, [id, onSelect]);
   
   const handleTouchEnd = useCallback(() => {
-    // Annuler le timer si l'utilisateur relâche trop tôt
+    // Cancel the timer if the user releases too early
     if (pressTimer) {
       clearTimeout(pressTimer);
       setPressTimer(null);
     }
     
-    // Si ce n'était pas un appui long, traiter comme un clic normal
+    // If it wasn't a long press, treat it as a normal click
     if (!longPressTriggered) {
       onSelect(id, false);
     }
     
-    // Réinitialiser l'état pour le prochain appui
+    // Reset the state for the next press
     setLongPressTriggered(false);
   }, [pressTimer, longPressTriggered, id, onSelect]);
   
@@ -123,7 +133,7 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   };
   
   // Only render a simple placeholder when the item is not intersecting
-  if (!isIntersecting) {
+  if (!isIntersecting && !thumbnailUrl) {
     return (
       <div 
         ref={elementRef} 
@@ -140,9 +150,10 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
       variants={itemVariants}
       initial="hidden"
       animate="visible"
-      layout="position"
+      layout={false} // Disable layout animations to prevent flicker
+      style={{ willChange: 'auto' }} // Optimize for GPU rendering
     >
-      {thumbnailUrl && (
+      {(thumbnailUrl || isScrolling) && (
         <div 
           className={cn(
             "image-card group relative", 
@@ -163,13 +174,15 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
             }
           }}
           data-media-id={id}
+          style={{ willChange: 'transform, opacity' }}
         >
           <MediaItemRenderer
-            src={thumbnailUrl}
+            src={thumbnailUrl || ''}
             alt={mediaInfo?.alt || id}
             isVideo={Boolean(isVideo)}
             onLoad={() => setLoaded(true)}
             loaded={loaded}
+            isScrolling={isScrolling}
           />
 
           <DateDisplay dateString={mediaInfo?.createdAt} showDate={showDates} />

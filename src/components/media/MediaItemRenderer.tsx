@@ -9,6 +9,7 @@ interface MediaItemRendererProps {
   isVideo: boolean;
   onLoad: () => void;
   loaded: boolean;
+  isScrolling?: boolean;
 }
 
 // Using memo to prevent unnecessary re-renders
@@ -17,12 +18,14 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
   alt,
   isVideo,
   onLoad,
-  loaded
+  loaded,
+  isScrolling = false
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
   
   const handleMouseOver = () => {
-    if (isVideo && videoRef.current) {
+    if (isVideo && videoRef.current && !isScrolling) {
       videoRef.current.play().catch(err => console.error('Error playing video:', err));
     }
   };
@@ -44,12 +47,20 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
     !loaded && "animate-pulse bg-muted"
   );
   
+  // During scrolling, show a low-quality preview or placeholder
+  if (isScrolling && !loaded) {
+    return (
+      <div className={containerClasses + " bg-muted"} aria-hidden="true"></div>
+    );
+  }
+  
   return (
     <div 
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
       className={containerClasses}
       aria-hidden="true" // The parent element handles interaction
+      style={{ willChange: 'transform', contain: 'strict' }} // Performance optimization
     >
       {isVideo ? (
         <>
@@ -62,7 +73,8 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
             muted
             loop
             playsInline
-            style={{ transition: 'opacity 300ms ease' }}
+            loading="lazy"
+            style={{ transition: 'opacity 300ms ease', willChange: 'transform' }}
           />
           {/* Video icon overlay */}
           <div className="absolute top-2 right-2 z-10 bg-black/70 p-1 rounded-md text-white pointer-events-none">
@@ -71,11 +83,14 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
         </>
       ) : (
         <img
+          ref={imgRef}
           src={src}
           alt=""  // Empty alt because parent has aria-label
           className={mediaClasses}
           onLoad={onLoad}
-          style={{ transition: 'opacity 300ms ease' }}
+          loading="lazy"
+          decoding="async"
+          style={{ transition: 'opacity 300ms ease', willChange: 'transform' }}
         />
       )}
     </div>

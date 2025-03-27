@@ -1,9 +1,11 @@
 
-import React, { memo, useEffect, useState, useRef } from 'react';
-import { FixedSizeGrid } from 'react-window';
+import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
+import { FixedSizeGrid, FixedSizeGridProps } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import LazyMediaItem from '@/components/LazyMediaItem';
 import { DetailedMediaInfo } from '@/api/imageApi';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import throttle from 'lodash/throttle';
 
 interface VirtualizedGalleryGridProps {
   mediaIds: string[];
@@ -28,59 +30,58 @@ const VirtualizedGalleryGrid = memo(({
 }: VirtualizedGalleryGridProps) => {
   const isMobile = useIsMobile();
   const gridRef = useRef<FixedSizeGrid>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(0);
   
-  // Calculate dimensions
-  const [containerSize, setContainerSize] = useState({ width: 1, height: 1 });
-  const parentRef = useRef<HTMLDivElement>(null);
+  // Optimize by memoizing selectedIds as a Set for O(1) lookups
+  const selectedIdsSet = React.useMemo(() => new Set(selectedIds), [selectedIds]);
   
-  // Calculate optimal item size
+  // Calculate gap between items
   const gap = 8; // 2rem converted to px (matches the gap-2 class)
-  const itemWidth = Math.floor((containerSize.width - (gap * (columnsCount - 1))) / columnsCount);
-  const itemHeight = itemWidth + (showDates ? 40 : 0); // Add space for date display if needed
   
-  // Calculate rows needed
-  const rowCount = Math.ceil(mediaIds.length / columnsCount);
-  
-  // Update container size on mount and when columns change
+  // Forced rerender after window resize to adjust grid
   useEffect(() => {
-    const updateSize = () => {
-      if (parentRef.current) {
-        setContainerSize({
-          width: parentRef.current.offsetWidth,
-          height: parentRef.current.offsetHeight,
-        });
-      }
-    };
+    const handleResize = throttle(() => {
+      setForceUpdate(prev => prev + 1);
+    }, 200);
     
-    updateSize();
-    
-    const resizeObserver = new ResizeObserver(updateSize);
-    if (parentRef.current) {
-      resizeObserver.observe(parentRef.current);
-    }
-    
+    window.addEventListener('resize', handleResize);
     return () => {
-      if (parentRef.current) {
-        resizeObserver.unobserve(parentRef.current);
-      }
+      window.removeEventListener('resize', handleResize);
     };
-  }, [columnsCount]);
+  }, []);
   
-  // Reset scroll position when columns or data changes
+  // Reset scroll position when data changes
   useEffect(() => {
     if (gridRef.current) {
-      gridRef.current.scrollTo({ scrollTop: 0, scrollLeft: 0 });
+      // Only reset if the dataset changes completely
+      if (mediaIds.length === 0) {
+        gridRef.current.scrollTo({ scrollTop: 0, scrollLeft: 0 });
+      }
     }
-  }, [columnsCount, mediaIds]);
+  }, [mediaIds.length === 0]);
+
+  // Handle scroll state using throttle to avoid excessive rerenders
+  const handleScroll = useCallback(throttle(() => {
+    setIsScrolling(true);
+    
+    // Release the scrolling state after a delay
+    setTimeout(() => {
+      setIsScrolling(false);
+    }, 150);
+  }, 100), []);
   
-  // Render each cell of the grid
-  const Cell = ({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
+  // Memoize the cell renderer to prevent unnecessary rerenders
+  const Cell = useCallback(({ columnIndex, rowIndex, style }: { 
+    columnIndex: number; rowIndex: number; style: React.CSSProperties 
+  }) => {
     const index = rowIndex * columnsCount + columnIndex;
     if (index >= mediaIds.length) return null;
     
     const id = mediaIds[index];
+    const isSelected = selectedIdsSet.has(id);
     
-    // Apply gap spacing to the style
+    // Apply gap spacing to the style without modifying the original style object
     const adjustedStyle = {
       ...style,
       left: `${parseFloat(style.left as string) + (columnIndex * gap)}px`,
@@ -95,34 +96,60 @@ const VirtualizedGalleryGrid = memo(({
         <LazyMediaItem
           key={id}
           id={id}
-          selected={selectedIds.includes(id)}
+          selected={isSelected}
           onSelect={onSelectId}
           index={index}
           showDates={showDates}
           updateMediaInfo={updateMediaInfo}
           position={position}
+          isScrolling={isScrolling}
         />
       </div>
     );
-  };
+  }, [mediaIds, selectedIdsSet, columnsCount, gap, showDates, updateMediaInfo, position, onSelectId, isScrolling]);
+  
+  // Calculate rows needed - memoized to avoid recalculation
+  const rowCount = React.useMemo(() => Math.ceil(mediaIds.length / columnsCount), [mediaIds.length, columnsCount]);
+  
+  const handleItemsRendered = useCallback(({ 
+    overscanRowStartIndex, 
+    overscanRowStopIndex
+  }: {
+    overscanRowStartIndex: number, 
+    overscanRowStopIndex: number
+  }) => {
+    // We can use this to trigger loading if needed
+    console.log(`Rendering rows ${overscanRowStartIndex} to ${overscanRowStopIndex}`);
+  }, []);
   
   return (
-    <div ref={parentRef} className="w-full h-full p-2">
-      {containerSize.width > 1 && (
-        <FixedSizeGrid
-          ref={gridRef}
-          columnCount={columnsCount}
-          columnWidth={itemWidth}
-          height={containerSize.height}
-          rowCount={rowCount}
-          rowHeight={itemHeight}
-          width={containerSize.width}
-          itemData={mediaIds}
-          overscanRowCount={2}
-        >
-          {Cell}
-        </FixedSizeGrid>
-      )}
+    <div className="w-full h-full p-2">
+      <AutoSizer>
+        {({ width, height }) => {
+          // Calculate optimal item size based on available width
+          const itemWidth = Math.floor((width - (gap * (columnsCount - 1))) / columnsCount);
+          const itemHeight = itemWidth + (showDates ? 28 : 0); // Add space for date display if needed
+          
+          return (
+            <FixedSizeGrid
+              ref={gridRef}
+              columnCount={columnsCount}
+              columnWidth={itemWidth}
+              height={height}
+              rowCount={rowCount}
+              rowHeight={itemHeight}
+              width={width}
+              overscanRowCount={4} // Increase overscan for smoother scrolling
+              onScroll={handleScroll}
+              onItemsRendered={handleItemsRendered}
+              useIsScrolling={true} // Pass scrolling state to cells
+              style={{ overflowX: 'hidden' }} // Prevents horizontal scrollbar
+            >
+              {Cell}
+            </FixedSizeGrid>
+          );
+        }}
+      </AutoSizer>
     </div>
   );
 });
