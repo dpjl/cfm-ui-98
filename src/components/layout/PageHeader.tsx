@@ -28,7 +28,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   setMobileViewMode,
 }) => {
   const isMobile = useIsMobile();
-  const isBothGalleriesView = mobileViewMode === 'both';
   
   return (
     <header className="relative z-20 flex items-center justify-between gap-2 p-2 md:p-4 bg-background/80 backdrop-blur-md border-b border-border/40">
@@ -41,7 +40,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           />
         </div>
         
-        {/* Desktop view mode switcher - make buttons slightly smaller */}
+        {/* Desktop view mode switcher */}
         {!isMobile && (
           <div className="ml-4 flex gap-2 bg-background/90 shadow-sm border border-border/30 rounded-full p-1">
             <Button
