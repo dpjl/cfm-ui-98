@@ -1,3 +1,4 @@
+
 import React from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
@@ -136,36 +137,46 @@ const MobileControls: React.FC<MobileControlsProps> = ({
   onToggleLeftPanel,
   onToggleRightPanel
 }) => {
+  // Only show left panel toggle if we're in both view or right view
+  const showLeftPanelToggle = mobileViewMode === 'both' || mobileViewMode === 'right';
+  
+  // Only show right panel toggle if we're in both view or left view
+  const showRightPanelToggle = mobileViewMode === 'both' || mobileViewMode === 'left';
+  
   return (
     <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-20">
-      <Button 
-        variant="secondary" 
-        size="icon"
-        className="rounded-full shadow-md h-10 w-10"
-        onClick={onToggleLeftPanel}
-      >
-        <div className="flex items-center justify-center">
-          <Settings className="h-4 w-4" />
-          <ChevronRight className="h-4 w-4 -mr-0.5" />
-        </div>
-      </Button>
+      {showLeftPanelToggle && (
+        <Button 
+          variant="secondary" 
+          size="icon"
+          className="rounded-full shadow-md h-10 w-10"
+          onClick={onToggleLeftPanel}
+        >
+          <div className="flex items-center justify-center">
+            <Settings className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 -mr-0.5" />
+          </div>
+        </Button>
+      )}
       
       <MobileViewSwitcher 
         mobileViewMode={mobileViewMode}
         setMobileViewMode={setMobileViewMode}
       />
       
-      <Button 
-        variant="secondary" 
-        size="icon"
-        className="rounded-full shadow-md h-10 w-10"
-        onClick={onToggleRightPanel}
-      >
-        <div className="flex items-center justify-center">
-          <ChevronLeft className="h-4 w-4 -ml-0.5" />
-          <Settings className="h-4 w-4" />
-        </div>
-      </Button>
+      {showRightPanelToggle && (
+        <Button 
+          variant="secondary" 
+          size="icon"
+          className="rounded-full shadow-md h-10 w-10"
+          onClick={onToggleRightPanel}
+        >
+          <div className="flex items-center justify-center">
+            <ChevronLeft className="h-4 w-4 -ml-0.5" />
+            <Settings className="h-4 w-4" />
+          </div>
+        </Button>
+      )}
     </div>
   );
 };

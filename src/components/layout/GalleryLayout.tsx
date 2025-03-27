@@ -102,6 +102,7 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = ({
         isOpen={leftPanelOpen} 
         onOpenChange={toggleLeftPanel}
         title="Source"
+        viewMode={viewMode}
       >
         <AppSidebar
           selectedDirectoryId={selectedDirectoryIdLeft}
@@ -143,6 +144,7 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = ({
         isOpen={rightPanelOpen} 
         onOpenChange={toggleRightPanel}
         title="Destination"
+        viewMode={viewMode}
       >
         <AppSidebar
           selectedDirectoryId={selectedDirectoryIdRight}

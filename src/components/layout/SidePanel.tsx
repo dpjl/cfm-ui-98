@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/use-breakpoint';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { cn } from '@/lib/utils';
+import { MobileViewMode } from '@/types/gallery';
 
 interface SidePanelProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ interface SidePanelProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
+  viewMode?: MobileViewMode;
 }
 
 const SidePanel: React.FC<SidePanelProps> = ({
@@ -20,10 +22,19 @@ const SidePanel: React.FC<SidePanelProps> = ({
   position,
   isOpen,
   onOpenChange,
-  title
+  title,
+  viewMode = 'both'
 }) => {
   const isMobile = useIsMobile();
   const [isHovered, setIsHovered] = useState(false);
+
+  // Determine if we should show the trigger button based on view mode
+  const shouldShowTrigger = () => {
+    if (viewMode === 'both') return true;
+    if (position === 'left' && viewMode === 'left') return false;
+    if (position === 'right' && viewMode === 'right') return false;
+    return true;
+  };
 
   // Mobile drawer implementation
   if (isMobile) {
@@ -49,6 +60,8 @@ const SidePanel: React.FC<SidePanelProps> = ({
 
   // Custom trigger button that shows the appropriate icon based on position
   const renderTriggerButton = () => {
+    if (!shouldShowTrigger()) return null;
+    
     return (
       <Button 
         variant="outline" 
