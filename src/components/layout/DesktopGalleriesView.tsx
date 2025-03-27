@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import GalleryContainer from '@/components/GalleryContainer';
 import { Separator } from '@/components/ui/separator';
 import { BaseGalleryProps, SidebarToggleProps, ViewModeProps } from '@/types/gallery-props';
+import { MobileViewMode } from '@/types/gallery';
 
 // Define container animation variants
 const containerVariants = {
@@ -38,9 +39,13 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
   leftFilter = 'all',
   rightFilter = 'all',
   viewMode = 'both',
+  mobileViewMode,
   onToggleLeftPanel,
   onToggleRightPanel
 }) => {
+  // Use mobileViewMode if provided, otherwise fall back to viewMode
+  const activeViewMode: MobileViewMode = mobileViewMode || viewMode;
+
   // Extract common props for left gallery
   const leftGalleryProps = {
     title: "Left Gallery",
@@ -80,10 +85,10 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
       <div className="flex h-full">
         {/* Left Gallery */}
         <div className={`overflow-hidden transition-all duration-300 ${
-          viewMode === 'both' ? 'w-1/2' : 
-          viewMode === 'left' ? 'w-full' : 'w-0'
+          activeViewMode === 'both' ? 'w-1/2' : 
+          activeViewMode === 'left' ? 'w-full' : 'w-0'
         }`}>
-          {(viewMode === 'both' || viewMode === 'left') && (
+          {(activeViewMode === 'both' || activeViewMode === 'left') && (
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -92,23 +97,23 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
             >
               <GalleryContainer 
                 {...leftGalleryProps}
-                viewMode={viewMode === 'both' ? 'split' : 'single'}
+                viewMode={activeViewMode === 'both' ? 'split' : 'single'}
               />
             </motion.div>
           )}
         </div>
 
         {/* Gallery Separator - only shown in split view */}
-        {viewMode === 'both' && (
+        {activeViewMode === 'both' && (
           <Separator orientation="vertical" className="bg-border/60" />
         )}
 
         {/* Right Gallery */}
         <div className={`overflow-hidden transition-all duration-300 ${
-          viewMode === 'both' ? 'w-1/2' : 
-          viewMode === 'right' ? 'w-full' : 'w-0'
+          activeViewMode === 'both' ? 'w-1/2' : 
+          activeViewMode === 'right' ? 'w-full' : 'w-0'
         }`}>
-          {(viewMode === 'both' || viewMode === 'right') && (
+          {(activeViewMode === 'both' || activeViewMode === 'right') && (
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -117,7 +122,7 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
             >
               <GalleryContainer 
                 {...rightGalleryProps}
-                viewMode={viewMode === 'both' ? 'split' : 'single'}
+                viewMode={activeViewMode === 'both' ? 'split' : 'single'}
               />
             </motion.div>
           )}

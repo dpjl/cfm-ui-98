@@ -23,7 +23,7 @@ export interface BaseGalleryProps {
 
 // Props specific to mobile/desktop view mode handling
 export interface ViewModeProps {
-  mobileViewMode: MobileViewMode;
+  mobileViewMode?: MobileViewMode; // Make optional for backward compatibility
   setMobileViewMode?: React.Dispatch<React.SetStateAction<MobileViewMode>>;
   viewMode?: MobileViewMode;
 }

@@ -72,6 +72,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
     <DesktopGalleriesView
       {...sharedProps}
       viewMode={mobileViewMode}
+      mobileViewMode={mobileViewMode} // Adding this to satisfy TypeScript
     />
   );
 };
