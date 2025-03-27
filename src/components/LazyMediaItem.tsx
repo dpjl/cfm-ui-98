@@ -1,103 +1,89 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useIntersectionObserver } from '../hooks/use-intersection-observer';
-import { useMediaCache } from '../hooks/use-media-cache';
 
 interface LazyMediaItemProps {
-  mediaId: string;
+  id: string;
   alt?: string;
+  isSelected?: boolean;
+  onSelect?: (id: string) => void;
+  width?: string;
+  height?: string;
   className?: string;
+  thumbnailSrc?: string;
 }
 
-const LazyMediaItem = React.memo(({ mediaId, alt = '', className = '' }: LazyMediaItemProps) => {
+export const LazyMediaItem = ({
+  id,
+  alt = '',
+  isSelected = false,
+  onSelect,
+  width = '100%',
+  height = 'auto',
+  className = '',
+  thumbnailSrc,
+}: LazyMediaItemProps) => {
   const [isVisible, setIsVisible] = useState(false);
-  const { getThumbnailUrl } = useMediaCache();
-  const imgRef = useRef<HTMLImageElement>(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const placeholderRef = useRef<HTMLDivElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [url, setUrl] = useState<string | null>(null);
-
-  // Use intersection observer to detect when the image is in viewport
+  
   const onIntersect = (isIntersecting: boolean) => {
     if (isIntersecting && !isVisible) {
       setIsVisible(true);
     }
   };
 
-  // Set up intersection observer with the correct props structure
-  const { isIntersecting } = useIntersectionObserver({
-    root: null,
-    rootMargin: '0px',
-    threshold: 0,
-    freezeOnceVisible: false,
-  });
+  // Set up intersection observer
+  const entry = useIntersectionObserver(placeholderRef);
   
-  // Use the ref manually with useEffect to handle intersection
+  // React to intersection changes
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        onIntersect(entry.isIntersecting);
-      },
-      { root: null, rootMargin: '0px', threshold: 0 }
-    );
-    
-    if (placeholderRef.current) {
-      observer.observe(placeholderRef.current);
+    if (entry?.isIntersecting) {
+      onIntersect(true);
     }
-    
-    return () => {
-      if (placeholderRef.current) {
-        observer.unobserve(placeholderRef.current);
-      }
-    };
-  }, []);
+  }, [entry]);
 
   // Load thumbnail when visible
   useEffect(() => {
-    if (!isVisible) return;
-    
-    // Check if we already have the URL
-    const loadThumbnail = async () => {
-      try {
-        const cachedUrl = await getThumbnailUrl(mediaId, true);
-        if (cachedUrl) {
-          setUrl(cachedUrl);
-        }
-      } catch (error) {
-        console.error(`Error loading thumbnail for ${mediaId}:`, error);
-      }
-    };
-    
-    loadThumbnail();
-  }, [isVisible, mediaId, getThumbnailUrl]);
+    if (isVisible && thumbnailSrc) {
+      const img = new Image();
+      img.src = thumbnailSrc;
+      img.onload = () => setHasLoaded(true);
+    }
+  }, [isVisible, thumbnailSrc]);
 
-  // Handle image load completion
-  const handleImageLoaded = () => {
-    setIsLoaded(true);
+  const handleSelect = () => {
+    onSelect?.(id);
   };
 
+  // Create the base URL for thumbnail
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+  const thumbUrl = thumbnailSrc || `${apiBaseUrl}/thumbnail?id=${id}`;
+
   return (
-    <div 
-      ref={placeholderRef} 
-      className={`lazy-media-container ${className}`}
-      style={{ 
-        aspectRatio: '1/1',
-        backgroundColor: '#f0f0f0',
-        transition: 'opacity 0.3s ease-in-out'
-      }}
+    <div
+      ref={placeholderRef}
+      className={`relative media-item ${className} ${isSelected ? 'selected' : ''}`}
+      style={{ width, height, aspectRatio: '1' }}
+      onClick={handleSelect}
     >
-      {url && (
+      {isVisible ? (
         <img
-          ref={imgRef}
-          src={url}
+          src={thumbUrl}
           alt={alt}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          onLoad={handleImageLoaded}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${
+            hasLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
           loading="lazy"
         />
+      ) : (
+        <div className="w-full h-full bg-gray-200 animate-pulse"></div>
+      )}
+      {isSelected && (
+        <div className="absolute inset-0 bg-blue-500 bg-opacity-30 border-2 border-blue-500"></div>
       )}
     </div>
   );
-});
+};
 
 export default LazyMediaItem;
