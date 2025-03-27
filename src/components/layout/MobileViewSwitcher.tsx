@@ -2,7 +2,7 @@
 import React, { useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { MobileViewMode } from '@/types/gallery';
-import { PanelLeft, PanelLeftRight, PanelRight } from 'lucide-react';
+import { PanelLeft, PanelsLeftRight, PanelRight } from 'lucide-react';
 
 interface MobileViewSwitcherProps {
   mobileViewMode: MobileViewMode;
@@ -45,7 +45,7 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
         className="h-9 w-9 rounded-full"
         title="Split View"
       >
-        <PanelLeftRight className="h-3.5 w-3.5" />
+        <PanelsLeftRight className="h-3.5 w-3.5" />
       </Button>
       
       <Button 
