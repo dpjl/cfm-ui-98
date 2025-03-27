@@ -1,5 +1,4 @@
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 export type SelectionMode = 'single' | 'multiple';
 
@@ -14,70 +13,78 @@ export function useGallerySelection({
   mediaIds,
   selectedIds,
   onSelectId,
-  initialSelectionMode = 'single'
+  initialSelectionMode = 'multiple'
 }: UseGallerySelectionProps) {
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
   const [selectionMode, setSelectionMode] = useState<SelectionMode>(initialSelectionMode);
+  const processingRef = useRef(false);
 
+  // Optimized with debouncing protection
   const handleSelectItem = useCallback((id: string, extendSelection: boolean) => {
-    console.log(`Selecting item: ${id}, extend: ${extendSelection}, mode: ${selectionMode}`);
+    // Prevent double-processing during animations
+    if (processingRef.current) return;
+    processingRef.current = true;
     
-    // Si nous sommes en mode de sélection unique et que l'extension n'est pas forcée
-    if (selectionMode === 'single' && !extendSelection) {
-      // Si l'élément est déjà sélectionné, le déselectionner
-      if (selectedIds.includes(id)) {
-        onSelectId(id);
-      } 
-      // Sinon, désélectionner tout et sélectionner cet élément
-      else {
-        selectedIds.forEach(selectedId => {
-          if (selectedId !== id) {
-            onSelectId(selectedId);
-          }
-        });
-        onSelectId(id);
-      }
-    }
-    // Si nous sommes en mode de sélection multiple ou que l'extension est forcée
-    else {
-      // Si Shift est utilisé pour étendre la sélection
-      if (extendSelection && lastSelectedId) {
-        // Trouver les indices
-        const lastIndex = mediaIds.indexOf(lastSelectedId);
-        const currentIndex = mediaIds.indexOf(id);
-        
-        if (lastIndex !== -1 && currentIndex !== -1) {
-          // Définir la plage de sélection
-          const start = Math.min(lastIndex, currentIndex);
-          const end = Math.max(lastIndex, currentIndex);
-          
-          // Sélectionner tous les éléments dans la plage
-          const idsToSelect = mediaIds.slice(start, end + 1);
-          
-          // Créer un nouvel ensemble de sélection conservant les éléments déjà sélectionnés
-          const newSelection = new Set([...selectedIds]);
-          
-          // Ajouter tous les éléments de la plage
-          idsToSelect.forEach(mediaId => {
-            if (!newSelection.has(mediaId)) {
-              newSelection.add(mediaId);
-              onSelectId(mediaId); // Informer le parent de chaque élément nouvellement sélectionné
+    // Use requestAnimationFrame for better visual sync
+    requestAnimationFrame(() => {
+      try {
+        // Single selection mode without extension
+        if (selectionMode === 'single' && !extendSelection) {
+          // If already selected, deselect
+          if (selectedIds.includes(id)) {
+            onSelectId(id);
+          } 
+          // Otherwise replace selection
+          else {
+            // First select the new item (to avoid empty selection flicker)
+            if (!selectedIds.includes(id)) {
+              onSelectId(id);
             }
-          });
+            
+            // Then deselect others
+            selectedIds.forEach(selectedId => {
+              if (selectedId !== id) {
+                onSelectId(selectedId);
+              }
+            });
+          }
         }
-      } 
-      // Basculer la sélection de cet élément en mode multiple
-      else {
-        onSelectId(id);
+        // Multiple selection or extended selection
+        else {
+          // Shift selection for range
+          if (extendSelection && lastSelectedId) {
+            const lastIndex = mediaIds.indexOf(lastSelectedId);
+            const currentIndex = mediaIds.indexOf(id);
+            
+            if (lastIndex !== -1 && currentIndex !== -1) {
+              const start = Math.min(lastIndex, currentIndex);
+              const end = Math.max(lastIndex, currentIndex);
+              
+              // Optimize range selection
+              for (let i = start; i <= end; i++) {
+                const mediaId = mediaIds[i];
+                if (!selectedIds.includes(mediaId)) {
+                  onSelectId(mediaId);
+                }
+              }
+            }
+          } 
+          // Toggle single item
+          else {
+            onSelectId(id);
+          }
+        }
+        
+        // Store last selected ID for Shift functionality
+        setLastSelectedId(id);
+      } finally {
+        // Always release lock
+        processingRef.current = false;
       }
-    }
-    
-    // Garder une trace du dernier élément sélectionné pour la fonctionnalité Shift
-    setLastSelectedId(id);
+    });
   }, [mediaIds, selectedIds, onSelectId, selectionMode]);
 
   const handleSelectAll = useCallback(() => {
-    // Select all media
     mediaIds.forEach(id => {
       if (!selectedIds.includes(id)) {
         onSelectId(id);
@@ -86,31 +93,29 @@ export function useGallerySelection({
   }, [mediaIds, selectedIds, onSelectId]);
 
   const handleDeselectAll = useCallback(() => {
-    // Deselect all media
     selectedIds.forEach(id => onSelectId(id));
   }, [selectedIds, onSelectId]);
 
   const toggleSelectionMode = useCallback(() => {
     setSelectionMode(prev => prev === 'single' ? 'multiple' : 'single');
-    // Lorsque nous passons de multiple à unique, désélectionner tous les éléments sauf le dernier
+    
+    // Simplify selection logic when switching modes
     if (selectionMode === 'multiple' && selectedIds.length > 1) {
-      const lastIndex = selectedIds.length - 1;
-      const keepId = selectedIds[lastIndex];
-      selectedIds.forEach((id, index) => {
-        if (index !== lastIndex) {
-          onSelectId(id);
-        }
-      });
-      // Si aucun élément n'était sélectionné, ne rien faire
-      if (selectedIds.length === 0) {
-        return;
-      }
-      // Si le dernier élément sélectionné n'était pas déjà sélectionné, le sélectionner
-      if (!selectedIds.includes(keepId)) {
-        onSelectId(keepId);
+      // Keep only the last selected item
+      if (lastSelectedId && selectedIds.includes(lastSelectedId)) {
+        selectedIds.forEach(id => {
+          if (id !== lastSelectedId) {
+            onSelectId(id);
+          }
+        });
+      } 
+      // Or deselect all but first if no last ID
+      else if (selectedIds.length > 0) {
+        const keepId = selectedIds[0];
+        selectedIds.slice(1).forEach(id => onSelectId(id));
       }
     }
-  }, [selectionMode, selectedIds, onSelectId]);
+  }, [selectionMode, selectedIds, lastSelectedId, onSelectId]);
 
   return {
     selectionMode,
