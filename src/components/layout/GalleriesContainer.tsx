@@ -59,23 +59,29 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
     onToggleRightPanel
   };
   
+  // Add custom CSS variables for scrollbar colors
+  React.useEffect(() => {
+    document.documentElement.style.setProperty('--scrollbar-thumb', '100, 100, 100');
+    document.documentElement.style.setProperty('--scrollbar-track', '50, 50, 50');
+  }, []);
+  
   // Return appropriate view based on device type
-  if (isMobile) {
-    return (
-      <MobileGalleriesView
-        {...sharedProps}
-        mobileViewMode={mobileViewMode}
-        setMobileViewMode={setMobileViewMode}
-      />
-    );
-  }
-
   return (
-    <DesktopGalleriesView
-      {...sharedProps}
-      viewMode={mobileViewMode}
-      mobileViewMode={mobileViewMode}
-    />
+    <div className="flex-1 overflow-hidden relative h-[calc(100vh-120px)]">
+      {isMobile ? (
+        <MobileGalleriesView
+          {...sharedProps}
+          mobileViewMode={mobileViewMode}
+          setMobileViewMode={setMobileViewMode}
+        />
+      ) : (
+        <DesktopGalleriesView
+          {...sharedProps}
+          viewMode={mobileViewMode}
+          mobileViewMode={mobileViewMode}
+        />
+      )}
+    </div>
   );
 };
 

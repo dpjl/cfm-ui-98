@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, memo, useCallback } from 'react';
+import React, { useState, useEffect, memo, useCallback, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
 import { useMediaInfo } from '@/hooks/use-media-info';
@@ -33,17 +33,17 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   const [loaded, setLoaded] = useState(false);
   const [longPressTriggered, setLongPressTriggered] = useState(false);
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const inViewRef = useRef(false);
   
-  const { elementRef, isIntersecting } = useIntersectionObserver<HTMLDivElement>({ 
-    threshold: 0.1, 
-    freezeOnceVisible: true 
-  });
+  // We'll use a standard ref instead of intersection observer hook
+  // This helps avoid the flickering issue when selecting items
+  const elementRef = useRef<HTMLDivElement>(null);
   
-  const { mediaInfo, isLoading } = useMediaInfo(id, isIntersecting, position);
+  const { mediaInfo, isLoading } = useMediaInfo(id, true, position);
   const { getCachedThumbnailUrl, setCachedThumbnailUrl } = useMediaCache();
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   
-  // Nettoyer le timer quand le composant est démonté
+  // Cleanup timer when component is unmounted
   useEffect(() => {
     return () => {
       if (pressTimer) {
@@ -54,18 +54,16 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   
   // Load thumbnail URL, using cache if available
   useEffect(() => {
-    if (isIntersecting) {
-      const cachedUrl = getCachedThumbnailUrl(id, position);
-      if (cachedUrl) {
-        setThumbnailUrl(cachedUrl);
-        return;
-      }
-      
-      const url = getThumbnailUrl(id, position);
-      setThumbnailUrl(url);
-      setCachedThumbnailUrl(id, position, url);
+    const cachedUrl = getCachedThumbnailUrl(id, position);
+    if (cachedUrl) {
+      setThumbnailUrl(cachedUrl);
+      return;
     }
-  }, [id, isIntersecting, position, getCachedThumbnailUrl, setCachedThumbnailUrl]);
+    
+    const url = getThumbnailUrl(id, position);
+    setThumbnailUrl(url);
+    setCachedThumbnailUrl(id, position, url);
+  }, [id, position, getCachedThumbnailUrl, setCachedThumbnailUrl]);
   
   // Update the parent component with media info when it's loaded
   useEffect(() => {
@@ -77,93 +75,68 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
   // Determine if this is a video based on the file extension if available
   const isVideo = mediaInfo?.alt ? /\.(mp4|webm|ogg|mov)$/i.test(mediaInfo.alt) : false;
   
-  // Gestion des clics
+  // Handle clicks
   const handleItemClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default behavior
     onSelect(id, e.shiftKey || e.ctrlKey || e.metaKey);
   }, [id, onSelect]);
   
-  // Gestion du appui long pour les mobiles (comme alternative au Ctrl+click)
+  // Handle long press for mobile (as alternative to Ctrl+click)
   const handleTouchStart = useCallback(() => {
-    // Démarrer le timer pour détecter un appui long
+    // Start timer to detect long press
     const timer = setTimeout(() => {
       setLongPressTriggered(true);
-      // Simuler un "Ctrl+click" en passant true comme second argument
+      // Simulate a "Ctrl+click" by passing true as second argument
       onSelect(id, true);
-    }, 500); // 500ms est un bon délai pour un appui long
+    }, 500); // 500ms is a good delay for long press
     
     setPressTimer(timer);
   }, [id, onSelect]);
   
   const handleTouchEnd = useCallback(() => {
-    // Annuler le timer si l'utilisateur relâche trop tôt
+    // Cancel timer if user releases too early
     if (pressTimer) {
       clearTimeout(pressTimer);
       setPressTimer(null);
     }
     
-    // Si ce n'était pas un appui long, traiter comme un clic normal
+    // If it wasn't a long press, treat as normal click
     if (!longPressTriggered) {
       onSelect(id, false);
     }
     
-    // Réinitialiser l'état pour le prochain appui
+    // Reset state for next press
     setLongPressTriggered(false);
   }, [pressTimer, longPressTriggered, id, onSelect]);
   
-  // Simplified animation variants for better performance
-  const itemVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: {
-        duration: 0.2
-      }
-    }
-  };
-  
-  // Only render a simple placeholder when the item is not intersecting
-  if (!isIntersecting) {
-    return (
-      <div 
-        ref={elementRef} 
-        className="aspect-square bg-muted rounded-lg"
-        role="img"
-        aria-label="Loading media item"
-      ></div>
-    );
-  }
+  // Removed animations that could cause flickering
   
   return (
-    <motion.div
-      ref={elementRef}
-      variants={itemVariants}
-      initial="hidden"
-      animate="visible"
-      layout="position"
+    <div
+      ref={elementRef} 
+      className={cn(
+        "image-card group relative", 
+        "aspect-square cursor-pointer", 
+        selected && "selected",
+        "transition-all duration-75" // Faster transition to reduce perceived flicker
+      )}
+      onClick={handleItemClick}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      role="button"
+      aria-label={`Media item ${mediaInfo?.alt || id}`}
+      aria-pressed={selected}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(id, e.shiftKey || e.ctrlKey || e.metaKey);
+        }
+      }}
+      data-media-id={id}
     >
       {thumbnailUrl && (
-        <div 
-          className={cn(
-            "image-card group relative", 
-            "aspect-square cursor-pointer", 
-            selected && "selected",
-          )}
-          onClick={handleItemClick}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          role="button"
-          aria-label={`Media item ${mediaInfo?.alt || id}`}
-          aria-pressed={selected}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              onSelect(id, e.shiftKey || e.ctrlKey || e.metaKey);
-            }
-          }}
-          data-media-id={id}
-        >
+        <>
           <MediaItemRenderer
             src={thumbnailUrl}
             alt={mediaInfo?.alt || id}
@@ -184,9 +157,9 @@ const LazyMediaItem: React.FC<LazyMediaItemProps> = memo(({
             loaded={loaded}
             mediaId={id}
           />
-        </div>
+        </>
       )}
-    </motion.div>
+    </div>
   );
 });
 

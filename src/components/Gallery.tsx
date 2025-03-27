@@ -90,7 +90,7 @@ const Gallery: React.FC<GalleryProps> = ({
     setShowDates(prev => !prev);
   }, []);
   
-  // Déterminer si nous devons afficher le panneau d'information
+  // Determine if we should show the info panel
   const shouldShowInfoPanel = selectedIds.length > 0;
   
   if (isLoading) {
@@ -127,7 +127,7 @@ const Gallery: React.FC<GalleryProps> = ({
         onToggleSelectionMode={selection.toggleSelectionMode}
       />
       
-      {/* Panneau d'information des médias */}
+      {/* Media info panel */}
       {shouldShowInfoPanel && (
         <MediaInfoPanel
           selectedIds={selectedIds}
