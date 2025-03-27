@@ -43,11 +43,9 @@ const Index = () => {
           columnsCountLeft={galleryState.getCurrentColumnsLeft(isMobile)}
           columnsCountRight={galleryState.getCurrentColumnsRight(isMobile)}
           onLeftColumnsChange={(viewType, count) => {
-            const viewModeType = viewType as any;
             galleryState.handleLeftColumnsChange(isMobile, count);
           }}
           onRightColumnsChange={(viewType, count) => {
-            const viewModeType = viewType as any;
             galleryState.handleRightColumnsChange(isMobile, count);
           }}
           selectedIdsLeft={galleryState.selectedIdsLeft}

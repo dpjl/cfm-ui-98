@@ -1,17 +1,24 @@
 import { useState } from 'react';
 
-export function useGallerySelection(
+export type SelectionMode = 'single' | 'multiple';
+
+export function useGallerySelection({
+  mediaIds,
+  selectedIds,
+  onSelectId
+}: {
   mediaIds: string[],
   selectedIds: string[],
   onSelectId: (id: string) => void
-) {
+}) {
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
+  const [selectionMode, setSelectionMode] = useState<SelectionMode>('multiple');
 
   const handleSelectItem = (id: string, extendSelection: boolean) => {
     console.log(`Selecting item: ${id}, extend: ${extendSelection}`);
     
     // If Shift key is used to extend selection
-    if (extendSelection && lastSelectedId) {
+    if (extendSelection && lastSelectedId && selectionMode === 'multiple') {
       // Find indices
       const lastIndex = mediaIds.indexOf(lastSelectedId);
       const currentIndex = mediaIds.indexOf(id);
@@ -36,12 +43,21 @@ export function useGallerySelection(
         });
       }
     } 
-    // If only one item is already selected and we click on another (without Shift)
-    else if (selectedIds.length === 1 && !selectedIds.includes(id) && !extendSelection) {
-      // Deselect the current item
-      onSelectId(selectedIds[0]);
-      // Select the new item
-      onSelectId(id);
+    // Single selection mode - only one item can be selected at a time
+    else if (selectionMode === 'single') {
+      // If clicked on already selected item, deselect it
+      if (selectedIds.includes(id)) {
+        onSelectId(id);
+      } 
+      // Otherwise deselect all and select the new item
+      else {
+        selectedIds.forEach(selectedId => {
+          if (selectedId !== id) {
+            onSelectId(selectedId);
+          }
+        });
+        onSelectId(id);
+      }
     }
     // If multiple items are already selected, or we click on an already selected item
     else {
@@ -67,9 +83,19 @@ export function useGallerySelection(
     selectedIds.forEach(id => onSelectId(id));
   };
 
+  const toggleSelectionMode = () => {
+    // Clear selection when toggling modes
+    if (selectedIds.length > 0) {
+      handleDeselectAll();
+    }
+    setSelectionMode(prev => prev === 'single' ? 'multiple' : 'single');
+  };
+
   return {
     handleSelectItem,
     handleSelectAll,
-    handleDeselectAll
+    handleDeselectAll,
+    selectionMode,
+    toggleSelectionMode
   };
 }

@@ -1,209 +1,69 @@
 
-import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import { useLocalStorage } from '@/hooks/use-local-storage';
-import { deleteImages } from '@/api/imageApi';
-import { useMutation } from '@tanstack/react-query';
-import { MobileViewMode, ViewModeType } from '@/types/gallery';
-import { MediaFilter } from '@/components/AppSidebar';
+import { useIsMobile } from '@/hooks/use-breakpoint';
+import { useDirectoryState } from '@/hooks/use-directory-state';
+import { useColumnsState } from '@/hooks/use-columns-state';
+import { useSelectionState } from '@/hooks/use-selection-state';
+import { useUIState } from '@/hooks/use-ui-state';
+import { useGalleryActions } from '@/hooks/use-gallery-actions';
+import { ViewModeType } from '@/types/gallery';
 
 export function useGalleryState() {
-  // Directory selection state
-  const [selectedDirectoryIdLeft, setSelectedDirectoryIdLeft] = useState<string>("directory1");
-  const [selectedDirectoryIdRight, setSelectedDirectoryIdRight] = useState<string>("directory1");
+  const isMobile = useIsMobile();
   
-  // Column counts for different modes, stored in local storage
-  const [desktopColumnsLeft, setDesktopColumnsLeft] = useLocalStorage('desktop-split-columns-left', 5);
-  const [desktopColumnsRight, setDesktopColumnsRight] = useLocalStorage('desktop-split-columns-right', 5);
-  const [desktopSingleColumnsLeft, setDesktopSingleColumnsLeft] = useLocalStorage('desktop-single-columns-left', 6);
-  const [desktopSingleColumnsRight, setDesktopSingleColumnsRight] = useLocalStorage('desktop-single-columns-right', 6);
-  const [mobileSplitColumnsLeft, setMobileSplitColumnsLeft] = useLocalStorage('mobile-split-columns-left', 2);
-  const [mobileSplitColumnsRight, setMobileSplitColumnsRight] = useLocalStorage('mobile-split-columns-right', 2);
-  const [mobileSingleColumnsLeft, setMobileSingleColumnsLeft] = useLocalStorage('mobile-single-columns-left', 4);
-  const [mobileSingleColumnsRight, setMobileSingleColumnsRight] = useLocalStorage('mobile-single-columns-right', 4);
+  // Use all the specialized hooks
+  const directoryState = useDirectoryState();
+  const columnsState = useColumnsState();
+  const selectionState = useSelectionState();
+  const uiState = useUIState();
   
-  // Media selection state
-  const [selectedIdsLeft, setSelectedIdsLeft] = useState<string[]>([]);
-  const [selectedIdsRight, setSelectedIdsRight] = useState<string[]>([]);
+  // Gallery actions need access to selection state and UI state
+  const galleryActions = useGalleryActions(
+    selectionState.selectedIdsLeft,
+    selectionState.selectedIdsRight,
+    selectionState.activeSide,
+    uiState.setDeleteDialogOpen,
+    selectionState.setSelectedIdsLeft,
+    selectionState.setSelectedIdsRight
+  );
   
-  // UI state
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [activeSide, setActiveSide] = useState<'left' | 'right'>('left');
-  const [leftPanelOpen, setLeftPanelOpen] = useState(false);
-  const [rightPanelOpen, setRightPanelOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<MobileViewMode>('both');
-  const [leftFilter, setLeftFilter] = useState<MediaFilter>('all');
-  const [rightFilter, setRightFilter] = useState<MediaFilter>('all');
-  const [serverPanelOpen, setServerPanelOpen] = useState(false);
-  
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: deleteImages,
-    onSuccess: () => {
-      const activeSelectedIds = activeSide === 'left' ? selectedIdsLeft : selectedIdsRight;
-      toast({
-        title: `${activeSelectedIds.length} ${activeSelectedIds.length === 1 ? 'media' : 'media files'} deleted`,
-        description: "The selected media files have been removed successfully.",
-      });
-      
-      if (activeSide === 'left') {
-        setSelectedIdsLeft([]);
-      } else {
-        setSelectedIdsRight([]);
-      }
-      setDeleteDialogOpen(false);
-      
-      queryClient.invalidateQueries({ queryKey: ['mediaIds'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error deleting media files",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive",
-      });
-      setDeleteDialogOpen(false);
-    }
-  });
-  
-  // Column management
+  // Convenience methods that use data from multiple hooks
   const getCurrentColumnsLeft = (isMobile: boolean): number => {
-    if (isMobile) {
-      return viewMode === 'both' ? mobileSplitColumnsLeft : mobileSingleColumnsLeft;
-    }
-    return viewMode === 'both' ? desktopColumnsLeft : desktopSingleColumnsLeft;
+    return columnsState.getCurrentColumnsLeft(isMobile, uiState.viewMode);
   };
   
   const getCurrentColumnsRight = (isMobile: boolean): number => {
-    if (isMobile) {
-      return viewMode === 'both' ? mobileSplitColumnsRight : mobileSingleColumnsRight;
-    }
-    return viewMode === 'both' ? desktopColumnsRight : desktopSingleColumnsRight;
+    return columnsState.getCurrentColumnsRight(isMobile, uiState.viewMode);
   };
   
   const handleLeftColumnsChange = (isMobile: boolean, count: number) => {
-    if (isMobile) {
-      if (viewMode === 'both') {
-        setMobileSplitColumnsLeft(count);
-      } else {
-        setMobileSingleColumnsLeft(count);
-      }
-    } else {
-      if (viewMode === 'both') {
-        setDesktopColumnsLeft(count);
-      } else {
-        setDesktopSingleColumnsLeft(count);
-      }
-    }
+    columnsState.handleLeftColumnsChange(isMobile, uiState.viewMode, count);
   };
   
   const handleRightColumnsChange = (isMobile: boolean, count: number) => {
-    if (isMobile) {
-      if (viewMode === 'both') {
-        setMobileSplitColumnsRight(count);
-      } else {
-        setMobileSingleColumnsRight(count);
-      }
-    } else {
-      if (viewMode === 'both') {
-        setDesktopColumnsRight(count);
-      } else {
-        setDesktopSingleColumnsRight(count);
-      }
-    }
+    columnsState.handleRightColumnsChange(isMobile, uiState.viewMode, count);
   };
   
-  // Action handlers
-  const handleRefresh = () => {
-    toast({
-      title: "Refreshing media",
-      description: "Fetching the latest media files..."
-    });
-    queryClient.invalidateQueries({ queryKey: ['mediaIds'] });
-  };
-  
-  const handleDeleteSelected = (side: 'left' | 'right') => {
-    setActiveSide(side);
-    setDeleteDialogOpen(true);
-  };
-  
-  const handleDelete = () => {
-    if (selectedIdsLeft.length > 0) {
-      handleDeleteSelected('left');
-    } else if (selectedIdsRight.length > 0) {
-      handleDeleteSelected('right');
-    }
-  };
-  
-  const toggleLeftPanel = () => {
-    setLeftPanelOpen(prev => !prev);
-  };
-  
-  const toggleRightPanel = () => {
-    setRightPanelOpen(prev => !prev);
-  };
-  
-  const closeBothSidebars = () => {
-    setLeftPanelOpen(false);
-    setRightPanelOpen(false);
-  };
-  
-  // Map view mode to column configuration type
-  const getViewModeType = (position: 'left' | 'right', currentViewMode: MobileViewMode, isMobile: boolean): ViewModeType => {
-    if (isMobile) {
-      return currentViewMode === 'both' ? 'mobile-split' : 'mobile-single';
-    } else {
-      return currentViewMode === 'both' ? 'desktop' : 'desktop-single';
-    }
-  };
-  
+  // Return all the state and methods from our hooks
   return {
     // Directory state
-    selectedDirectoryIdLeft,
-    setSelectedDirectoryIdLeft,
-    selectedDirectoryIdRight,
-    setSelectedDirectoryIdRight,
+    ...directoryState,
     
-    // Column counts 
+    // Column management (with simplified interfaces)
     getCurrentColumnsLeft,
     getCurrentColumnsRight,
     handleLeftColumnsChange,
     handleRightColumnsChange,
     
     // Selection state
-    selectedIdsLeft,
-    setSelectedIdsLeft,
-    selectedIdsRight,
-    setSelectedIdsRight,
+    ...selectionState,
     
     // UI state
-    deleteDialogOpen,
-    setDeleteDialogOpen,
-    activeSide,
-    leftPanelOpen,
-    rightPanelOpen,
-    viewMode,
-    setViewMode,
-    leftFilter,
-    setLeftFilter,
-    rightFilter,
-    setRightFilter,
-    serverPanelOpen,
-    setServerPanelOpen,
+    ...uiState,
     
     // Actions
-    handleRefresh,
-    handleDeleteSelected,
-    handleDelete,
-    toggleLeftPanel,
-    toggleRightPanel,
-    closeBothSidebars,
-    deleteMutation,
+    ...galleryActions,
     
     // Utilities
-    getViewModeType
+    getViewModeType: columnsState.getViewModeType
   };
 }
