@@ -73,7 +73,7 @@ const MediaItemRenderer: React.FC<MediaItemRendererProps> = memo(({
             muted
             loop
             playsInline
-            loading="lazy"
+            // Removed the 'loading' attribute as it's not supported for video elements
             style={{ transition: 'opacity 300ms ease', willChange: 'transform' }}
           />
           {/* Video icon overlay */}
