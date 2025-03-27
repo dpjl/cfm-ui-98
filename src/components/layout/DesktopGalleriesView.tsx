@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import GalleryContainer from '@/components/GalleryContainer';
 import { Separator } from '@/components/ui/separator';
-import { BaseGalleryProps, SidebarToggleProps, ViewModeProps } from '@/types/gallery-props';
+import { MediaFilter } from '@/components/AppSidebar';
 import { MobileViewMode } from '@/types/gallery';
 
 // Define container animation variants
@@ -19,8 +19,26 @@ const containerVariants = {
   }
 };
 
-// Combined props for DesktopGalleriesView
-interface DesktopGalleriesViewProps extends BaseGalleryProps, ViewModeProps, SidebarToggleProps {}
+interface DesktopGalleriesViewProps {
+  columnsCountLeft: number;
+  columnsCountRight: number;
+  selectedDirectoryIdLeft: string;
+  selectedDirectoryIdRight: string;
+  selectedIdsLeft: string[];
+  setSelectedIdsLeft: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedIdsRight: string[];
+  setSelectedIdsRight: React.Dispatch<React.SetStateAction<string[]>>;
+  handleDeleteSelected: (side: 'left' | 'right') => void;
+  deleteDialogOpen: boolean;
+  activeSide: 'left' | 'right';
+  setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  deleteMutation: any;
+  leftFilter?: MediaFilter;
+  rightFilter?: MediaFilter;
+  viewMode?: MobileViewMode;
+  onToggleLeftPanel: () => void;
+  onToggleRightPanel: () => void;
+}
 
 const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
   columnsCountLeft,
@@ -39,56 +57,18 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
   leftFilter = 'all',
   rightFilter = 'all',
   viewMode = 'both',
-  mobileViewMode,
   onToggleLeftPanel,
   onToggleRightPanel
 }) => {
-  // Use mobileViewMode if provided, otherwise fall back to viewMode
-  const activeViewMode: MobileViewMode = mobileViewMode || viewMode;
-
-  // Extract common props for left gallery
-  const leftGalleryProps = {
-    title: "Left Gallery",
-    directory: selectedDirectoryIdLeft,
-    position: 'left' as const,
-    columnsCount: columnsCountLeft,
-    selectedIds: selectedIdsLeft,
-    setSelectedIds: setSelectedIdsLeft,
-    onDeleteSelected: () => handleDeleteSelected('left'),
-    deleteDialogOpen: deleteDialogOpen && activeSide === 'left',
-    setDeleteDialogOpen,
-    deleteMutation,
-    hideHeader: true,
-    filter: leftFilter,
-    onToggleSidebar: onToggleLeftPanel
-  };
-  
-  // Extract common props for right gallery
-  const rightGalleryProps = {
-    title: "Right Gallery",
-    directory: selectedDirectoryIdRight,
-    position: 'right' as const,
-    columnsCount: columnsCountRight,
-    selectedIds: selectedIdsRight,
-    setSelectedIds: setSelectedIdsRight,
-    onDeleteSelected: () => handleDeleteSelected('right'),
-    deleteDialogOpen: deleteDialogOpen && activeSide === 'right',
-    setDeleteDialogOpen,
-    deleteMutation,
-    hideHeader: true,
-    filter: rightFilter,
-    onToggleSidebar: onToggleRightPanel
-  };
-
   return (
     <div className="flex-1 overflow-hidden bg-background/50 backdrop-blur-sm rounded-lg border-2 border-border/40 shadow-sm relative">
       <div className="flex h-full">
         {/* Left Gallery */}
         <div className={`overflow-hidden transition-all duration-300 ${
-          activeViewMode === 'both' ? 'w-1/2' : 
-          activeViewMode === 'left' ? 'w-full' : 'w-0'
+          viewMode === 'both' ? 'w-1/2' : 
+          viewMode === 'left' ? 'w-full' : 'w-0'
         }`}>
-          {(activeViewMode === 'both' || activeViewMode === 'left') && (
+          {(viewMode === 'both' || viewMode === 'left') && (
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -96,24 +76,36 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
               className="h-full"
             >
               <GalleryContainer 
-                {...leftGalleryProps}
-                viewMode={activeViewMode === 'both' ? 'split' : 'single'}
+                title="Left Gallery"
+                directory={selectedDirectoryIdLeft}
+                position="left"
+                columnsCount={columnsCountLeft}
+                selectedIds={selectedIdsLeft}
+                setSelectedIds={setSelectedIdsLeft}
+                onDeleteSelected={() => handleDeleteSelected('left')}
+                deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
+                setDeleteDialogOpen={setDeleteDialogOpen}
+                deleteMutation={deleteMutation}
+                hideHeader={true}
+                viewMode={viewMode === 'both' ? 'split' : 'single'}
+                filter={leftFilter}
+                onToggleSidebar={onToggleLeftPanel}
               />
             </motion.div>
           )}
         </div>
 
         {/* Gallery Separator - only shown in split view */}
-        {activeViewMode === 'both' && (
+        {viewMode === 'both' && (
           <Separator orientation="vertical" className="bg-border/60" />
         )}
 
         {/* Right Gallery */}
         <div className={`overflow-hidden transition-all duration-300 ${
-          activeViewMode === 'both' ? 'w-1/2' : 
-          activeViewMode === 'right' ? 'w-full' : 'w-0'
+          viewMode === 'both' ? 'w-1/2' : 
+          viewMode === 'right' ? 'w-full' : 'w-0'
         }`}>
-          {(activeViewMode === 'both' || activeViewMode === 'right') && (
+          {(viewMode === 'both' || viewMode === 'right') && (
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -121,8 +113,20 @@ const DesktopGalleriesView: React.FC<DesktopGalleriesViewProps> = ({
               className="h-full"
             >
               <GalleryContainer 
-                {...rightGalleryProps}
-                viewMode={activeViewMode === 'both' ? 'split' : 'single'}
+                title="Right Gallery"
+                directory={selectedDirectoryIdRight}
+                position="right"
+                columnsCount={columnsCountRight}
+                selectedIds={selectedIdsRight}
+                setSelectedIds={setSelectedIdsRight}
+                onDeleteSelected={() => handleDeleteSelected('right')}
+                deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
+                setDeleteDialogOpen={setDeleteDialogOpen}
+                deleteMutation={deleteMutation}
+                hideHeader={true}
+                viewMode={viewMode === 'both' ? 'split' : 'single'}
+                filter={rightFilter}
+                onToggleSidebar={onToggleRightPanel}
               />
             </motion.div>
           )}
