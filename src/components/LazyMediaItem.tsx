@@ -25,7 +25,14 @@ const LazyMediaItem = React.memo(({ mediaId, alt = '', className = '' }: LazyMed
   };
 
   // Set up intersection observer
-  useIntersectionObserver(placeholderRef, onIntersect);
+  const entry = useIntersectionObserver(placeholderRef);
+  
+  // React to intersection changes
+  useEffect(() => {
+    if (entry?.isIntersecting) {
+      onIntersect(true);
+    }
+  }, [entry]);
 
   // Load thumbnail when visible
   useEffect(() => {
