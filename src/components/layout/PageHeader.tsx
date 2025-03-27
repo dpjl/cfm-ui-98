@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Server, GalleryHorizontal, GalleryVertical, GalleryVerticalEnd, Settings } from 'lucide-react';
+import { Server, PanelLeft, PanelLeftRight, PanelRight, Settings } from 'lucide-react';
 import { MobileViewMode } from '@/types/gallery';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -47,30 +47,30 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               variant={mobileViewMode === 'left' ? "default" : "ghost"}
               size="icon"
               onClick={() => setMobileViewMode('left')}
-              className="h-8 w-8 rounded-full"
+              className="h-7 w-7 rounded-full"
               title="Source Gallery Only"
             >
-              <GalleryVertical className="h-4 w-4" />
+              <PanelLeft className="h-3.5 w-3.5" />
             </Button>
             
             <Button
               variant={mobileViewMode === 'both' ? "default" : "ghost"}
               size="icon"
               onClick={() => setMobileViewMode('both')}
-              className="h-8 w-8 rounded-full"
+              className="h-7 w-7 rounded-full"
               title="Split View"
             >
-              <GalleryHorizontal className="h-4 w-4" />
+              <PanelLeftRight className="h-3.5 w-3.5" />
             </Button>
             
             <Button
               variant={mobileViewMode === 'right' ? "default" : "ghost"}
               size="icon"
               onClick={() => setMobileViewMode('right')}
-              className="h-8 w-8 rounded-full"
+              className="h-7 w-7 rounded-full"
               title="Destination Gallery Only"
             >
-              <GalleryVerticalEnd className="h-4 w-4" />
+              <PanelRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}

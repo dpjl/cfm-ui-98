@@ -2,6 +2,7 @@
 import React, { useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { MobileViewMode } from '@/types/gallery';
+import { PanelLeft, PanelLeftRight, PanelRight } from 'lucide-react';
 
 interface MobileViewSwitcherProps {
   mobileViewMode: MobileViewMode;
@@ -31,40 +32,30 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
         variant={mobileViewMode === 'left' ? "default" : "ghost"} 
         size="icon" 
         onClick={handleLeftView}
-        className="h-10 w-10 rounded-full"
+        className="h-9 w-9 rounded-full"
         title="Source Gallery View"
       >
-        <div className="relative h-5 w-5">
-          <div className="absolute left-0 top-0 h-5 w-3.5 border-2 border-current rounded-l-sm"></div>
-          <div className="absolute right-0 top-0 h-5 w-1 border-r-2 border-current"></div>
-        </div>
+        <PanelLeft className="h-3.5 w-3.5" />
       </Button>
       
       <Button 
         variant={mobileViewMode === 'both' ? "default" : "ghost"} 
         size="icon" 
         onClick={handleSplitView}
-        className="h-10 w-10 rounded-full"
+        className="h-9 w-9 rounded-full"
         title="Split View"
       >
-        <div className="relative h-5 w-5">
-          <div className="absolute left-0 top-0 h-5 w-2 border-l-2 border-current"></div>
-          <div className="absolute left-1/2 top-0 h-5 w-0 border-l-2 border-current"></div>
-          <div className="absolute right-0 top-0 h-5 w-2 border-r-2 border-current"></div>
-        </div>
+        <PanelLeftRight className="h-3.5 w-3.5" />
       </Button>
       
       <Button 
         variant={mobileViewMode === 'right' ? "default" : "ghost"} 
         size="icon" 
         onClick={handleRightView}
-        className="h-10 w-10 rounded-full"
+        className="h-9 w-9 rounded-full"
         title="Destination Gallery Only"
       >
-        <div className="relative h-5 w-5">
-          <div className="absolute left-0 top-0 h-5 w-1 border-l-2 border-current"></div>
-          <div className="absolute right-0 top-0 h-5 w-3.5 border-2 border-current rounded-r-sm"></div>
-        </div>
+        <PanelRight className="h-3.5 w-3.5" />
       </Button>
     </div>
   );
