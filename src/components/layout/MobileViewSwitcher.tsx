@@ -35,7 +35,7 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
         className="h-9 w-9 rounded-full"
         title="Source Gallery View"
       >
-        <PanelLeft className="h-3.5 w-3.5" />
+        <PanelLeft className="h-3 w-3" />
       </Button>
       
       <Button 
@@ -45,7 +45,7 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
         className="h-9 w-9 rounded-full"
         title="Split View"
       >
-        <PanelsLeftRight className="h-3.5 w-3.5" />
+        <PanelsLeftRight className="h-3 w-3" />
       </Button>
       
       <Button 
@@ -55,7 +55,7 @@ const MobileViewSwitcher: React.FC<MobileViewSwitcherProps> = ({
         className="h-9 w-9 rounded-full"
         title="Destination Gallery Only"
       >
-        <PanelRight className="h-3.5 w-3.5" />
+        <PanelRight className="h-3 w-3" />
       </Button>
     </div>
   );

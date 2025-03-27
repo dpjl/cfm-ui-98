@@ -37,6 +37,9 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   const isCompactMode = viewMode === 'split';
+  const isSourceGallery = position === 'source';
+  const isSingleView = !isMobile && viewMode === 'single';
+  const hideDateButtonInMobileSplit = isMobile && viewMode === 'split';
 
   const renderToolbarButton = (
     onClick: () => void,
@@ -61,7 +64,7 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
 
   return (
     <div className="flex items-center justify-between w-full bg-background/90 backdrop-blur-sm py-1.5 px-3 rounded-md z-10 shadow-sm border border-border/30 mb-2">
-      <div className="flex items-center gap-2">
+      <div className={`flex items-center gap-2 ${!isSourceGallery ? 'order-2' : ''}`}>
         {renderToolbarButton(
           onSelectAll,
           <CheckSquare className="h-3.5 w-3.5" />,
@@ -78,7 +81,7 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
           t('deselect_all')
         )}
         
-        {renderToolbarButton(
+        {!hideDateButtonInMobileSplit && renderToolbarButton(
           onToggleDates,
           <CalendarOff className="h-3.5 w-3.5" />,
           <Calendar className="h-3.5 w-3.5" />,
@@ -94,10 +97,10 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
           selectionMode === 'multiple' ? t('single_selection') : t('multiple_selection')
         )}
         
-        {/* Sidebar toggle for desktop mode only */}
-        {!isMobile && onToggleSidebar && renderToolbarButton(
+        {/* Sidebar toggle for desktop mode only - hidden in single view */}
+        {!isMobile && !isSingleView && onToggleSidebar && renderToolbarButton(
           onToggleSidebar,
-          position === 'source' ? (
+          isSourceGallery ? (
             <div className="flex items-center justify-center">
               <Settings className="h-3 w-3" />
               <ChevronRight className="h-3 w-3 -mr-0.5" />
@@ -108,7 +111,7 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
               <Settings className="h-3 w-3" />
             </div>
           ),
-          position === 'source' ? (
+          isSourceGallery ? (
             <div className="flex items-center justify-center">
               <Settings className="h-3 w-3" />
               <ChevronRight className="h-3 w-3 -mr-0.5" />
@@ -124,8 +127,8 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
         )}
       </div>
       
-      <div className="flex items-center gap-2">
-        <div className={`text-xs text-muted-foreground mr-2`}>
+      <div className={`flex items-center gap-2 ${!isSourceGallery ? 'order-1' : ''}`}>
+        <div className={`text-xs text-muted-foreground ${!isSourceGallery ? 'mr-0 ml-2' : 'mr-2'}`}>
           {selectedIds.length}/{mediaIds.length} {!isCompactMode && t('selected')}
         </div>
       </div>

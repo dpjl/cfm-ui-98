@@ -1,3 +1,4 @@
+
 import React from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
@@ -64,6 +65,9 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
     filter: rightFilter,
     hideMobileColumns: true
   };
+
+  // Determine if both gallery or single gallery view mode
+  const isBothGalleriesView = mobileViewMode === 'both';
 
   return (
     <div className="flex-1 overflow-hidden h-full relative">
@@ -136,36 +140,43 @@ const MobileControls: React.FC<MobileControlsProps> = ({
   onToggleLeftPanel,
   onToggleRightPanel
 }) => {
+  // Only show sidebar buttons in "both" view mode
+  const isBothGalleriesView = mobileViewMode === 'both';
+  
   return (
     <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-20">
-      <Button 
-        variant="secondary" 
-        size="icon"
-        className="rounded-full shadow-md h-10 w-10"
-        onClick={onToggleLeftPanel}
-      >
-        <div className="flex items-center justify-center">
-          <Settings className="h-4 w-4" />
-          <ChevronRight className="h-4 w-4 -mr-0.5" />
-        </div>
-      </Button>
+      {isBothGalleriesView && (
+        <Button 
+          variant="secondary" 
+          size="icon"
+          className="rounded-full shadow-md h-10 w-10"
+          onClick={onToggleLeftPanel}
+        >
+          <div className="flex items-center justify-center">
+            <Settings className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 -mr-0.5" />
+          </div>
+        </Button>
+      )}
       
       <MobileViewSwitcher 
         mobileViewMode={mobileViewMode}
         setMobileViewMode={setMobileViewMode}
       />
       
-      <Button 
-        variant="secondary" 
-        size="icon"
-        className="rounded-full shadow-md h-10 w-10"
-        onClick={onToggleRightPanel}
-      >
-        <div className="flex items-center justify-center">
-          <ChevronLeft className="h-4 w-4 -ml-0.5" />
-          <Settings className="h-4 w-4" />
-        </div>
-      </Button>
+      {isBothGalleriesView && (
+        <Button 
+          variant="secondary" 
+          size="icon"
+          className="rounded-full shadow-md h-10 w-10"
+          onClick={onToggleRightPanel}
+        >
+          <div className="flex items-center justify-center">
+            <ChevronLeft className="h-4 w-4 -ml-0.5" />
+            <Settings className="h-4 w-4" />
+          </div>
+        </Button>
+      )}
     </div>
   );
 };
