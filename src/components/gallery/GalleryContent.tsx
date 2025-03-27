@@ -1,58 +1,39 @@
 
-import React, { useState } from 'react';
-import Gallery from '@/components/Gallery';
+import React from 'react';
+import { useGalleryState } from '../../hooks/use-gallery-state';
+import { useGallerySelection } from '../../hooks/use-gallery-selection';
+import { useGalleryPreviewHandler } from '../../hooks/use-gallery-preview-handler';
+import GalleryEmptyState from './GalleryEmptyState';
+import GalleryError from './GalleryError';
+import OptimizedGalleryGrid from './OptimizedGalleryGrid';
 
-interface GalleryContentProps {
-  mediaIds: string[];
-  selectedIds: string[];
-  onSelectId: (id: string) => void;
-  isLoading: boolean;
-  isError: boolean;
-  error: unknown;
-  columnsCount: number;
-  viewMode?: 'single' | 'split';
-  onPreviewItem: (id: string) => void;
-  onDeleteSelected: () => void;
-  title: string;
-  filter?: string;
-  position?: 'source' | 'destination';
-  onToggleSidebar?: () => void;
-}
+const GalleryContent: React.FC = () => {
+  const { media, isLoading, error } = useGalleryState();
+  const { selectedIds, toggleSelection } = useGallerySelection();
+  const { openPreview } = useGalleryPreviewHandler();
+  
+  // Handle error state
+  if (error) {
+    return <GalleryError error={error} />;
+  }
 
-const GalleryContent: React.FC<GalleryContentProps> = ({
-  mediaIds,
-  selectedIds,
-  onSelectId,
-  isLoading,
-  isError,
-  error,
-  columnsCount,
-  viewMode = 'single',
-  onPreviewItem,
-  onDeleteSelected,
-  title,
-  filter = 'all',
-  position = 'source',
-  onToggleSidebar
-}) => {
+  // Handle empty state when not loading
+  if (!isLoading && (!media || media.length === 0)) {
+    return <GalleryEmptyState />;
+  }
+
+  // Render the optimized gallery grid
   return (
-    <Gallery
-      title={title}
-      mediaIds={mediaIds}
-      selectedIds={selectedIds}
-      onSelectId={onSelectId}
-      isLoading={isLoading}
-      columnsCount={columnsCount}
-      onPreviewMedia={onPreviewItem}
-      viewMode={viewMode}
-      onDeleteSelected={onDeleteSelected}
-      position={position}
-      isError={isError}
-      error={error}
-      filter={filter}
-      onToggleSidebar={onToggleSidebar}
-    />
+    <div className="gallery-content-container h-full">
+      <OptimizedGalleryGrid
+        media={media || []}
+        isLoading={isLoading}
+        selectedIds={selectedIds}
+        onSelectItem={toggleSelection}
+        onPreview={openPreview}
+      />
+    </div>
   );
 };
 
-export default GalleryContent;
+export default React.memo(GalleryContent);

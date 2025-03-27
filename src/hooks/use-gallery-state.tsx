@@ -1,69 +1,55 @@
 
-import { useIsMobile } from '@/hooks/use-breakpoint';
-import { useDirectoryState } from '@/hooks/use-directory-state';
-import { useColumnsState } from '@/hooks/use-columns-state';
-import { useSelectionState } from '@/hooks/use-selection-state';
-import { useUIState } from '@/hooks/use-ui-state';
-import { useGalleryActions } from '@/hooks/use-gallery-actions';
-import { ViewModeType } from '@/types/gallery';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { MediaItem } from '../types/gallery';
+import { fetchMediaIds } from '../api/imageApi';
+import { useDirectoryState } from './use-directory-state';
+import { useMediaCache } from './use-media-cache';
 
-export function useGalleryState() {
-  const isMobile = useIsMobile();
-  
-  // Use all the specialized hooks
-  const directoryState = useDirectoryState();
-  const columnsState = useColumnsState();
-  const selectionState = useSelectionState();
-  const uiState = useUIState();
-  
-  // Gallery actions need access to selection state and UI state
-  const galleryActions = useGalleryActions(
-    selectionState.selectedIdsLeft,
-    selectionState.selectedIdsRight,
-    selectionState.activeSide,
-    uiState.setDeleteDialogOpen,
-    selectionState.setSelectedIdsLeft,
-    selectionState.setSelectedIdsRight
+export const useGalleryState = () => {
+  const { currentDirectory } = useDirectoryState();
+  const { prefetchMediaInfo } = useMediaCache();
+  const [media, setMedia] = useState<MediaItem[]>([]);
+
+  // Use React Query for data fetching
+  const { data: mediaIds, isLoading, error } = useQuery({
+    queryKey: ['mediaIds', currentDirectory],
+    queryFn: () => fetchMediaIds(currentDirectory || ''),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // Transform IDs to MediaItems
+  const transformToMediaItems = useCallback(
+    (ids: string[]): MediaItem[] => {
+      return ids.map((id) => ({
+        id,
+        type: 'image',
+        alt: `Media ${id}`,
+      }));
+    },
+    []
   );
-  
-  // Convenience methods that use data from multiple hooks
-  const getCurrentColumnsLeft = (isMobile: boolean): number => {
-    return columnsState.getCurrentColumnsLeft(isMobile, uiState.viewMode);
-  };
-  
-  const getCurrentColumnsRight = (isMobile: boolean): number => {
-    return columnsState.getCurrentColumnsRight(isMobile, uiState.viewMode);
-  };
-  
-  const handleLeftColumnsChange = (isMobile: boolean, count: number) => {
-    columnsState.handleLeftColumnsChange(isMobile, uiState.viewMode, count);
-  };
-  
-  const handleRightColumnsChange = (isMobile: boolean, count: number) => {
-    columnsState.handleRightColumnsChange(isMobile, uiState.viewMode, count);
-  };
-  
-  // Return all the state and methods from our hooks
-  return {
-    // Directory state
-    ...directoryState,
-    
-    // Column management (with simplified interfaces)
-    getCurrentColumnsLeft,
-    getCurrentColumnsRight,
-    handleLeftColumnsChange,
-    handleRightColumnsChange,
-    
-    // Selection state
-    ...selectionState,
-    
-    // UI state
-    ...uiState,
-    
-    // Actions
-    ...galleryActions,
-    
-    // Utilities
-    getViewModeType: columnsState.getViewModeType
-  };
-}
+
+  // Update media when IDs change
+  useEffect(() => {
+    if (mediaIds) {
+      const items = transformToMediaItems(mediaIds);
+      setMedia(items);
+      
+      // Prefetch first 20 items for smoother experience
+      items.slice(0, 20).forEach(item => {
+        prefetchMediaInfo(item.id);
+      });
+    }
+  }, [mediaIds, transformToMediaItems, prefetchMediaInfo]);
+
+  // Memoize return values to prevent unnecessary re-renders
+  return useMemo(
+    () => ({
+      media,
+      isLoading,
+      error: error as Error | null,
+    }),
+    [media, isLoading, error]
+  );
+};

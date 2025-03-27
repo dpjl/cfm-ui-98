@@ -1,60 +1,150 @@
-
 import { useState, useCallback, useEffect } from 'react';
-import { DetailedMediaInfo } from '@/api/imageApi';
+import { fetchThumbnail, fetchMediaInfo } from '../api/imageApi';
 
-// Type for our cache
-interface MediaCache {
-  thumbnails: Map<string, string>;
-  info: Map<string, DetailedMediaInfo>;
-}
+type ThumbnailCache = Record<string, string>;
+type InfoCache = Record<string, any>;
 
-// Create a global cache that persists between component renders
-const globalCache: MediaCache = {
-  thumbnails: new Map<string, string>(),
-  info: new Map<string, DetailedMediaInfo>(),
+// Create a singleton cache instance that persists across renders
+const globalCache = {
+  thumbnails: {} as ThumbnailCache,
+  info: {} as InfoCache,
+  pendingThumbnails: new Set<string>(),
+  pendingInfo: new Set<string>(),
 };
 
-export function useMediaCache() {
-  const [cache] = useState<MediaCache>(globalCache);
+// Log cache stats periodically
+const logCacheStats = () => {
+  const thumbnailCount = Object.keys(globalCache.thumbnails).length;
+  const infoCount = Object.keys(globalCache.info).length;
+  console.info(`Cache stats - Thumbnails: ${thumbnailCount}, Info: ${infoCount}`);
+};
 
-  // Get cached thumbnail URL or return undefined if not cached
-  const getCachedThumbnailUrl = useCallback((id: string, position: 'source' | 'destination'): string | undefined => {
-    const cacheKey = `${id}-${position}`;
-    return cache.thumbnails.get(cacheKey);
-  }, [cache.thumbnails]);
+// Start the periodic logging
+setInterval(logCacheStats, 2000);
 
-  // Set a thumbnail URL in the cache
-  const setCachedThumbnailUrl = useCallback((id: string, position: 'source' | 'destination', url: string): void => {
-    const cacheKey = `${id}-${position}`;
-    cache.thumbnails.set(cacheKey, url);
-  }, [cache.thumbnails]);
+export const useMediaCache = () => {
+  const [, forceUpdate] = useState({});
 
-  // Get cached media info or return undefined if not cached
-  const getCachedMediaInfo = useCallback((id: string, position: 'source' | 'destination'): DetailedMediaInfo | undefined => {
-    const cacheKey = `${id}-${position}`;
-    return cache.info.get(cacheKey);
-  }, [cache.info]);
-
-  // Set media info in the cache
-  const setCachedMediaInfo = useCallback((id: string, position: 'source' | 'destination', info: DetailedMediaInfo): void => {
-    const cacheKey = `${id}-${position}`;
-    cache.info.set(cacheKey, info);
-  }, [cache.info]);
-
-  // Just for debugging purposes - reduced frequency of logging
+  // Clear the cache if it gets too big
   useEffect(() => {
-    const logInterval = 10000; // Log once every 10 seconds
-    const intervalId = setInterval(() => {
-      console.log(`Cache stats - Thumbnails: ${cache.thumbnails.size}, Info: ${cache.info.size}`);
-    }, logInterval);
+    const checkCacheSize = () => {
+      const thumbnailCount = Object.keys(globalCache.thumbnails).length;
+      const infoCount = Object.keys(globalCache.info).length;
+      
+      if (thumbnailCount > 500 || infoCount > 500) {
+        // Keep the most recent 200 items
+        const thumbnailKeys = Object.keys(globalCache.thumbnails);
+        const infoKeys = Object.keys(globalCache.info);
+        
+        if (thumbnailKeys.length > 200) {
+          const keysToRemove = thumbnailKeys.slice(0, thumbnailKeys.length - 200);
+          keysToRemove.forEach(key => {
+            delete globalCache.thumbnails[key];
+          });
+        }
+        
+        if (infoKeys.length > 200) {
+          const keysToRemove = infoKeys.slice(0, infoKeys.length - 200);
+          keysToRemove.forEach(key => {
+            delete globalCache.info[key];
+          });
+        }
+        
+        forceUpdate({});
+      }
+    };
     
-    return () => clearInterval(intervalId);
-  }, [cache.thumbnails.size, cache.info.size]);
+    const interval = setInterval(checkCacheSize, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  // Get thumbnail URL from cache or fetch it
+  const getThumbnailUrl = useCallback(async (mediaId: string, fetchIfMissing = false) => {
+    // Return from cache if available
+    if (globalCache.thumbnails[mediaId]) {
+      return globalCache.thumbnails[mediaId];
+    }
+    
+    // Return null if we don't want to fetch
+    if (!fetchIfMissing) {
+      return null;
+    }
+    
+    // Don't start duplicate fetches
+    if (globalCache.pendingThumbnails.has(mediaId)) {
+      return null;
+    }
+    
+    // Mark as pending
+    globalCache.pendingThumbnails.add(mediaId);
+    
+    try {
+      const blob = await fetchThumbnail(mediaId);
+      const url = URL.createObjectURL(blob);
+      globalCache.thumbnails[mediaId] = url;
+      forceUpdate({});
+      return url;
+    } catch (error) {
+      console.error(`Failed to fetch thumbnail for media ${mediaId}:`, error);
+      return null;
+    } finally {
+      globalCache.pendingThumbnails.delete(mediaId);
+    }
+  }, []);
+
+  // Get media info from cache or fetch it
+  const getMediaInfo = useCallback(async (mediaId: string, fetchIfMissing = false) => {
+    // Return from cache if available
+    if (globalCache.info[mediaId]) {
+      return globalCache.info[mediaId];
+    }
+    
+    // Return null if we don't want to fetch
+    if (!fetchIfMissing) {
+      return null;
+    }
+    
+    // Don't start duplicate fetches
+    if (globalCache.pendingInfo.has(mediaId)) {
+      return null;
+    }
+    
+    // Mark as pending
+    globalCache.pendingInfo.add(mediaId);
+    
+    try {
+      const info = await fetchMediaInfo(mediaId);
+      globalCache.info[mediaId] = info;
+      forceUpdate({});
+      return info;
+    } catch (error) {
+      console.error(`Failed to fetch info for media ${mediaId}:`, error);
+      return null;
+    } finally {
+      globalCache.pendingInfo.delete(mediaId);
+    }
+  }, []);
+
+  // Prefetch media info (but don't wait for it)
+  const prefetchMediaInfo = useCallback((mediaId: string) => {
+    // Only prefetch if not already in cache or pending
+    if (!globalCache.info[mediaId] && !globalCache.pendingInfo.has(mediaId)) {
+      getMediaInfo(mediaId, true).catch(() => {
+        // Ignore errors in prefetch
+      });
+    }
+    
+    // Only prefetch thumbnail if not already in cache or pending
+    if (!globalCache.thumbnails[mediaId] && !globalCache.pendingThumbnails.has(mediaId)) {
+      getThumbnailUrl(mediaId, true).catch(() => {
+        // Ignore errors in prefetch
+      });
+    }
+  }, [getMediaInfo, getThumbnailUrl]);
 
   return {
-    getCachedThumbnailUrl,
-    setCachedThumbnailUrl,
-    getCachedMediaInfo,
-    setCachedMediaInfo
+    getThumbnailUrl,
+    getMediaInfo,
+    prefetchMediaInfo,
   };
-}
+};
