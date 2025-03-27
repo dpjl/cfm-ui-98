@@ -1,11 +1,10 @@
-
 import React from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { PanelLeft, PanelRight } from 'lucide-react';
+import { Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BaseGalleryProps, SidebarToggleProps } from '@/types/gallery-props';
 
 interface MobileGalleriesViewProps extends BaseGalleryProps, SidebarToggleProps {
@@ -34,7 +33,6 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   onToggleLeftPanel,
   onToggleRightPanel
 }) => {
-  // Extract common props for left gallery
   const leftGalleryProps = {
     title: "Left Gallery",
     directory: selectedDirectoryIdLeft,
@@ -50,8 +48,7 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
     filter: leftFilter,
     hideMobileColumns: true
   };
-  
-  // Extract common props for right gallery
+
   const rightGalleryProps = {
     title: "Right Gallery",
     directory: selectedDirectoryIdRight,
@@ -72,7 +69,6 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
     <div className="flex-1 overflow-hidden h-full relative">
       <div className="h-full bg-background rounded-lg border-2 border-border/40 shadow-sm">
         <div className="h-full flex flex-row relative">
-          {/* Left Gallery */}
           <div 
             className={`h-full ${
               mobileViewMode === 'both' ? 'w-1/2 relative' : 
@@ -92,12 +88,10 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
             )}
           </div>
           
-          {/* Gallery Separator - only visible in 'both' mode */}
           {mobileViewMode === 'both' && (
             <Separator orientation="vertical" className="bg-border/60" />
           )}
           
-          {/* Right Gallery */}
           <div 
             className={`h-full ${
               mobileViewMode === 'both' ? 'w-1/2 relative' : 
@@ -119,7 +113,6 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
         </div>
       </div>
       
-      {/* Mobile controls component */}
       <MobileControls 
         mobileViewMode={mobileViewMode}
         setMobileViewMode={setMobileViewMode}
@@ -130,7 +123,6 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   );
 };
 
-// Extract mobile controls into a separate component
 interface MobileControlsProps {
   mobileViewMode: MobileViewMode;
   setMobileViewMode: React.Dispatch<React.SetStateAction<MobileViewMode>>;
@@ -146,30 +138,33 @@ const MobileControls: React.FC<MobileControlsProps> = ({
 }) => {
   return (
     <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-20">
-      {/* Left sidebar button */}
       <Button 
         variant="secondary" 
         size="icon"
         className="rounded-full shadow-md h-10 w-10"
         onClick={onToggleLeftPanel}
       >
-        <PanelLeft className="h-5 w-5" />
+        <div className="flex items-center justify-center">
+          <Settings className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 -mr-0.5" />
+        </div>
       </Button>
       
-      {/* Mode switcher */}
       <MobileViewSwitcher 
         mobileViewMode={mobileViewMode}
         setMobileViewMode={setMobileViewMode}
       />
       
-      {/* Right sidebar button */}
       <Button 
         variant="secondary" 
         size="icon"
         className="rounded-full shadow-md h-10 w-10"
         onClick={onToggleRightPanel}
       >
-        <PanelRight className="h-5 w-5" />
+        <div className="flex items-center justify-center">
+          <ChevronLeft className="h-4 w-4 -ml-0.5" />
+          <Settings className="h-4 w-4" />
+        </div>
       </Button>
     </div>
   );
