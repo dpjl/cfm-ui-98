@@ -5,27 +5,12 @@ import MobileGalleriesView from './MobileGalleriesView';
 import DesktopGalleriesView from './DesktopGalleriesView';
 import { MobileViewMode } from '@/types/gallery';
 import { MediaFilter } from '@/components/AppSidebar';
+import { BaseGalleryProps, ViewModeProps, SidebarToggleProps } from '@/types/gallery-props';
 
-interface GalleriesContainerProps {
-  columnsCountLeft: number;
-  columnsCountRight: number;
-  selectedIdsLeft: string[];
-  setSelectedIdsLeft: React.Dispatch<React.SetStateAction<string[]>>;
-  selectedIdsRight: string[];
-  setSelectedIdsRight: React.Dispatch<React.SetStateAction<string[]>>;
-  selectedDirectoryIdLeft: string;
-  selectedDirectoryIdRight: string;
-  deleteDialogOpen: boolean;
-  setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  activeSide: 'left' | 'right';
-  deleteMutation: any;
-  handleDeleteSelected: (side: 'left' | 'right') => void;
+// Combined props for GalleriesContainer
+interface GalleriesContainerProps extends BaseGalleryProps, SidebarToggleProps {
   mobileViewMode?: MobileViewMode;
   setMobileViewMode?: React.Dispatch<React.SetStateAction<MobileViewMode>>;
-  leftFilter?: MediaFilter;
-  rightFilter?: MediaFilter;
-  onToggleLeftPanel: () => void;
-  onToggleRightPanel: () => void;
 }
 
 const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
@@ -51,54 +36,43 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
-  // Mobile view
+  // Create props object for desktop/mobile views
+  const sharedProps = {
+    columnsCountLeft,
+    columnsCountRight,
+    selectedDirectoryIdLeft,
+    selectedDirectoryIdRight,
+    selectedIdsLeft,
+    setSelectedIdsLeft,
+    selectedIdsRight,
+    setSelectedIdsRight,
+    handleDeleteSelected,
+    deleteDialogOpen,
+    activeSide,
+    setDeleteDialogOpen,
+    deleteMutation,
+    leftFilter,
+    rightFilter,
+    onToggleLeftPanel,
+    onToggleRightPanel
+  };
+  
+  // Return appropriate view based on device type
   if (isMobile) {
     return (
       <MobileGalleriesView
-        columnsCountLeft={columnsCountLeft}
-        columnsCountRight={columnsCountRight}
+        {...sharedProps}
         mobileViewMode={mobileViewMode}
         setMobileViewMode={setMobileViewMode!}
-        selectedDirectoryIdLeft={selectedDirectoryIdLeft}
-        selectedDirectoryIdRight={selectedDirectoryIdRight}
-        selectedIdsLeft={selectedIdsLeft}
-        setSelectedIdsLeft={setSelectedIdsLeft}
-        selectedIdsRight={selectedIdsRight}
-        setSelectedIdsRight={setSelectedIdsRight}
-        handleDeleteSelected={handleDeleteSelected}
-        deleteDialogOpen={deleteDialogOpen}
-        activeSide={activeSide}
-        setDeleteDialogOpen={setDeleteDialogOpen}
-        deleteMutation={deleteMutation}
-        leftFilter={leftFilter}
-        rightFilter={rightFilter}
-        onToggleLeftPanel={onToggleLeftPanel}
-        onToggleRightPanel={onToggleRightPanel}
       />
     );
   }
 
-  // Desktop view
   return (
     <DesktopGalleriesView
-      columnsCountLeft={columnsCountLeft}
-      columnsCountRight={columnsCountRight}
-      selectedDirectoryIdLeft={selectedDirectoryIdLeft}
-      selectedDirectoryIdRight={selectedDirectoryIdRight}
-      selectedIdsLeft={selectedIdsLeft}
-      setSelectedIdsLeft={setSelectedIdsLeft}
-      selectedIdsRight={selectedIdsRight}
-      setSelectedIdsRight={setSelectedIdsRight}
-      handleDeleteSelected={handleDeleteSelected}
-      deleteDialogOpen={deleteDialogOpen}
-      activeSide={activeSide}
-      setDeleteDialogOpen={setDeleteDialogOpen}
-      deleteMutation={deleteMutation}
-      leftFilter={leftFilter}
-      rightFilter={rightFilter}
+      {...sharedProps}
       viewMode={mobileViewMode}
-      onToggleLeftPanel={onToggleLeftPanel}
-      onToggleRightPanel={onToggleRightPanel}
+      mobileViewMode={mobileViewMode} // Adding this to satisfy TypeScript
     />
   );
 };
