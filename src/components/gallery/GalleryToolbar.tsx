@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckSquare, Square, Calendar, CalendarOff, PanelLeft, Users, UserPlus } from 'lucide-react';
+import { CheckSquare, Square, Calendar, CalendarOff, PanelLeft, Settings, Users, UserPlus, ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -97,8 +97,28 @@ const GalleryToolbar: React.FC<GalleryToolbarProps> = ({
         {/* Sidebar toggle for desktop mode only */}
         {!isMobile && onToggleSidebar && renderToolbarButton(
           onToggleSidebar,
-          <PanelLeft className="h-3.5 w-3.5" />,
-          <PanelLeft className="h-3.5 w-3.5" />,
+          position === 'source' ? (
+            <div className="flex items-center justify-center">
+              <Settings className="h-3 w-3" />
+              <ChevronRight className="h-3 w-3 -mr-0.5" />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center">
+              <ChevronRight className="h-3 w-3 rotate-180 -ml-0.5" />
+              <Settings className="h-3 w-3" />
+            </div>
+          ),
+          position === 'source' ? (
+            <div className="flex items-center justify-center">
+              <Settings className="h-3 w-3" />
+              <ChevronRight className="h-3 w-3 -mr-0.5" />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center">
+              <ChevronRight className="h-3 w-3 rotate-180 -ml-0.5" />
+              <Settings className="h-3 w-3" />
+            </div>
+          ),
           false,
           t('gallery_settings')
         )}

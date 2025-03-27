@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Settings } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { Button } from '@/components/ui/button';
 
@@ -52,9 +52,15 @@ const HoverSidebar: React.FC<HoverSidebarProps> = ({
               >
                 {sidebarTitle}
                 {position === 'left' ? (
-                  <ChevronRight className="h-4 w-4 mt-0.5" />
+                  <div className="flex items-center gap-1">
+                    <Settings className="h-3.5 w-3.5" />
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </div>
                 ) : (
-                  <ChevronLeft className="h-4 w-4 mt-0.5" />
+                  <div className="flex items-center gap-1">
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                    <Settings className="h-3.5 w-3.5" />
+                  </div>
                 )}
               </div>
             </div>
@@ -102,9 +108,15 @@ const HoverSidebar: React.FC<HoverSidebarProps> = ({
               >
                 {sidebarTitle}
                 {position === 'left' ? (
-                  <ChevronRight className="h-4 w-4 mt-0.5" />
+                  <div className="flex items-center gap-1">
+                    <Settings className="h-3.5 w-3.5" />
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </div>
                 ) : (
-                  <ChevronLeft className="h-4 w-4 mt-0.5" />
+                  <div className="flex items-center gap-1">
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                    <Settings className="h-3.5 w-3.5" />
+                  </div>
                 )}
               </div>
             </div>
