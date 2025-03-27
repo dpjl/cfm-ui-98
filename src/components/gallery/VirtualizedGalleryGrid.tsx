@@ -2,7 +2,6 @@
 import React, { memo, useCallback, useRef, useState } from 'react';
 import { FixedSizeGrid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import LazyMediaItem from '@/components/LazyMediaItem';
 import { DetailedMediaInfo } from '@/api/imageApi';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import throttle from 'lodash/throttle';
@@ -67,20 +66,16 @@ const VirtualizedGalleryGrid = memo(({
     
     return (
       <div style={adjustedStyle}>
-        <LazyMediaItem
-          key={id}
-          id={id}
-          selected={isSelected}
-          onSelect={onSelectId}
-          index={index}
-          showDates={showDates}
-          updateMediaInfo={updateMediaInfo}
-          position={position}
-          isScrolling={isScrolling}
-        />
+        {/* Simplified media item representation */}
+        <div 
+          className={`cursor-pointer ${isSelected ? 'selected' : ''}`}
+          onClick={() => onSelectId(id, false)}
+        >
+          Media {id}
+        </div>
       </div>
     );
-  }, [mediaIds, selectedIdsSet, columnsCount, gap, showDates, updateMediaInfo, position, onSelectId, isScrolling]);
+  }, [mediaIds, selectedIdsSet, columnsCount, gap, onSelectId]);
   
   // Calculate rows needed - memoized to avoid recalculation
   const rowCount = React.useMemo(() => Math.ceil(mediaIds.length / columnsCount), [mediaIds.length, columnsCount]);

@@ -6,7 +6,7 @@ import { useIsMobile } from '@/hooks/use-breakpoint';
 
 interface SelectionCheckboxProps {
   selected: boolean;
-  onSelect: (e: React.MouseEvent) => void;
+  onChange: (e: React.MouseEvent) => void;
   loaded: boolean;
   mediaId: string;
 }
@@ -14,7 +14,7 @@ interface SelectionCheckboxProps {
 // Optimized SelectionCheckbox with controlled rendering
 const SelectionCheckbox = memo(({
   selected,
-  onSelect,
+  onChange,
   loaded,
   mediaId
 }: SelectionCheckboxProps) => {
@@ -31,7 +31,7 @@ const SelectionCheckbox = memo(({
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        onSelect(e);
+        onChange(e);
       }}
       role="checkbox"
       aria-checked={selected}
@@ -45,7 +45,7 @@ const SelectionCheckbox = memo(({
             cancelable: true,
             view: window
           });
-          onSelect(mouseEvent as unknown as React.MouseEvent);
+          onChange(mouseEvent as unknown as React.MouseEvent);
         }
       }}
     >

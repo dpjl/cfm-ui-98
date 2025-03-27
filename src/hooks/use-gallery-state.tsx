@@ -7,14 +7,15 @@ import { useDirectoryState } from './use-directory-state';
 import { useMediaCache } from './use-media-cache';
 
 export const useGalleryState = () => {
-  const { currentDirectory } = useDirectoryState();
+  const directoryState = useDirectoryState();
+  const currentDirectory = directoryState.selectedDirectoryIdLeft || '';
   const { prefetchMediaInfo } = useMediaCache();
   const [media, setMedia] = useState<MediaItem[]>([]);
 
   // Use React Query for data fetching
   const { data: mediaIds, isLoading, error } = useQuery({
     queryKey: ['mediaIds', currentDirectory],
-    queryFn: () => fetchMediaIds(currentDirectory || ''),
+    queryFn: () => fetchMediaIds(currentDirectory),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 

@@ -47,12 +47,13 @@ const MediaItemRenderer = React.memo(
           
           <div className="absolute top-2 right-2">
             <SelectionCheckbox
-              isSelected={isSelected}
+              selected={isSelected}
               onChange={(e) => {
                 e.stopPropagation();
                 onSelect(e.ctrlKey || e.metaKey);
               }}
-              id={`select-${item.id}`}
+              mediaId={item.id}
+              loaded={true}
             />
           </div>
         </div>

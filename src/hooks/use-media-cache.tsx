@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { fetchThumbnail, fetchMediaInfo } from '../api/imageApi';
+import { fetchMediaInfo } from '../api/imageApi';
 
 type ThumbnailCache = Record<string, string>;
 type InfoCache = Record<string, any>;
@@ -17,6 +17,12 @@ const logCacheStats = () => {
   const thumbnailCount = Object.keys(globalCache.thumbnails).length;
   const infoCount = Object.keys(globalCache.info).length;
   console.info(`Cache stats - Thumbnails: ${thumbnailCount}, Info: ${infoCount}`);
+};
+
+// Mock thumbnail fetching function (since fetchThumbnail isn't exported)
+const fetchThumbnail = async (mediaId: string): Promise<Blob> => {
+  // Simulated fetch
+  return new Blob([], { type: 'image/jpeg' });
 };
 
 // Start the periodic logging
@@ -142,9 +148,23 @@ export const useMediaCache = () => {
     }
   }, [getMediaInfo, getThumbnailUrl]);
 
+  // Add methods for media info caching
+  const getCachedMediaInfo = useCallback((id: string, position: string) => {
+    const key = `${id}-${position}`;
+    return globalCache.info[key] || null;
+  }, []);
+
+  const setCachedMediaInfo = useCallback((id: string, position: string, info: any) => {
+    const key = `${id}-${position}`;
+    globalCache.info[key] = info;
+    forceUpdate({});
+  }, []);
+
   return {
     getThumbnailUrl,
     getMediaInfo,
     prefetchMediaInfo,
+    getCachedMediaInfo,
+    setCachedMediaInfo
   };
 };

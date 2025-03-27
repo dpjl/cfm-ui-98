@@ -6,67 +6,79 @@ import ServerStatusPanel from '@/components/ServerStatusPanel';
 import GalleryLayout from '@/components/layout/GalleryLayout';
 import GalleryPageHeader from '@/components/layout/GalleryPageHeader';
 import { useGalleryState } from '@/hooks/use-gallery-state';
+import { useUiState } from '@/hooks/use-ui-state';
+import { useSelectionState } from '@/hooks/use-selection-state';
+import { useDirectoryState } from '@/hooks/use-directory-state';
+import { useGalleryActions } from '@/hooks/use-gallery-actions';
+import { useColumnsState } from '@/hooks/use-columns-state';
 
 const Index = () => {
   const isMobile = useIsMobile();
-  const galleryState = useGalleryState();
   
-  const isSidebarOpen = galleryState.leftPanelOpen || galleryState.rightPanelOpen;
+  // Use individual hooks instead of the combined galleryState
+  const galleryMediaState = useGalleryState();
+  const uiState = useUiState();
+  const selectionState = useSelectionState();
+  const directoryState = useDirectoryState();
+  const galleryActions = useGalleryActions();
+  const columnsState = useColumnsState();
+  
+  const isSidebarOpen = uiState.leftPanelOpen || uiState.rightPanelOpen;
 
   return (
     <LanguageProvider>
       <div className="h-screen flex flex-col bg-gradient-to-b from-background to-secondary/20">
         <ServerStatusPanel 
-          isOpen={galleryState.serverPanelOpen}
-          onOpenChange={galleryState.setServerPanelOpen}
+          isOpen={uiState.serverPanelOpen}
+          onOpenChange={uiState.setServerPanelOpen}
         />
         
         <GalleryPageHeader 
-          onRefresh={galleryState.handleRefresh}
-          isDeletionPending={galleryState.deleteMutation.isPending}
+          onRefresh={galleryActions.handleRefresh}
+          isDeletionPending={galleryActions.deleteMutation.isPending}
           isSidebarOpen={isSidebarOpen}
-          onCloseSidebars={galleryState.closeBothSidebars}
-          mobileViewMode={galleryState.viewMode}
-          setMobileViewMode={galleryState.setViewMode}
-          selectedIdsLeft={galleryState.selectedIdsLeft}
-          selectedIdsRight={galleryState.selectedIdsRight}
-          onDelete={galleryState.handleDelete}
-          onToggleServerPanel={() => galleryState.setServerPanelOpen(!galleryState.serverPanelOpen)}
-          isServerPanelOpen={galleryState.serverPanelOpen}
+          onCloseSidebars={uiState.closeBothSidebars}
+          mobileViewMode={uiState.viewMode}
+          setMobileViewMode={uiState.setViewMode}
+          selectedIdsLeft={selectionState.selectedIdsLeft}
+          selectedIdsRight={selectionState.selectedIdsRight}
+          onDelete={galleryActions.handleDelete}
+          onToggleServerPanel={() => uiState.setServerPanelOpen(!uiState.serverPanelOpen)}
+          isServerPanelOpen={uiState.serverPanelOpen}
         />
         
         <GalleryLayout 
-          selectedDirectoryIdLeft={galleryState.selectedDirectoryIdLeft}
-          setSelectedDirectoryIdLeft={galleryState.setSelectedDirectoryIdLeft}
-          selectedDirectoryIdRight={galleryState.selectedDirectoryIdRight}
-          setSelectedDirectoryIdRight={galleryState.setSelectedDirectoryIdRight}
-          columnsCountLeft={galleryState.getCurrentColumnsLeft(isMobile)}
-          columnsCountRight={galleryState.getCurrentColumnsRight(isMobile)}
+          selectedDirectoryIdLeft={directoryState.selectedDirectoryIdLeft}
+          setSelectedDirectoryIdLeft={directoryState.setSelectedDirectoryIdLeft}
+          selectedDirectoryIdRight={directoryState.selectedDirectoryIdRight}
+          setSelectedDirectoryIdRight={directoryState.setSelectedDirectoryIdRight}
+          columnsCountLeft={columnsState.getCurrentColumnsLeft(isMobile)}
+          columnsCountRight={columnsState.getCurrentColumnsRight(isMobile)}
           onLeftColumnsChange={(viewType, count) => {
-            galleryState.handleLeftColumnsChange(isMobile, count);
+            columnsState.handleLeftColumnsChange(isMobile, count);
           }}
           onRightColumnsChange={(viewType, count) => {
-            galleryState.handleRightColumnsChange(isMobile, count);
+            columnsState.handleRightColumnsChange(isMobile, count);
           }}
-          selectedIdsLeft={galleryState.selectedIdsLeft}
-          setSelectedIdsLeft={galleryState.setSelectedIdsLeft}
-          selectedIdsRight={galleryState.selectedIdsRight}
-          setSelectedIdsRight={galleryState.setSelectedIdsRight}
-          deleteDialogOpen={galleryState.deleteDialogOpen}
-          setDeleteDialogOpen={galleryState.setDeleteDialogOpen}
-          activeSide={galleryState.activeSide}
-          deleteMutation={galleryState.deleteMutation}
-          handleDeleteSelected={galleryState.handleDeleteSelected}
-          leftPanelOpen={galleryState.leftPanelOpen}
-          toggleLeftPanel={galleryState.toggleLeftPanel}
-          rightPanelOpen={galleryState.rightPanelOpen}
-          toggleRightPanel={galleryState.toggleRightPanel}
-          viewMode={galleryState.viewMode}
-          setViewMode={galleryState.setViewMode}
-          leftFilter={galleryState.leftFilter}
-          setLeftFilter={galleryState.setLeftFilter}
-          rightFilter={galleryState.rightFilter}
-          setRightFilter={galleryState.setRightFilter}
+          selectedIdsLeft={selectionState.selectedIdsLeft}
+          setSelectedIdsLeft={selectionState.setSelectedIdsLeft}
+          selectedIdsRight={selectionState.selectedIdsRight}
+          setSelectedIdsRight={selectionState.setSelectedIdsRight}
+          deleteDialogOpen={uiState.deleteDialogOpen}
+          setDeleteDialogOpen={uiState.setDeleteDialogOpen}
+          activeSide={uiState.activeSide}
+          deleteMutation={galleryActions.deleteMutation}
+          handleDeleteSelected={galleryActions.handleDeleteSelected}
+          leftPanelOpen={uiState.leftPanelOpen}
+          toggleLeftPanel={uiState.toggleLeftPanel}
+          rightPanelOpen={uiState.rightPanelOpen}
+          toggleRightPanel={uiState.toggleRightPanel}
+          viewMode={uiState.viewMode}
+          setViewMode={uiState.setViewMode}
+          leftFilter={uiState.leftFilter}
+          setLeftFilter={uiState.setLeftFilter}
+          rightFilter={uiState.rightFilter}
+          setRightFilter={uiState.setRightFilter}
         />
       </div>
     </LanguageProvider>

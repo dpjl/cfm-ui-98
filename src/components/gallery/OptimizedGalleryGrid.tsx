@@ -1,10 +1,10 @@
 
 import React, { useCallback, useMemo } from 'react';
-import { useColumnCount } from '../../hooks/use-columns-count';
+import { useColumnsCount } from '../../hooks/use-columns-count';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeGrid as Grid } from 'react-window';
 import { MediaItem } from '../../types/gallery';
-import { GallerySkeletonGrid } from './GallerySkeletons';
+import GallerySkeletons from './GallerySkeletons';
 import MediaItemRenderer from '../media/MediaItemRenderer';
 
 interface OptimizedGalleryGridProps {
@@ -66,7 +66,7 @@ const OptimizedGalleryGrid = ({
   onSelectItem,
   onPreview,
 }: OptimizedGalleryGridProps) => {
-  const columns = useColumnCount();
+  const columns = useColumnsCount();
   
   // Memoize this calculation to prevent recreating the grid during scrolling
   const rowCount = useMemo(() => {
@@ -98,7 +98,7 @@ const OptimizedGalleryGrid = ({
   }, []);
 
   if (isLoading) {
-    return <GallerySkeletonGrid columns={columns} />;
+    return <GallerySkeletons columns={columns} />;
   }
 
   return (

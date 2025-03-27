@@ -25,25 +25,21 @@ const LazyMediaItem = React.memo(({ mediaId, alt = '', className = '' }: LazyMed
   };
 
   // Set up intersection observer
-  useIntersectionObserver(placeholderRef, onIntersect, {
-    rootMargin: '200px',
-    threshold: 0.1,
-  });
+  useIntersectionObserver(placeholderRef, onIntersect);
 
   // Load thumbnail when visible
   useEffect(() => {
     if (!isVisible) return;
     
     // Check if we already have the URL
-    const cachedUrl = getThumbnailUrl(mediaId);
-    if (cachedUrl) {
-      setUrl(cachedUrl);
-    } else {
-      // This will trigger the cache to load the thumbnail
-      getThumbnailUrl(mediaId, true).then(newUrl => {
-        if (newUrl) setUrl(newUrl);
-      });
-    }
+    const loadThumbnail = async () => {
+      const cachedUrl = await getThumbnailUrl(mediaId, true);
+      if (cachedUrl) {
+        setUrl(cachedUrl);
+      }
+    };
+    
+    loadThumbnail();
   }, [isVisible, mediaId, getThumbnailUrl]);
 
   // Handle image load completion

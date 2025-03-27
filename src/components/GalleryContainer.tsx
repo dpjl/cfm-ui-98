@@ -4,10 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchMediaIds } from '@/api/imageApi';
 import GalleryHeader from '@/components/GalleryHeader';
 import { useLanguage } from '@/hooks/use-language';
-import GalleryContent from '@/components/gallery/GalleryContent';
 import DeleteConfirmationDialog from '@/components/gallery/DeleteConfirmationDialog';
 import { MediaFilter } from '@/components/AppSidebar';
 import { useIsMobile } from '@/hooks/use-breakpoint';
+import ResponsiveGallery from './gallery/ResponsiveGallery';
+import { MobileViewMode } from '@/types/gallery';
 
 interface GalleryContainerProps {
   title: string;
@@ -121,7 +122,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
       
       {/* Gallery Content */}
       <div className="flex-1 overflow-auto">
-        <GalleryContent
+        <ResponsiveGallery
+          title={title} 
           mediaIds={mediaIds}
           selectedIds={selectedIds}
           onSelectId={handleSelectItem}
@@ -129,13 +131,12 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
           isError={isError}
           error={error}
           columnsCount={columnsCount}
-          viewMode={viewMode}
           onPreviewItem={handlePreviewItem}
           onDeleteSelected={onDeleteSelected}
-          title={title}
           filter={filter}
           position={apiPosition}
-          onToggleSidebar={onToggleSidebar}
+          mobileViewMode={'both' as MobileViewMode}
+          isActive={true}
         />
       </div>
       

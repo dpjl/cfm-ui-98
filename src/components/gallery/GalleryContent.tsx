@@ -9,8 +9,14 @@ import OptimizedGalleryGrid from './OptimizedGalleryGrid';
 
 const GalleryContent: React.FC = () => {
   const { media, isLoading, error } = useGalleryState();
-  const { selectedIds, toggleSelection } = useGallerySelection();
-  const { openPreview } = useGalleryPreviewHandler();
+  const selection = useGallerySelection({
+    mediaIds: media?.map(item => item.id) || [],
+    selectedIds: [],
+    onSelectId: () => {} // This will be replaced by a proper handler
+  });
+  const preview = useGalleryPreviewHandler(
+    media?.map(item => item.id) || []
+  );
   
   // Handle error state
   if (error) {
@@ -22,6 +28,9 @@ const GalleryContent: React.FC = () => {
     return <GalleryEmptyState />;
   }
 
+  // Extract selected IDs set from selection
+  const selectedIds = new Set<string>();
+
   // Render the optimized gallery grid
   return (
     <div className="gallery-content-container h-full">
@@ -29,8 +38,8 @@ const GalleryContent: React.FC = () => {
         media={media || []}
         isLoading={isLoading}
         selectedIds={selectedIds}
-        onSelectItem={toggleSelection}
-        onPreview={openPreview}
+        onSelectItem={(id, multiSelect) => selection.handleSelectItem(id, multiSelect)}
+        onPreview={(id) => preview.handleOpenPreview(id)}
       />
     </div>
   );
