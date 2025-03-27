@@ -23,9 +23,9 @@ export interface BaseGalleryProps {
 
 // Props specific to mobile/desktop view mode handling
 export interface ViewModeProps {
-  mobileViewMode?: MobileViewMode; // Make optional for backward compatibility
+  mobileViewMode?: MobileViewMode; // Optional for backward compatibility
   setMobileViewMode?: React.Dispatch<React.SetStateAction<MobileViewMode>>;
-  viewMode?: MobileViewMode;
+  viewMode?: MobileViewMode; // Used for consistency in some components
 }
 
 // Props for sidebar toggle functionality

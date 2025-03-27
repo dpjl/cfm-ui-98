@@ -9,8 +9,8 @@ import { BaseGalleryProps, ViewModeProps, SidebarToggleProps } from '@/types/gal
 
 // Combined props for GalleriesContainer
 interface GalleriesContainerProps extends BaseGalleryProps, SidebarToggleProps {
-  mobileViewMode?: MobileViewMode;
-  setMobileViewMode?: React.Dispatch<React.SetStateAction<MobileViewMode>>;
+  mobileViewMode: MobileViewMode;
+  setMobileViewMode: React.Dispatch<React.SetStateAction<MobileViewMode>>;
 }
 
 const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
@@ -27,7 +27,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
   activeSide,
   deleteMutation,
   handleDeleteSelected,
-  mobileViewMode = 'both',
+  mobileViewMode,
   setMobileViewMode,
   leftFilter = 'all',
   rightFilter = 'all',
@@ -63,7 +63,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
       <MobileGalleriesView
         {...sharedProps}
         mobileViewMode={mobileViewMode}
-        setMobileViewMode={setMobileViewMode!}
+        setMobileViewMode={setMobileViewMode}
       />
     );
   }
@@ -72,7 +72,7 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
     <DesktopGalleriesView
       {...sharedProps}
       viewMode={mobileViewMode}
-      mobileViewMode={mobileViewMode} // Adding this to satisfy TypeScript
+      mobileViewMode={mobileViewMode}
     />
   );
 };
