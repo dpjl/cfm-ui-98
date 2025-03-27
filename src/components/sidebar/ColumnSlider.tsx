@@ -33,33 +33,46 @@ const ColumnSlider: React.FC<ColumnSliderProps> = ({
   const { t } = useLanguage();
   const isMobile = useIsMobile();
 
-  // Check if this slider should be visible based on the current view mode
+  // Determine if this slider should be visible based on current view mode
   const isVisible = () => {
+    // On desktop device
     if (!isMobile) {
-      // On desktop, only show appropriate sliders
+      // On desktop, only show desktop-related sliders and hide mobile ones
+      if (viewType.startsWith('mobile')) return false;
+      
+      // For desktop split view slider
       if (viewType === 'desktop') {
         return currentMobileViewMode === 'both';
       }
+      
+      // For desktop single/full view slider
       if (viewType === 'desktop-single') {
         return currentMobileViewMode !== 'both';
       }
-      // Don't show mobile sliders on desktop
-      return false;
+      
+      return true;
     }
     
-    // On mobile
-    if (viewType === 'mobile-split') {
-      return currentMobileViewMode === 'both';
+    // On mobile device
+    else {
+      // On mobile, only show mobile-related sliders and hide desktop ones
+      if (viewType.startsWith('desktop')) return false;
+      
+      // For mobile split view slider
+      if (viewType === 'mobile-split') {
+        return currentMobileViewMode === 'both';
+      }
+      
+      // For mobile single/full view slider
+      if (viewType === 'mobile-single') {
+        return currentMobileViewMode === position || currentMobileViewMode !== 'both';
+      }
+      
+      return true;
     }
-    
-    if (viewType === 'mobile-single') {
-      return currentMobileViewMode === position || currentMobileViewMode !== 'both';
-    }
-    
-    // Don't show desktop sliders on mobile
-    return false;
   };
 
+  // Don't render anything if this slider shouldn't be visible
   if (!isVisible()) return null;
 
   // Get appropriate icon based on view type
@@ -70,10 +83,7 @@ const ColumnSlider: React.FC<ColumnSliderProps> = ({
   };
 
   return (
-    <div className={cn(
-      "flex flex-col space-y-1.5", 
-      !isVisible() && "hidden"
-    )}>
+    <div className="flex flex-col space-y-1.5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           {getIcon()}

@@ -36,6 +36,8 @@ const GalleriesContainer: React.FC<GalleriesContainerProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
+  console.log(`GalleriesContainer rendering with columns: left=${columnsCountLeft}, right=${columnsCountRight}`);
+  
   // Create props object for desktop/mobile views
   const sharedProps = {
     columnsCountLeft,

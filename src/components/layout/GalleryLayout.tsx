@@ -81,6 +81,20 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
+  console.log(`GalleryLayout rendering with columns: left=${columnsCountLeft}, right=${columnsCountRight}`);
+  
+  // Function to handle column changes for the left panel
+  const handleLeftColumnsChange = (viewMode: string, count: number) => {
+    console.log(`Left panel column change: ${viewMode} => ${count}`);
+    onLeftColumnsChange(viewMode, count);
+  };
+  
+  // Function to handle column changes for the right panel
+  const handleRightColumnsChange = (viewMode: string, count: number) => {
+    console.log(`Right panel column change: ${viewMode} => ${count}`);
+    onRightColumnsChange(viewMode, count);
+  };
+  
   return (
     <div className="flex h-full overflow-hidden mt-2 relative">
       <SidePanel 
@@ -96,7 +110,7 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = ({
           selectedFilter={leftFilter}
           onFilterChange={setLeftFilter}
           mobileViewMode={viewMode}
-          onColumnsChange={onLeftColumnsChange}
+          onColumnsChange={handleLeftColumnsChange}
         />
       </SidePanel>
 
@@ -137,7 +151,7 @@ const GalleryLayout: React.FC<GalleryLayoutProps> = ({
           selectedFilter={rightFilter}
           onFilterChange={setRightFilter}
           mobileViewMode={viewMode}
-          onColumnsChange={onRightColumnsChange}
+          onColumnsChange={handleRightColumnsChange}
         />
       </SidePanel>
     </div>

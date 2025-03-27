@@ -26,6 +26,8 @@ const GalleryGrid = memo(({
   updateMediaInfo,
   position = 'source'
 }: GalleryGridProps) => {
+  console.log(`GalleryGrid rendering with columnsCount=${columnsCount}`);
+  
   // Simplified container variants for better performance
   const containerVariants = {
     hidden: { opacity: 0 },

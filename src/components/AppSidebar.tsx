@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDirectoryTree } from '@/api/imageApi';
@@ -6,7 +5,7 @@ import FolderTree from '@/components/FolderTree';
 import { useLanguage } from '@/hooks/use-language';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Folder, ImageIcon, Files, Copy, Fingerprint, Columns } from 'lucide-react';
+import { Folder, ImageIcon, Files, Copy, Fingerprint } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import { Separator } from '@/components/ui/separator';
@@ -84,26 +83,48 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
     queryFn: () => fetchDirectoryTree(position)
   });
 
-  // When column counts change, notify parent component
+  // Force synchronize columns settings with parent component on mount and when values change
   useEffect(() => {
     if (!onColumnsChange) return;
     
-    const updateColumns = (viewMode: string) => {
-      onColumnsChange(viewMode, columnSettings.getColumnCount(viewMode as any));
+    // Update for the current view mode
+    const updateCurrentColumns = () => {
+      const viewModeType = getViewModeType();
+      const columnCount = columnSettings.getColumnCount(viewModeType);
+      console.log(`Updating ${position} columns for ${viewModeType} to ${columnCount}`);
+      onColumnsChange(viewModeType, columnCount);
     };
     
-    // Update all view modes
-    updateColumns('desktop');
-    updateColumns('desktop-single');
-    updateColumns('mobile-split');
-    updateColumns('mobile-single');
+    // Initial update
+    updateCurrentColumns();
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     columnSettings.desktopColumns, 
     columnSettings.desktopSingleColumns,
     columnSettings.mobileSplitColumns, 
     columnSettings.mobileSingleColumns,
-    onColumnsChange
+    onColumnsChange,
+    mobileViewMode,
+    isMobile
   ]);
+
+  // Determine the current view mode type based on device and layout
+  const getViewModeType = (): string => {
+    if (isMobile) {
+      return mobileViewMode === 'both' ? 'mobile-split' : 'mobile-single';
+    } else {
+      return mobileViewMode === 'both' ? 'desktop' : 'desktop-single';
+    }
+  };
+
+  // Handle changes to columns and immediately update parent
+  const handleColumnsChange = (viewMode: string, count: number) => {
+    if (onColumnsChange) {
+      console.log(`Column change: ${position} ${viewMode} to ${count}`);
+      onColumnsChange(viewMode, count);
+    }
+  };
 
   const handleFilterChange = (filter: MediaFilter) => {
     onFilterChange(filter);
@@ -141,7 +162,10 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
           <ColumnSlider 
             position={position}
             value={columnSettings.desktopColumns}
-            onChange={columnSettings.updateDesktopColumns}
+            onChange={(value) => {
+              columnSettings.updateDesktopColumns(value);
+              handleColumnsChange('desktop', value);
+            }}
             min={2}
             max={10}
             label={t('desktop_columns')}
@@ -152,7 +176,10 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
           <ColumnSlider 
             position={position}
             value={columnSettings.desktopSingleColumns}
-            onChange={columnSettings.updateDesktopSingleColumns}
+            onChange={(value) => {
+              columnSettings.updateDesktopSingleColumns(value);
+              handleColumnsChange('desktop-single', value);
+            }}
             min={2}
             max={10}
             label={t('desktop_single_columns')}
@@ -163,7 +190,10 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
           <ColumnSlider 
             position={position}
             value={columnSettings.mobileSplitColumns}
-            onChange={columnSettings.updateMobileSplitColumns}
+            onChange={(value) => {
+              columnSettings.updateMobileSplitColumns(value);
+              handleColumnsChange('mobile-split', value);
+            }}
             min={1}
             max={4}
             label={t('split_columns')}
@@ -174,7 +204,10 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
           <ColumnSlider 
             position={position}
             value={columnSettings.mobileSingleColumns}
-            onChange={columnSettings.updateMobileSingleColumns}
+            onChange={(value) => {
+              columnSettings.updateMobileSingleColumns(value);
+              handleColumnsChange('mobile-single', value);
+            }}
             min={2}
             max={6}
             label={t('single_columns')}

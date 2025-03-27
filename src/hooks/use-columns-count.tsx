@@ -29,7 +29,7 @@ export function useColumnsCount(position: SidePosition) {
     Number(localStorage.getItem(`columns-mobile-single-${position}`)) || DEFAULT_COLUMN_COUNTS['mobile-single']
   );
 
-  // Save to localStorage whenever values change
+  // Update localStorage when values change
   const updateDesktopColumns = (value: number) => {
     setDesktopColumns(value);
     localStorage.setItem(`columns-desktop-${position}`, value.toString());
@@ -50,7 +50,7 @@ export function useColumnsCount(position: SidePosition) {
     localStorage.setItem(`columns-mobile-single-${position}`, value.toString());
   };
 
-  // Get the column count based on the current view mode
+  // Get the column count based on the view mode string
   const getColumnCount = (viewMode: ViewModeType | string): number => {
     switch (viewMode) {
       case 'desktop':
@@ -62,6 +62,7 @@ export function useColumnsCount(position: SidePosition) {
       case 'mobile-single':
         return mobileSingleColumns;
       default:
+        console.warn(`Unknown view mode: ${viewMode}, defaulting to desktop columns`);
         return desktopColumns;
     }
   };
