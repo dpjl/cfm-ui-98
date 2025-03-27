@@ -1,33 +1,16 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import GalleryContainer from '@/components/GalleryContainer';
 import { MobileViewMode } from '@/types/gallery';
 import MobileViewSwitcher from './MobileViewSwitcher';
 import { Separator } from '@/components/ui/separator';
-import { MediaFilter } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { PanelLeft, PanelRight } from 'lucide-react';
+import { BaseGalleryProps, SidebarToggleProps } from '@/types/gallery-props';
 
-interface MobileGalleriesViewProps {
-  columnsCountLeft: number;
-  columnsCountRight: number;
+interface MobileGalleriesViewProps extends BaseGalleryProps, SidebarToggleProps {
   mobileViewMode: MobileViewMode;
   setMobileViewMode: React.Dispatch<React.SetStateAction<MobileViewMode>>;
-  selectedDirectoryIdLeft: string;
-  selectedDirectoryIdRight: string;
-  selectedIdsLeft: string[];
-  setSelectedIdsLeft: React.Dispatch<React.SetStateAction<string[]>>;
-  selectedIdsRight: string[];
-  setSelectedIdsRight: React.Dispatch<React.SetStateAction<string[]>>;
-  handleDeleteSelected: (side: 'left' | 'right') => void;
-  deleteDialogOpen: boolean;
-  activeSide: 'left' | 'right';
-  setDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  deleteMutation: any;
-  leftFilter?: MediaFilter;
-  rightFilter?: MediaFilter;
-  onToggleLeftPanel: () => void;
-  onToggleRightPanel: () => void;
 }
 
 const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
@@ -51,6 +34,40 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
   onToggleLeftPanel,
   onToggleRightPanel
 }) => {
+  // Extract common props for left gallery
+  const leftGalleryProps = {
+    title: "Left Gallery",
+    directory: selectedDirectoryIdLeft,
+    position: 'left' as const,
+    columnsCount: columnsCountLeft,
+    selectedIds: selectedIdsLeft,
+    setSelectedIds: setSelectedIdsLeft,
+    onDeleteSelected: () => handleDeleteSelected('left'),
+    deleteDialogOpen: deleteDialogOpen && activeSide === 'left',
+    setDeleteDialogOpen,
+    deleteMutation,
+    hideHeader: true,
+    filter: leftFilter,
+    hideMobileColumns: true
+  };
+  
+  // Extract common props for right gallery
+  const rightGalleryProps = {
+    title: "Right Gallery",
+    directory: selectedDirectoryIdRight,
+    position: 'right' as const,
+    columnsCount: columnsCountRight,
+    selectedIds: selectedIdsRight,
+    setSelectedIds: setSelectedIdsRight,
+    onDeleteSelected: () => handleDeleteSelected('right'),
+    deleteDialogOpen: deleteDialogOpen && activeSide === 'right',
+    setDeleteDialogOpen,
+    deleteMutation,
+    hideHeader: true,
+    filter: rightFilter,
+    hideMobileColumns: true
+  };
+
   return (
     <div className="flex-1 overflow-hidden h-full relative">
       <div className="h-full bg-background rounded-lg border-2 border-border/40 shadow-sm">
@@ -69,20 +86,8 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
           >
             {(mobileViewMode === 'both' || mobileViewMode === 'left') && (
               <GalleryContainer 
-                title="Left Gallery"
-                directory={selectedDirectoryIdLeft}
-                position="left"
-                columnsCount={columnsCountLeft}
-                selectedIds={selectedIdsLeft}
-                setSelectedIds={setSelectedIdsLeft}
-                onDeleteSelected={() => handleDeleteSelected('left')}
-                deleteDialogOpen={deleteDialogOpen && activeSide === 'left'}
-                setDeleteDialogOpen={setDeleteDialogOpen}
-                deleteMutation={deleteMutation}
-                hideHeader={true}
+                {...leftGalleryProps}
                 viewMode={mobileViewMode === 'left' ? 'single' : 'split'}
-                filter={leftFilter}
-                hideMobileColumns={true}
               />
             )}
           </div>
@@ -106,54 +111,66 @@ const MobileGalleriesView: React.FC<MobileGalleriesViewProps> = ({
           >
             {(mobileViewMode === 'both' || mobileViewMode === 'right') && (
               <GalleryContainer 
-                title="Right Gallery"
-                directory={selectedDirectoryIdRight}
-                position="right"
-                columnsCount={columnsCountRight}
-                selectedIds={selectedIdsRight}
-                setSelectedIds={setSelectedIdsRight}
-                onDeleteSelected={() => handleDeleteSelected('right')}
-                deleteDialogOpen={deleteDialogOpen && activeSide === 'right'}
-                setDeleteDialogOpen={setDeleteDialogOpen}
-                deleteMutation={deleteMutation}
-                hideHeader={true}
+                {...rightGalleryProps}
                 viewMode={mobileViewMode === 'right' ? 'single' : 'split'}
-                filter={rightFilter}
-                hideMobileColumns={true}
               />
             )}
           </div>
         </div>
       </div>
       
-      {/* Mode switcher and sidebar buttons */}
-      <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-20">
-        {/* Left sidebar button */}
-        <Button 
-          variant="secondary" 
-          size="icon"
-          className="rounded-full shadow-md h-10 w-10"
-          onClick={onToggleLeftPanel}
-        >
-          <PanelLeft className="h-5 w-5" />
-        </Button>
-        
-        {/* Mode switcher */}
-        <MobileViewSwitcher 
-          mobileViewMode={mobileViewMode}
-          setMobileViewMode={setMobileViewMode}
-        />
-        
-        {/* Right sidebar button */}
-        <Button 
-          variant="secondary" 
-          size="icon"
-          className="rounded-full shadow-md h-10 w-10"
-          onClick={onToggleRightPanel}
-        >
-          <PanelRight className="h-5 w-5" />
-        </Button>
-      </div>
+      {/* Mobile controls component */}
+      <MobileControls 
+        mobileViewMode={mobileViewMode}
+        setMobileViewMode={setMobileViewMode}
+        onToggleLeftPanel={onToggleLeftPanel}
+        onToggleRightPanel={onToggleRightPanel}
+      />
+    </div>
+  );
+};
+
+// Extract mobile controls into a separate component
+interface MobileControlsProps {
+  mobileViewMode: MobileViewMode;
+  setMobileViewMode: React.Dispatch<React.SetStateAction<MobileViewMode>>;
+  onToggleLeftPanel: () => void;
+  onToggleRightPanel: () => void;
+}
+
+const MobileControls: React.FC<MobileControlsProps> = ({
+  mobileViewMode,
+  setMobileViewMode,
+  onToggleLeftPanel,
+  onToggleRightPanel
+}) => {
+  return (
+    <div className="fixed bottom-4 left-0 right-0 flex justify-center items-center gap-4 z-20">
+      {/* Left sidebar button */}
+      <Button 
+        variant="secondary" 
+        size="icon"
+        className="rounded-full shadow-md h-10 w-10"
+        onClick={onToggleLeftPanel}
+      >
+        <PanelLeft className="h-5 w-5" />
+      </Button>
+      
+      {/* Mode switcher */}
+      <MobileViewSwitcher 
+        mobileViewMode={mobileViewMode}
+        setMobileViewMode={setMobileViewMode}
+      />
+      
+      {/* Right sidebar button */}
+      <Button 
+        variant="secondary" 
+        size="icon"
+        className="rounded-full shadow-md h-10 w-10"
+        onClick={onToggleRightPanel}
+      >
+        <PanelRight className="h-5 w-5" />
+      </Button>
     </div>
   );
 };
