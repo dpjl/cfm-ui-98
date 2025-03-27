@@ -14,7 +14,7 @@ const DEFAULT_COLUMN_COUNTS = {
 };
 
 // Hook to manage column counts with localStorage persistence
-export function useColumnsCount(position: SidePosition) {
+export function useColumnsCount(position: SidePosition = 'left') {
   // Initialize states for each view mode with localStorage values or defaults
   const [desktopColumns, setDesktopColumns] = useState<number>(
     Number(localStorage.getItem(`columns-desktop-${position}`)) || DEFAULT_COLUMN_COUNTS.desktop

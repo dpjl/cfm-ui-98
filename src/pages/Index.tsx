@@ -56,7 +56,7 @@ const Index = () => {
   const directoryState = useDirectoryState();
   const columnsState = useColumnsState();
   
-  // Use the mock gallery actions
+  // Use the mock gallery actions with proper arguments
   const galleryActions = useGalleryActions(
     selectionState.selectedIdsLeft,
     selectionState.selectedIdsRight,
@@ -95,13 +95,13 @@ const Index = () => {
           setSelectedDirectoryIdLeft={directoryState.setSelectedDirectoryIdLeft}
           selectedDirectoryIdRight={directoryState.selectedDirectoryIdRight}
           setSelectedDirectoryIdRight={directoryState.setSelectedDirectoryIdRight}
-          columnsCountLeft={columnsState.getCurrentColumnsLeft(isMobile)}
-          columnsCountRight={columnsState.getCurrentColumnsRight(isMobile)}
+          columnsCountLeft={columnsState.getCurrentColumnsLeft(isMobile, uiState.viewMode)}
+          columnsCountRight={columnsState.getCurrentColumnsRight(isMobile, uiState.viewMode)}
           onLeftColumnsChange={(viewType, count) => {
-            columnsState.handleLeftColumnsChange(isMobile, count);
+            columnsState.handleLeftColumnsChange(isMobile, uiState.viewMode, count);
           }}
           onRightColumnsChange={(viewType, count) => {
-            columnsState.handleRightColumnsChange(isMobile, count);
+            columnsState.handleRightColumnsChange(isMobile, uiState.viewMode, count);
           }}
           selectedIdsLeft={selectionState.selectedIdsLeft}
           setSelectedIdsLeft={selectionState.setSelectedIdsLeft}

@@ -66,7 +66,8 @@ const OptimizedGalleryGrid = ({
   onSelectItem,
   onPreview,
 }: OptimizedGalleryGridProps) => {
-  const columns = useColumnsCount();
+  const columnsData = useColumnsCount('left');
+  const columns = columnsData.desktopColumns;
   
   // Memoize this calculation to prevent recreating the grid during scrolling
   const rowCount = useMemo(() => {
@@ -88,15 +89,6 @@ const OptimizedGalleryGrid = ({
     [media, columns, onSelectItem, onPreview, selectedIds]
   );
 
-  // Memoize these callbacks to prevent recreating functions during scrolling
-  const getColumnWidth = useCallback(() => {
-    return 100 / columns + '%';
-  }, [columns]);
-
-  const getRowHeight = useCallback(() => {
-    return itemHeight;
-  }, []);
-
   if (isLoading) {
     return <GallerySkeletons columnsCount={columns} />;
   }
@@ -111,7 +103,7 @@ const OptimizedGalleryGrid = ({
             columnWidth={() => width / columns}
             height={height}
             rowCount={rowCount}
-            rowHeight={getRowHeight}
+            rowHeight={() => itemHeight}
             width={width}
             itemData={itemData}
             overscanRowCount={2}

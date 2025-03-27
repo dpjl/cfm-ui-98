@@ -9,8 +9,10 @@ import OptimizedGalleryGrid from './OptimizedGalleryGrid';
 
 const GalleryContent: React.FC = () => {
   const { media, isLoading, error } = useGalleryState();
+  const mediaIds = media?.map(item => item.id) || [];
+  
   const selection = useGallerySelection({
-    mediaIds: media?.map(item => item.id) || [],
+    mediaIds,
     selectedIds: [],
     onSelectId: () => {} // This will be replaced by a proper handler
   });
@@ -20,7 +22,7 @@ const GalleryContent: React.FC = () => {
   
   // Use the hook with proper object argument
   const preview = useGalleryPreviewHandler({
-    mediaIds: media?.map(item => item.id) || [],
+    mediaIds,
     onPreviewMedia: undefined
   });
   
@@ -41,7 +43,7 @@ const GalleryContent: React.FC = () => {
         media={media || []}
         isLoading={isLoading}
         selectedIds={selectedIds}
-        onSelectItem={(id, multiSelect) => selection.handleSelectItem(id, multiSelect)}
+        onSelectItem={(id, multiSelect) => selection.handleSelectItem(id, multiSelect || false)}
         onPreview={(id) => preview.handleOpenPreview(id)}
       />
     </div>
