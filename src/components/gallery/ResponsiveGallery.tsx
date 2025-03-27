@@ -1,6 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
+import React from 'react';
 import { useIsMobile } from '@/hooks/use-breakpoint';
 import Gallery from '@/components/Gallery';
 import GallerySkeletons from '@/components/gallery/GallerySkeletons';
@@ -42,21 +41,7 @@ const ResponsiveGallery: React.FC<ResponsiveGalleryProps> = ({
   isActive = true
 }) => {
   const isMobile = useIsMobile();
-  const [visibleItemCount, setVisibleItemCount] = useState(30); // Initial load count
-  const { ref, inView } = useInView({
-    threshold: 0.1,
-  });
   
-  // For virtual scrolling implementation
-  const visibleMediaIds = mediaIds.slice(0, visibleItemCount);
-  
-  // Load more items when user scrolls to the bottom
-  useEffect(() => {
-    if (inView && visibleItemCount < mediaIds.length) {
-      setVisibleItemCount(prev => Math.min(prev + 30, mediaIds.length));
-    }
-  }, [inView, mediaIds.length, visibleItemCount]);
-
   // Determine visibility based on mobile view mode
   const isVisible = !isMobile || 
     (mobileViewMode === 'both') || 
@@ -92,10 +77,10 @@ const ResponsiveGallery: React.FC<ResponsiveGalleryProps> = ({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-hidden">
         <Gallery
           title={title}
-          mediaIds={visibleMediaIds}
+          mediaIds={mediaIds}
           selectedIds={selectedIds}
           onSelectId={onSelectId}
           isLoading={false}
@@ -105,17 +90,6 @@ const ResponsiveGallery: React.FC<ResponsiveGalleryProps> = ({
           onDeleteSelected={onDeleteSelected}
           position={position}
         />
-        
-        {/* Virtual scrolling trigger */}
-        {visibleItemCount < mediaIds.length && (
-          <div 
-            ref={ref} 
-            className="h-20 w-full flex items-center justify-center py-4"
-            aria-hidden="true"
-          >
-            <div className="animate-pulse h-4 w-4 rounded-full bg-muted"></div>
-          </div>
-        )}
       </div>
     </div>
   );

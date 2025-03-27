@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { useMediaInfo } from '@/hooks/use-media-info';
 import { getMediaUrl } from '@/api/imageApi';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/hooks/use-language';
+
 interface MediaPreviewProps {
   mediaId: string | null;
   isOpen: boolean;
@@ -14,6 +16,7 @@ interface MediaPreviewProps {
   onNavigate: (direction: 'prev' | 'next') => void;
   position?: 'source' | 'destination';
 }
+
 const MediaPreview: React.FC<MediaPreviewProps> = ({
   mediaId,
   isOpen,
@@ -22,14 +25,10 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
   onNavigate,
   position = 'source'
 }) => {
-  const {
-    t
-  } = useLanguage();
+  const { t } = useLanguage();
   const [isLoadingImage, setIsLoadingImage] = useState(true);
   const [mediaUrl, setMediaUrl] = useState<string>('');
-  const {
-    mediaInfo
-  } = useMediaInfo(mediaId || '', isOpen, position);
+  const { mediaInfo } = useMediaInfo(mediaId || '', isOpen, position);
 
   // Update the media URL when the ID changes
   useEffect(() => {
@@ -38,12 +37,15 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
       setMediaUrl(getMediaUrl(mediaId, position));
     }
   }, [mediaId, position]);
+
   const handlePrev = () => {
     onNavigate('prev');
   };
+
   const handleNext = () => {
     onNavigate('next');
   };
+
   const handleImageLoad = () => {
     setIsLoadingImage(false);
   };
@@ -64,18 +66,24 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
+
   if (!mediaId) return null;
 
   // Determine if this is a video based on the file extension
   const isVideo = mediaInfo?.alt ? mediaInfo.alt.match(/\.(mp4|webm|ogg|mov)$/i) : false;
-  return <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
+
+  return (
+    <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogContent className="sm:max-w-[90vw] h-[90vh] p-0 gap-0 flex flex-col bg-background/50 backdrop-blur-lg">
         <div className="flex justify-between items-center p-4 border-b">
           <h3 className="text-lg font-medium">
             {mediaInfo?.alt || mediaId}
           </h3>
           <DialogClose asChild>
-            
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
           </DialogClose>
         </div>
         
@@ -84,7 +92,25 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
             </div>}
           
-          {isVideo ? <video src={mediaUrl} controls autoPlay className="max-h-full max-w-full" onLoadedData={handleImageLoad} /> : <img src={mediaUrl} alt={mediaInfo?.alt || mediaId} className={cn("max-h-full max-w-full object-contain transition-opacity duration-300", isLoadingImage ? "opacity-0" : "opacity-100")} onLoad={handleImageLoad} />}
+          {isVideo ? (
+            <video 
+              src={mediaUrl} 
+              controls 
+              autoPlay 
+              className="max-h-full max-w-full" 
+              onLoadedData={handleImageLoad} 
+            />
+          ) : (
+            <img 
+              src={mediaUrl} 
+              alt={mediaInfo?.alt || mediaId} 
+              className={cn(
+                "max-h-full max-w-full object-contain transition-opacity duration-300", 
+                isLoadingImage ? "opacity-0" : "opacity-100"
+              )} 
+              onLoad={handleImageLoad} 
+            />
+          )}
           
           {/* Navigation buttons */}
           <Button variant="ghost" size="icon" className="absolute left-2 bg-black/30 hover:bg-black/60" onClick={handlePrev}>
@@ -131,6 +157,8 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
             </div>
           </div>}
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };
+
 export default MediaPreview;

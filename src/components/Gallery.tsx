@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/hooks/use-language';
-import GalleryGrid from './gallery/GalleryGrid';
+import VirtualizedGalleryGrid from './gallery/VirtualizedGalleryGrid';
 import GalleryEmptyState from './gallery/GalleryEmptyState';
 import GallerySkeletons from './gallery/GallerySkeletons';
 import MediaPreview from './MediaPreview';
@@ -142,8 +142,8 @@ const Gallery: React.FC<GalleryProps> = ({
       {mediaIds.length === 0 ? (
         <GalleryEmptyState />
       ) : (
-        <div className="flex-1 overflow-auto">
-          <GalleryGrid
+        <div className="flex-1 overflow-hidden">
+          <VirtualizedGalleryGrid
             mediaIds={mediaIds}
             selectedIds={selectedIds}
             onSelectId={selection.handleSelectItem}
